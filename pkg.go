@@ -18,7 +18,6 @@ var (
 // various standard libraries.
 type Package struct {
 	buildPackage *build.Package
-	astPackage   *ast.Package
 	docPackage   *doc.Package
 }
 
@@ -48,7 +47,6 @@ func New(importPath string) (*Package, error) {
 
 	p := new(Package)
 	p.buildPackage = buildPackage
-	p.astPackage   = astPackage
 	p.docPackage   = docPackage
 
 	return p, nil
@@ -61,10 +59,6 @@ func (p *Package) valid() bool {
 	}
 
 	if p.buildPackage == nil {
-		return false
-	}
-
-	if p.astPackage == nil {
 		return false
 	}
 
