@@ -3,7 +3,6 @@ package pkg
 
 import (
 	"fmt"
-	"go/ast"
 	"go/build"
 	"go/doc"
 	"go/parser"
