@@ -17,8 +17,7 @@ var (
 // Package is the main type for this package. It groups together package details spread across
 // various standard libraries.
 type Package struct {
-	buildPackage *build.Package
-	docPackage   *doc.Package
+	docPackage *doc.Package
 }
 
 // New parses the package at importPath and returns a pointer to an object holding information about
@@ -46,7 +45,6 @@ func New(importPath string) (*Package, error) {
 	}
 
 	p := new(Package)
-	p.buildPackage = buildPackage
 	p.docPackage   = docPackage
 
 	return p, nil
@@ -55,10 +53,6 @@ func New(importPath string) (*Package, error) {
 // valid checks whether or not the package object has valid data.
 func (p *Package) valid() bool {
 	if p == nil {
-		return false
-	}
-
-	if p.buildPackage == nil {
 		return false
 	}
 
@@ -76,5 +70,5 @@ func (p *Package) Name() string {
 		return ""
 	}
 
-	return p.buildPackage.Name
+	return p.docPackage.Name
 }
