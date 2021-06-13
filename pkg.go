@@ -18,38 +18,38 @@ type Package struct {
 	docPackage *doc.Package
 }
 
-// New parses the package at importPath and returns a pointer to an object holding information about
-// it.
-func New(importPath string) (*Package, error) {
+// New parses the package at importPath and creates a new Package object with its information.
+func New(importPath string) (Package, error) {
 	buildPackage, err := build.Import(importPath, "", 0)
 	if err != nil {
-		return nil, err
+		return Package{}, err
 	}
 
 	fset := token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.AllErrors)
 	if err != nil {
-		return nil, err
+		return Package{}, err
 	}
 
 	astPackage, ok := pkgs[buildPackage.Name]
 	if !ok {
-		return nil, fmt.Errorf("package not found in %s", importPath)
+		return Package{}, fmt.Errorf("package not found in %s", importPath)
 	}
 
 	docPackage := doc.New(astPackage, importPath, 0)
 	if docPackage == nil {
-		return nil, InvalidPkg
+		return Package{}, InvalidPkg
 	}
 
-	p := new(Package)
-	p.docPackage   = docPackage
+	p := Package {
+		docPackage: docPackage,
+	}
 
 	return p, nil
 }
 
 // valid checks whether or not the package object has valid data.
-func (p *Package) valid() bool {
+func (p Package) valid() bool {
 	if p == nil {
 		return false
 	}
@@ -63,7 +63,7 @@ func (p *Package) valid() bool {
 }
 
 // Name returns the package's name.
-func (p *Package) Name() string {
+func (p Package) Name() string {
 	if !p.valid() {
 		return ""
 	}
