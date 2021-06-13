@@ -13,8 +13,7 @@ var (
 	InvalidPkg = fmt.Errorf("invalid package")
 )
 
-// Package is the main type for this package. It groups together package details spread across
-// various standard libraries.
+// Package is the main type for this package. It holds details about the package.
 type Package struct {
 	docPackage *doc.Package
 }
