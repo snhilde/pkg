@@ -7,6 +7,7 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 )
 
 var (
@@ -15,6 +16,10 @@ var (
 
 // Package is the main type for this package. It holds details about the package.
 type Package struct {
+	// Package object from go/build.
+	buildPackage *build.Package
+
+	// Package object from go/doc.
 	docPackage *doc.Package
 }
 
@@ -42,7 +47,8 @@ func New(importPath string) (Package, error) {
 	}
 
 	p := Package {
-		docPackage: docPackage,
+		buildPackage: buildPackage,
+		docPackage:   docPackage,
 	}
 
 	return p, nil
@@ -71,13 +77,27 @@ func (p Package) Name() string {
 	return p.docPackage.Name
 }
 
-// Files returns a list of files in the package.
+// Files returns a list of files in the package. The file paths are relative to the package's
+// directory, not absolute on the filesystem.
 func (p Package) Files() []string {
 	if !p.valid() {
 		return nil
 	}
 
-	return p.docPackage.Filenames
+	// go/doc's Package holds absolute paths for each file in the package. We want to convert those
+	// to relative paths.
+	basePath := p.buildPackage.Dir
+	absPaths := p.docPackage.Filenames
+	relPaths := make([]string, len(absPaths))
+	for i, absPath := range absPaths {
+		relPath, err := filepath.Rel(basePath, absPath)
+		if err != nil {
+			return nil
+		}
+		relPaths[i] = relPath
+	}
+
+	return relPaths
 }
 
 // Imports returns a list of imports in the package.
