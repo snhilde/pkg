@@ -50,7 +50,7 @@ func New(importPath string) (Package, error) {
 
 // valid checks whether or not the package object has valid data.
 func (p Package) valid() bool {
-	if p == nil {
+	if p == (Package{}) {
 		return false
 	}
 
@@ -69,4 +69,66 @@ func (p Package) Name() string {
 	}
 
 	return p.docPackage.Name
+}
+
+// Files returns a list of files in the package.
+func (p Package) Files() []string {
+	if !p.valid() {
+		return nil
+	}
+
+	return p.docPackage.Filenames
+}
+
+// Imports returns a list of imports in the package.
+func (p Package) Imports() []string {
+	if !p.valid() {
+		return nil
+	}
+
+	return p.docPackage.Imports
+}
+
+// Types returns a list of exported types in the package.
+func (p Package) Types() []Type {
+	if !p.valid() {
+		return nil
+	}
+
+	// If there aren't any exported types in this package, then don't return anything.
+	if len(p.docPackage.Types) == 0 {
+		return nil
+	}
+
+	// Wrap every go/doc Type in our own Type.
+	types := make([]Type, len(p.docPackage.Types))
+	for i, v := range p.docPackage.Types {
+		types[i] = Type{
+			docType: v,
+		}
+	}
+
+	return types
+}
+
+// Functions returns a list of exported functions in the package.
+func (p Package) Functions() []Function {
+	if !p.valid() {
+		return nil
+	}
+
+	// If there aren't any exported functions in this package, then don't return anything.
+	if len(p.docPackage.Types) == 0 {
+		return nil
+	}
+
+	// Wrap every go/doc Func in our own Function.
+	funcs := make([]Function, len(p.docPackage.Funcs))
+	for i, v := range p.docPackage.Funcs {
+		funcs[i] = Function{
+			docFunc: v,
+		}
+	}
+
+	return funcs
 }
