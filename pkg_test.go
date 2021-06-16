@@ -14,6 +14,7 @@
 package pkg_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/snhilde/pkg"
@@ -29,3 +30,32 @@ var (
 		"net/rpc",
 	}
 )
+
+// TestNew tests creating a new Package for each of the test packages.
+func TestNew(t *testing.T) {
+	for _, testPackage := range testPackages {
+		p, err := pkg.New(testPackage)
+		if err != nil {
+			t.Error(err)
+		} else if p == (pkg.Package{}) {
+			t.Errorf("%s: received empty Package object", testPackage)
+		}
+	}
+}
+
+// TestName checks that the name is correct for each test package.
+func TestName(t *testing.T) {
+	for _, testPackage := range testPackages {
+		p, _ := pkg.New(testPackage)
+
+		// The package name is the last member in the import path.
+		members := strings.Split(testPackage, "/")
+		want := members[len(members)-1]
+		have := p.Name()
+		if want != have {
+			t.Error("incorrect package name")
+			t.Log("\twant:", want)
+			t.Log("\thave:", have)
+		}
+	}
+}
