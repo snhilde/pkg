@@ -95,6 +95,19 @@ func (p Package) Files() []string {
 	return append(p.buildPackage.GoFiles, p.buildPackage.IgnoredGoFiles...)
 }
 
+// TestFiles returns a list of test files in the package's directory. This includes test files both
+// within the package (e.g. mypkg_test.go in package mypkg) and outside of the package (e.g.
+// other_test.go in package mypkg_test) but within the package's directory. The file paths are
+// relative to the package's directory, not absolute on the filesystem. Source files are not
+// included in the list. To get a list of source files in the package, see Package's Files.
+func (p Package) TestFiles() []string {
+	if !p.isValid() {
+		return nil
+	}
+
+	return append(p.buildPackage.TestGoFiles, p.buildPackage.XTestGoFiles...)
+}
+
 // Imports returns a list of imports in the package. The list includes only imports from the source
 // files, not the test files. To get a list of imports from the test files, see Package's TestImports.
 func (p Package) Imports() []string {

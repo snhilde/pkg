@@ -63,8 +63,8 @@ func TestName(t *testing.T) {
 
 // TestFiles checks that pkg correctly reports the correct source files in each test package.
 func TestFiles(t *testing.T) {
-	// These are the files in each test package. We're going to hard-code these values so that we
-	// can achieve repeatable accuracy.
+	// These are the source files in each test package. We're going to hard-code these values so
+	// that we can achieve repeatable accuracy.
 	fileMap := map[string][]string{
 		"errors": {
 			"errors.go", "wrap.go",
@@ -91,6 +91,65 @@ func TestFiles(t *testing.T) {
 
 		want := files
 		have := p.Files()
+
+		// First, let's make sure that we have the correct number of files.
+		if len(want) != len(have) {
+			t.Errorf("%s: incorrect file list", testPackage)
+			t.Log("\twant:", want)
+			t.Log("\thave:", have)
+		}
+
+		// Then, let's check that each file is present in the returned list.
+		for _, w := range want {
+			found := false
+			for _, h := range have {
+				if w == h {
+					// If we've already found this file, then something is wrong.
+					if found {
+						t.Errorf("%s: duplicate file in list: %s", testPackage, w)
+						return
+					}
+					found = true
+				}
+			}
+			if !found {
+				t.Errorf("%s: missing file: %s", testPackage, w)
+			}
+		}
+	}
+}
+
+// TestTestFiles checks that pkg correctly reports the correct test files in each test package.
+func TestTestFiles(t *testing.T) {
+	// These are the test files in each test package. We're going to hard-code these values so that
+	// we can achieve repeatable accuracy.
+	fileMap := map[string][]string{
+		"errors": {
+			"errors_test.go", "example_test.go", "wrap_test.go",
+		},
+		"fmt": {
+			"errors_test.go", "example_test.go", "export_test.go", "fmt_test.go", "gostringer_example_test.go",
+			"scan_test.go", "stringer_example_test.go", "stringer_test.go",
+		},
+		"hash": {
+			"example_test.go", "marshal_test.go",
+		},
+		"archive/tar": {
+			"example_test.go", "reader_test.go", "strconv_test.go", "tar_test.go", "writer_test.go",
+		},
+		"unicode": {
+			"digit_test.go", "example_test.go", "graphic_test.go", "letter_test.go", "script_test.go",
+		},
+		"net/rpc": {
+			"client_test.go", "server_test.go",
+		},
+	}
+
+	for testPackage, files := range fileMap {
+		p, _ := pkg.New(testPackage)
+
+		want := files
+		have := p.TestFiles()
 
 		// First, let's make sure that we have the correct number of files.
 		if len(want) != len(have) {
