@@ -47,7 +47,7 @@ func New(importPath string) (Package, error) {
 		return Package{}, InvalidPkg
 	}
 
-	p := Package {
+	p := Package{
 		buildPackage: buildPackage,
 		docPackage:   docPackage,
 	}
