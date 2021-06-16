@@ -62,44 +62,26 @@ func TestName(t *testing.T) {
 
 // TestFiles checks that pkg correctly reports the correct source files in each test package.
 func TestFiles(t *testing.T) {
-	// These are the files in each package. We're going to hard-code these values so that we can
-	// achieve repeatable accuracy.
+	// These are the files in each test package. We're going to hard-code these values so that we
+	// can achieve repeatable accuracy.
 	fileMap := map[string][]string{
 		"errors": {
-			"errors.go",
-			"wrap.go",
+			"errors.go", "wrap.go",
 		},
 		"fmt": {
-			"doc.go",
-			"errors.go",
-			"format.go",
-			"print.go",
-			"scan.go",
+			"doc.go", "errors.go", "format.go", "print.go", "scan.go",
 		},
 		"hash": {
 			"hash.go",
 		},
 		"archive/tar": {
-			"common.go",
-			"format.go",
-			"reader.go",
-			"stat_actime1.go",
-			"stat_actime2.go",
-			"stat_unix.go",
-			"strconv.go",
-			"writer.go",
+			"common.go", "format.go", "reader.go", "stat_actime1.go", "stat_actime2.go", "stat_unix.go", "strconv.go", "writer.go",
 		},
 		"unicode": {
-			"casetables.go",
-			"digit.go",
-			"graphic.go",
-			"letter.go",
-			"tables.go",
+			"casetables.go", "digit.go", "graphic.go", "letter.go", "tables.go",
 		},
 		"net/rpc": {
-			"client.go",
-			"debug.go",
-			"server.go",
+			"client.go", "debug.go", "server.go",
 		},
 	}
 
