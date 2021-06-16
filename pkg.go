@@ -7,8 +7,6 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
-	"path/filepath"
-	"strings"
 )
 
 var (
@@ -92,28 +90,9 @@ func (p Package) Files() []string {
 		return nil
 	}
 
-	// go/doc's Package holds absolute paths for each file in the package. We want to convert those
-	// to relative paths.
-	basePath := p.buildPackage.Dir
-	absPaths := p.docPackage.Filenames
-	relPaths := make([]string, len(absPaths))
-	for i, absPath := range absPaths {
-		relPath, err := filepath.Rel(basePath, absPath)
-		if err != nil {
-			return nil
-		}
-		relPaths[i] = relPath
-	}
-
-	// Remove test files from the final list.
-	final := make([]string, 0)
-	for _, file := range relPaths {
-		if !strings.HasSuffix(file, "_test.go") {
-			final = append(final, file)
-		}
-	}
-
-	return final
+	// Return both the source files for this system's build and the source files ignored for this
+	// system's build.
+	return append(p.buildPackage.GoFiles, p.buildPackage.IgnoredGoFiles...)
 }
 
 // Imports returns a list of imports in the package. The list includes only imports from the source
