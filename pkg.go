@@ -80,8 +80,9 @@ func (p Package) Name() string {
 
 // Files returns a list of source files in the package. The file paths are relative to the package's
 // directory, not absolute on the filesystem. Test files (*_test.go) are not included in the list.
-// Note: This returns all source files in the package's directory and does not limit the files based
-// on what is actually used when building for the current system.
+// To get a list of test files in the package, see Package's TestFiles. Note: This returns all
+// source files in the package's directory and does not limit the files based on what is actually
+// used when building for the current system.
 func (p Package) Files() []string {
 	if !p.valid() {
 		return nil
@@ -111,13 +112,25 @@ func (p Package) Files() []string {
 	return final
 }
 
-// Imports returns a list of imports in the package.
+// Imports returns a list of imports in the package. The list includes only imports from the source
+// files, not the test files. To get a list of imports from the test files, see Package's TestImports.
 func (p Package) Imports() []string {
 	if !p.valid() {
 		return nil
 	}
 
-	return p.docPackage.Imports
+	return p.buildPackage.Imports
+}
+
+// TestImports returns a list of imports in the package. The list includes only imports from the
+// test files, not the source files. To get a list of imports from the source files, see Package's
+// Imports.
+func (p Package) TestImports() []string {
+	if !p.valid() {
+		return nil
+	}
+
+	return p.buildPackage.TestImports
 }
 
 // Types returns a list of exported types in the package.
