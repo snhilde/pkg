@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -77,8 +78,10 @@ func (p Package) Name() string {
 	return p.docPackage.Name
 }
 
-// Files returns a list of files in the package. The file paths are relative to the package's
-// directory, not absolute on the filesystem.
+// Files returns a list of source files in the package. The file paths are relative to the package's
+// directory, not absolute on the filesystem. Test files (*_test.go) are not included in the list.
+// Note: This returns all source files in the package's directory and does not limit the files based
+// on what is actually used when building for the current system.
 func (p Package) Files() []string {
 	if !p.valid() {
 		return nil
@@ -97,7 +100,15 @@ func (p Package) Files() []string {
 		relPaths[i] = relPath
 	}
 
-	return relPaths
+	// Remove test files from the final list.
+	final := make([]string, 0)
+	for _, file := range relPaths {
+		if !strings.HasSuffix(file, "_test.go") {
+			final = append(final, file)
+		}
+	}
+
+	return final
 }
 
 // Imports returns a list of imports in the package.
