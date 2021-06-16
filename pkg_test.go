@@ -6,11 +6,12 @@
 //   fmt - Has only functions and interfaces.
 //   hash - Has only types without methods.
 //   archive/tar - Has only types with methods, and some global variables/errors.
-//   unicode - Has lots of constants and global variables.
-//   net/rpc - Has everything.
+//   unicode - Has lots of constants and global variables and no imported packages.
+//   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc).
 // TODO: need to also test packages with these features:
 //   packages that aren't in the standard library
-//   packages with sub-packages
+//   packages with Cgo files
+//   packages with C/C++ files
 package pkg_test
 
 import (
@@ -113,6 +114,66 @@ func TestFiles(t *testing.T) {
 			}
 			if !found {
 				t.Errorf("%s: missing file: %s", testPackage, w)
+			}
+		}
+	}
+}
+
+// TestImports checks that the returned list of imports is correct for each test package.
+func TestImports(t *testing.T) {
+	// These are the imports used in each test package. We're going to hard-code these values so
+	// that we can achieve repeatable accuracy.
+	importMap := map[string][]string{
+		"errors": {
+			"internal/reflectlite",
+		},
+		"fmt": {
+			"errors", "internal/fmtsort", "io", "math", "os", "reflect", "strconv", "sync", "unicode/utf8",
+		},
+		"hash": {
+			"io",
+		},
+		"archive/tar": {
+			"bytes", "errors", "fmt", "io", "io/fs", "math", "os/user", "path", "reflect", "runtime",
+			"sort", "strconv", "strings", "sync", "syscall", "time",
+		},
+		"unicode": {
+			// no imports
+		},
+		"net/rpc": {
+			"bufio", "encoding/gob", "errors", "fmt", "go/token", "html/template", "io", "log",
+			"net", "net/http", "reflect", "sort", "strings", "sync",
+		},
+	}
+
+	for testPackage, imports := range importMap {
+		p, _ := pkg.New(testPackage)
+
+		want := imports
+		have := p.Imports()
+
+		// First, let's make sure that we have the correct number of imported packages.
+		if len(want) != len(have) {
+			t.Errorf("%s: incorrect import list", testPackage)
+			t.Log("\twant:", want)
+			t.Log("\thave:", have)
+		}
+
+		// Then, let's check that each import is present in the returned list.
+		for _, w := range want {
+			found := false
+			for _, h := range have {
+				if w == h {
+					// If we've already found this import, then something is wrong.
+					if found {
+						t.Errorf("%s: duplicate import in list: %s", testPackage, w)
+						return
+					}
+					found = true
+				}
+			}
+			if !found {
+				t.Errorf("%s: missing import: %s", testPackage, w)
 			}
 		}
 	}
