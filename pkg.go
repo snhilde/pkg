@@ -55,9 +55,13 @@ func New(importPath string) (Package, error) {
 	return p, nil
 }
 
-// valid checks whether or not the package object has valid data.
-func (p Package) valid() bool {
+// isValid checks whether or not the package object has valid data.
+func (p Package) isValid() bool {
 	if p == (Package{}) {
+		return false
+	}
+
+	if p.buildPackage == nil {
 		return false
 	}
 
@@ -71,7 +75,7 @@ func (p Package) valid() bool {
 
 // Name returns the package's name.
 func (p Package) Name() string {
-	if !p.valid() {
+	if !p.isValid() {
 		return ""
 	}
 
@@ -84,7 +88,7 @@ func (p Package) Name() string {
 // source files in the package's directory and does not limit the files based on what is actually
 // used when building for the current system.
 func (p Package) Files() []string {
-	if !p.valid() {
+	if !p.isValid() {
 		return nil
 	}
 
@@ -115,7 +119,7 @@ func (p Package) Files() []string {
 // Imports returns a list of imports in the package. The list includes only imports from the source
 // files, not the test files. To get a list of imports from the test files, see Package's TestImports.
 func (p Package) Imports() []string {
-	if !p.valid() {
+	if !p.isValid() {
 		return nil
 	}
 
@@ -126,7 +130,7 @@ func (p Package) Imports() []string {
 // test files, not the source files. To get a list of imports from the source files, see Package's
 // Imports.
 func (p Package) TestImports() []string {
-	if !p.valid() {
+	if !p.isValid() {
 		return nil
 	}
 
@@ -135,7 +139,7 @@ func (p Package) TestImports() []string {
 
 // Types returns a list of exported types in the package.
 func (p Package) Types() []Type {
-	if !p.valid() {
+	if !p.isValid() {
 		return nil
 	}
 
@@ -157,7 +161,7 @@ func (p Package) Types() []Type {
 
 // Functions returns a list of exported functions in the package.
 func (p Package) Functions() []Function {
-	if !p.valid() {
+	if !p.isValid() {
 		return nil
 	}
 
