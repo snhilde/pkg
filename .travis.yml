@@ -1,0 +1,17 @@
+language: go
+go: 1.16.x
+go_import_path: github.com/snhilde/pkg
+
+dist: bionic
+
+env:
+    - GO111MODULE=on
+
+install:
+    - go mod download
+    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+
+script:
+    - make fmt-check
+    - make lint-check-source
+    - make test
