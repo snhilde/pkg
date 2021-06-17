@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	InvalidPkg = fmt.Errorf("invalid package")
+	ErrInvalidPkg = fmt.Errorf("invalid package")
 )
 
 // Package is the main type for this package. It holds details about the package.
@@ -42,7 +42,7 @@ func New(importPath string) (Package, error) {
 
 	docPackage := doc.New(astPackage, importPath, 0)
 	if docPackage == nil {
-		return Package{}, InvalidPkg
+		return Package{}, ErrInvalidPkg
 	}
 
 	p := Package{
