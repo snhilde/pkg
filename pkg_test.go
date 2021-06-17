@@ -86,7 +86,9 @@ func TestFiles(t *testing.T) {
 		},
 	}
 
-	checkLists(t, fileMap, pkg.Package.Files)
+	checkLists(t, fileMap, func(p pkg.Package) []string {
+		return p.Files()
+	})
 }
 
 // TestTestFiles checks that the returned list of test files is correct for each of the test packages.
@@ -115,7 +117,9 @@ func TestTestFiles(t *testing.T) {
 		},
 	}
 
-	checkLists(t, testFileMap, pkg.Package.TestFiles)
+	checkLists(t, testFileMap, func(p pkg.Package) []string {
+		return p.TestFiles()
+	})
 }
 
 // TestImports checks that the returned list of imports is correct for each of the test packages.
@@ -145,7 +149,9 @@ func TestImports(t *testing.T) {
 		},
 	}
 
-	checkLists(t, importMap, pkg.Package.Imports)
+	checkLists(t, importMap, func(p pkg.Package) []string {
+		return p.Imports()
+	})
 }
 
 // TestTestImports checks that the returned list of test imports is correct for each of the test packages.
@@ -178,12 +184,83 @@ func TestTestImports(t *testing.T) {
 		},
 	}
 
-	checkLists(t, testImportMap, pkg.Package.TestImports)
+	checkLists(t, testImportMap, func(p pkg.Package) []string {
+		return p.TestImports()
+	})
+}
+
+// TestFunctions checks that the returned list of functions is correct for each of the test packages.
+func TestFunctions(t *testing.T) {
+	// These are the functions in each test package. We're going to hard-code these values so that
+	// we can achieve repeatable accuracy.
+	functionMap := map[string][]string{
+		"errors": {
+			"As", "Is", "New", "Unwrap",
+		},
+		"fmt": {
+			"Errorf", "Fprint", "Fprintf", "Fprintln", "Fscan", "Fscanf", "Fscanln", "Print", "Printf", "Println",
+			"Scan", "Scanf", "Scanln", "Sprint", "Sprintf", "Sprintln", "Sscan", "Sscanf", "Sscanln",
+		},
+		"hash": {
+		},
+		"archive/tar": {
+		},
+		"unicode": {
+			"In", "Is", "IsControl", "IsDigit", "IsGraphic", "IsLetter", "IsLower", "IsMark", "IsNumber",
+			"IsOneOf", "IsPrint", "IsPunct", "IsSpace", "IsSymbol", "IsTitle", "IsUpper", "SimpleFold",
+			"To", "ToLower", "ToTitle", "ToUpper",
+		},
+		"net/rpc": {
+			"Accept", "HandleHTTP", "Register", "RegisterName", "ServeCodec", "ServeConn", "ServeRequest",
+		},
+	}
+
+	checkLists(t, functionMap, func(p pkg.Package) []string {
+		funcs := p.Functions()
+		funcNames := make([]string, len(funcs))
+		for i, f := range funcs {
+			funcNames[i] = f.Name()
+		}
+		return funcNames
+	})
+}
+
+// TestTypes checks that the returned list of types is correct for each of the test packages.
+func TestTypes(t *testing.T) {
+	// These are the types in each test package. We're going to hard-code these values so that we
+	// can achieve repeatable accuracy.
+	typeMap := map[string][]string{
+		"errors": {
+		},
+		"fmt": {
+			"Formatter", "GoStringer", "ScanState", "Scanner", "State", "Stringer",
+		},
+		"hash": {
+			"Hash", "Hash32", "Hash64", },
+		"archive/tar": {
+			"Format", "Header", "Reader", "Writer",
+		},
+		"unicode": {
+			"CaseRange", "Range16", "Range32", "RangeTable", "SpecialCase",
+		},
+		"net/rpc": {
+			"Call", "Client", "ClientCodec", "Request", "Response", "Server", "ServerCodec", "ServerError",
+		},
+	}
+
+	checkLists(t, typeMap, func(p pkg.Package) []string {
+		types := p.Types()
+		typeNames := make([]string, len(types))
+		for i, t := range types {
+			typeNames[i] = t.Name()
+		}
+		return typeNames
+	})
 }
 
 // checkLists checks that the list returned for each of the test packages from method matches the
 // expected output in wantMap.
-func checkLists(t *testing.T, wantMap map[string][]string, method func(pkg.Package) []string) {
+func checkLists(t *testing.T, wantMap map[string][]string, cb func(pkg.Package) []string) {
 	for _, testPackage := range testPackages {
 		want, ok := wantMap[testPackage]
 		if !ok {
@@ -192,7 +269,7 @@ func checkLists(t *testing.T, wantMap map[string][]string, method func(pkg.Packa
 		}
 
 		p, _ := pkg.New(testPackage)
-		have := method(p)
+		have := cb(p)
 
 		// First, let's make sure that we have the correct number of items in the list.
 		if len(want) != len(have) {
