@@ -1,6 +1,7 @@
 package pkg
 
 import (
+// TODO
 )
 
 // GlobalVar holds information about an exported global variable in a package.

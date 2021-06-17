@@ -202,8 +202,10 @@ func TestFunctions(t *testing.T) {
 			"Scan", "Scanf", "Scanln", "Sprint", "Sprintf", "Sprintln", "Sscan", "Sscanf", "Sscanln",
 		},
 		"hash": {
+			// no functions
 		},
 		"archive/tar": {
+			// no functions
 		},
 		"unicode": {
 			"In", "Is", "IsControl", "IsDigit", "IsGraphic", "IsLetter", "IsLower", "IsMark", "IsNumber",
@@ -231,12 +233,14 @@ func TestTypes(t *testing.T) {
 	// can achieve repeatable accuracy.
 	typeMap := map[string][]string{
 		"errors": {
+			// no types
 		},
 		"fmt": {
 			"Formatter", "GoStringer", "ScanState", "Scanner", "State", "Stringer",
 		},
 		"hash": {
-			"Hash", "Hash32", "Hash64", },
+			"Hash", "Hash32", "Hash64",
+		},
 		"archive/tar": {
 			"Format", "Header", "Reader", "Writer",
 		},
