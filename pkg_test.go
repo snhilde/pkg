@@ -44,7 +44,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-// TestName checks that the name is correct for each test package.
+// TestName checks that the returned name is correct for each of the test packages.
 func TestName(t *testing.T) {
 	for _, testPackage := range testPackages {
 		p, _ := pkg.New(testPackage)
@@ -61,7 +61,7 @@ func TestName(t *testing.T) {
 	}
 }
 
-// TestFiles checks that pkg correctly reports the correct source files in each test package.
+// TestFiles checks that the returned list of source files is correct for each of the test packages.
 func TestFiles(t *testing.T) {
 	// These are the source files in each test package. We're going to hard-code these values so
 	// that we can achieve repeatable accuracy.
@@ -89,7 +89,7 @@ func TestFiles(t *testing.T) {
 	checkLists(t, fileMap, pkg.Package.Files)
 }
 
-// TestTestFiles checks that pkg correctly reports the correct test files in each test package.
+// TestTestFiles checks that the returned list of test files is correct for each of the test packages.
 func TestTestFiles(t *testing.T) {
 	// These are the test files in each test package. We're going to hard-code these values so that
 	// we can achieve repeatable accuracy.
@@ -118,7 +118,7 @@ func TestTestFiles(t *testing.T) {
 	checkLists(t, testFileMap, pkg.Package.TestFiles)
 }
 
-// TestImports checks that the returned list of imports is correct for each test package.
+// TestImports checks that the returned list of imports is correct for each of the test packages.
 func TestImports(t *testing.T) {
 	// These are the imports used in each test package. We're going to hard-code these values so
 	// that we can achieve repeatable accuracy.
@@ -148,7 +148,7 @@ func TestImports(t *testing.T) {
 	checkLists(t, importMap, pkg.Package.Imports)
 }
 
-// TestTestImports checks that the returned list of test imports is correct for each test package.
+// TestTestImports checks that the returned list of test imports is correct for each of the test packages.
 func TestTestImports(t *testing.T) {
 	// These are the imports used in each test package. We're going to hard-code these values so
 	// that we can achieve repeatable accuracy.
@@ -184,7 +184,13 @@ func TestTestImports(t *testing.T) {
 // checkLists checks that the list returned for each of the test packages from method matches the
 // expected output in wantMap.
 func checkLists(t *testing.T, wantMap map[string][]string, method func(pkg.Package) []string) {
-	for testPackage, want := range wantMap {
+	for _, testPackage := range testPackages {
+		want, ok := wantMap[testPackage]
+		if !ok {
+			t.Errorf("%s: missing from test map", testPackage)
+			continue
+		}
+
 		p, _ := pkg.New(testPackage)
 		have := method(p)
 
