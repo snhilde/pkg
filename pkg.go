@@ -3,6 +3,7 @@ package pkg
 
 import (
 	"fmt"
+	"go/ast"
 	"go/build"
 	"go/doc"
 	"go/parser"
@@ -16,37 +17,57 @@ var (
 
 // Package is the main type for this package. It holds details about the package.
 type Package struct {
-	// Package object from go/build.
+	// Package object from go/ast. This is used to gather the files in the particular package we
+	// want and exclude other packages in the same import directory (like external test packages).
+	astPackage *ast.Package
+
+	// Package object from go/build. This holds information about the files in the import directory,
+	// including source files, test files in the package, and test files not in the package but in
+	// the import directory. It does not hold much information about the code structure.
 	buildPackage *build.Package
 
-	// Package object from go/doc.
+	// Package object from go/doc. This holds the information about the structure of the code.
 	docPackage *doc.Package
 }
 
 // New parses the package at importPath and creates a new Package object with its information.
 func New(importPath string) (Package, error) {
+	// Generate the go/build Package for the import path.
 	buildPackage, err := build.Import(importPath, "", 0)
 	if err != nil {
 		return Package{}, err
 	}
 
+	// Generate all the go/ast Package's for the import path.
 	fset := token.NewFileSet()
-	pkgs, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.AllErrors)
+	astPackages, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.AllErrors)
 	if err != nil {
 		return Package{}, err
 	}
 
-	astPackage, ok := pkgs[buildPackage.Name]
+	// Get the go/ast Package for the package named by the import path.
+	astPackage, ok := astPackages[buildPackage.Name]
 	if !ok {
 		return Package{}, fmt.Errorf("package not found in %s", importPath)
 	}
 
-	docPackage := doc.New(astPackage, importPath, 0)
+	// Generate the go/doc Package for the package named by the import path. We first have to
+	// flatten out the map of ast files and then use that list to parse the individual files.
+	astFiles := make([]*ast.File, 0, len(astPackage.Files))
+	for _, v := range astPackage.Files {
+		astFiles = append(astFiles, v)
+	}
+	docPackage, err := doc.NewFromFiles(fset, astFiles, importPath)
+	if err != nil {
+		return Package{}, err
+	}
 	if docPackage == nil {
 		return Package{}, ErrInvalidPkg
 	}
 
+	// Put everything together into our Package type.
 	p := Package{
+		astPackage:   astPackage,
 		buildPackage: buildPackage,
 		docPackage:   docPackage,
 	}
@@ -57,6 +78,10 @@ func New(importPath string) (Package, error) {
 // isValid checks whether or not the package object has valid data.
 func (p Package) isValid() bool {
 	if p == (Package{}) {
+		return false
+	}
+
+	if p.astPackage == nil {
 		return false
 	}
 
@@ -144,6 +169,31 @@ func (p Package) TestImports() []string {
 	return all
 }
 
+// Functions returns a list of exported functions in the package. The list includes exported
+// functions from source files only, not from test files.
+func (p Package) Functions() []Function {
+	if !p.isValid() {
+		return nil
+	}
+
+	// doc's Package for the entire the exported functions from both source files and test files.
+
+	// If there aren't any exported functions in this package, then don't return anything.
+	if len(p.docPackage.Funcs) == 0 {
+		return nil
+	}
+
+	// Wrap every go/doc Func in our own Function.
+	funcs := make([]Function, len(p.docPackage.Funcs))
+	for i, v := range p.docPackage.Funcs {
+		funcs[i] = Function{
+			docFunc: v,
+		}
+	}
+
+	return funcs
+}
+
 // Types returns a list of exported types in the package.
 func (p Package) Types() []Type {
 	if !p.isValid() {
@@ -164,26 +214,4 @@ func (p Package) Types() []Type {
 	}
 
 	return types
-}
-
-// Functions returns a list of exported functions in the package.
-func (p Package) Functions() []Function {
-	if !p.isValid() {
-		return nil
-	}
-
-	// If there aren't any exported functions in this package, then don't return anything.
-	if len(p.docPackage.Types) == 0 {
-		return nil
-	}
-
-	// Wrap every go/doc Func in our own Function.
-	funcs := make([]Function, len(p.docPackage.Funcs))
-	for i, v := range p.docPackage.Funcs {
-		funcs[i] = Function{
-			docFunc: v,
-		}
-	}
-
-	return funcs
 }
