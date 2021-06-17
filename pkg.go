@@ -11,9 +11,7 @@ import (
 	"sort"
 )
 
-var (
-	ErrInvalidPkg = fmt.Errorf("invalid package")
-)
+var ErrInvalidPkg = fmt.Errorf("invalid package")
 
 // Package is the main type for this package. It holds details about the package.
 type Package struct {
@@ -35,14 +33,14 @@ func New(importPath string) (Package, error) {
 	// Generate the go/build Package for the import path.
 	buildPackage, err := build.Import(importPath, "", 0)
 	if err != nil {
-		return Package{}, err
+		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
 	}
 
 	// Generate all the go/ast Package's for the import path.
 	fset := token.NewFileSet()
 	astPackages, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.AllErrors)
 	if err != nil {
-		return Package{}, err
+		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
 	}
 
 	// Get the go/ast Package for the package named by the import path.
@@ -59,7 +57,7 @@ func New(importPath string) (Package, error) {
 	}
 	docPackage, err := doc.NewFromFiles(fset, astFiles, importPath)
 	if err != nil {
-		return Package{}, err
+		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
 	}
 	if docPackage == nil {
 		return Package{}, ErrInvalidPkg

@@ -46,5 +46,5 @@ func (t Type) Exports() []interface{} {
 }
 
 // Method holds information about a type's method.
-type Method struct {
+type Method struct { // TODO
 }

@@ -21,16 +21,14 @@ import (
 	"github.com/snhilde/pkg"
 )
 
-var (
-	testPackages = []string{
-		"errors",
-		"fmt",
-		"hash",
-		"archive/tar",
-		"unicode",
-		"net/rpc",
-	}
-)
+var testPackages = []string{
+	"errors",
+	"fmt",
+	"hash",
+	"archive/tar",
+	"unicode",
+	"net/rpc",
+}
 
 // TestNew tests creating a new Package for each of the test packages.
 func TestNew(t *testing.T) {
