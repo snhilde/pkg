@@ -75,7 +75,7 @@ func New(importPath string) (Package, error) {
 	return p, nil
 }
 
-// isValid checks whether or not the package object has valid data.
+// isValid checks whether or not p is a valid Package object.
 func (p Package) isValid() bool {
 	if p == (Package{}) {
 		return false
@@ -170,13 +170,11 @@ func (p Package) TestImports() []string {
 }
 
 // Functions returns a list of exported functions in the package. The list includes exported
-// functions from source files only, not from test files.
+// functions from source files for the package only, not from test files (internal or external).
 func (p Package) Functions() []Function {
 	if !p.isValid() {
 		return nil
 	}
-
-	// doc's Package for the entire the exported functions from both source files and test files.
 
 	// If there aren't any exported functions in this package, then don't return anything.
 	if len(p.docPackage.Funcs) == 0 {
