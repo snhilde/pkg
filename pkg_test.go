@@ -82,7 +82,8 @@ func TestFiles(t *testing.T) {
 			"hash.go",
 		},
 		"archive/tar": {
-			"common.go", "format.go", "reader.go", "stat_actime1.go", "stat_actime2.go", "stat_unix.go", "strconv.go", "writer.go",
+			"common.go", "format.go", "reader.go", "stat_actime1.go", "stat_actime2.go",
+			"stat_unix.go", "strconv.go", "writer.go",
 		},
 		"unicode": {
 			"casetables.go", "digit.go", "graphic.go", "letter.go", "tables.go",
@@ -284,6 +285,8 @@ func TestTypes(t *testing.T) {
 // expected output in pkgMap. This is used for getting a direct list for a package, like a list of
 // files.
 func checkLists(t *testing.T, pkgMap map[string][]string, cb func(pkg.Package) []string) {
+	t.Helper()
+
 	for _, testPackage := range testPackages {
 		p, _ := pkg.New(testPackage)
 		want, ok := pkgMap[testPackage]
@@ -440,6 +443,8 @@ func TestTypeMethods(t *testing.T) {
 // the expected output in pkgMap. This is used for getting a list from a list, like checking all the
 // methods for all the types in a test package.
 func checkTypeItems(t *testing.T, pkgMap map[string]map[string][]string, cb func(pkg.Type) []string) {
+	t.Helper()
+
 	for _, testPackage := range testPackages {
 		p, _ := pkg.New(testPackage)
 		wantTypes, ok := pkgMap[testPackage]

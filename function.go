@@ -6,6 +6,7 @@ import (
 
 // Function holds information about an exported function in a package.
 type Function struct {
+	// Func object from go/doc.
 	docFunc *doc.Func
 }
 
