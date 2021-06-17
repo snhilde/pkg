@@ -33,18 +33,40 @@ func (t Type) Name() string {
 	return t.docType.Name
 }
 
+// Functions returns a list of functions that primarily return this type.
 func (t Type) Functions() []Function {
-	return nil
+	if !t.isValid() {
+		return nil
+	}
+
+	// Wrap every go/doc Func in our own Function.
+	functions := make([]Function, len(t.docType.Funcs))
+	for i, f := range t.docType.Funcs {
+		functions[i] = Function{
+			docFunc: f,
+		}
+	}
+
+	return functions
 }
 
+// Methods returns a list of methods for this type.
 func (t Type) Methods() []Method {
-	return nil
+	if !t.isValid() {
+		return nil
+	}
+
+	// Wrap every go/doc Func in our own Method.
+	methods := make([]Method, len(t.docType.Methods))
+	for i, m := range t.docType.Methods {
+		methods[i] = Method{
+			docMethod: m,
+		}
+	}
+
+	return methods
 }
 
 func (t Type) Exports() []interface{} {
 	return nil
-}
-
-// Method holds information about a type's method.
-type Method struct { // TODO
 }
