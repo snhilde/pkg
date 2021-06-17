@@ -148,6 +148,39 @@ func TestImports(t *testing.T) {
 	checkLists(t, importMap, pkg.Package.Imports)
 }
 
+// TestTestImports checks that the returned list of test imports is correct for each test package.
+func TestTestImports(t *testing.T) {
+	// These are the imports used in each test package. We're going to hard-code these values so
+	// that we can achieve repeatable accuracy.
+	testImportMap := map[string][]string{
+		"errors": {
+			"errors", "fmt", "io/fs", "os", "reflect", "testing", "time",
+		},
+		"fmt": {
+			"bufio", "bytes", "errors", "fmt", "internal/race", "io", "math", "os", "reflect", "regexp",
+			"runtime", "strings", "testing", "testing/iotest", "time", "unicode", "unicode/utf8",
+		},
+		"hash": {
+			"bytes", "crypto/md5", "crypto/sha1", "crypto/sha256", "crypto/sha512", "encoding", "encoding/hex",
+			"fmt", "hash", "hash/adler32", "hash/crc32", "hash/crc64", "hash/fnv", "log", "testing",
+		},
+		"archive/tar": {
+			"archive/tar", "bytes", "crypto/md5", "encoding/hex", "errors", "fmt", "internal/testenv", "io",
+			"io/fs", "log", "math", "os", "path", "path/filepath", "reflect", "sort", "strconv", "strings",
+			"testing", "testing/iotest", "time",
+		},
+		"unicode": {
+			"flag", "fmt", "runtime", "sort", "strings", "testing", "unicode",
+		},
+		"net/rpc": {
+			"errors", "fmt", "io", "log", "net", "net/http/httptest", "reflect", "runtime", "strings",
+			"sync", "sync/atomic", "testing", "time",
+		},
+	}
+
+	checkLists(t, testImportMap, pkg.Package.TestImports)
+}
+
 // checkLists checks that the list returned for each of the test packages from method matches the
 // expected output in wantMap.
 func checkLists(t *testing.T, wantMap map[string][]string, method func(pkg.Package) []string) {

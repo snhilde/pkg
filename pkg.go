@@ -7,6 +7,7 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
+	"sort"
 )
 
 var (
@@ -96,15 +97,16 @@ func (p Package) Files() []string {
 }
 
 // TestFiles returns a list of test files in the package's directory. This includes test files both
-// within the package (e.g. mypkg_test.go in package mypkg) and outside of the package (e.g.
-// other_test.go in package mypkg_test) but within the package's directory. The file paths are
-// relative to the package's directory, not absolute on the filesystem. Source files are not
-// included in the list. To get a list of source files in the package, see Package's Files.
+// within the package (e.g. mypkg_test.go in package mypkg) and outside of the package but within
+// the package's directory (e.g. other_test.go in package mypkg_test). The file paths are relative
+// to the package's directory, not absolute on the filesystem. Source files are not included in the
+// list. To get a list of source files in the package, see Package's Files.
 func (p Package) TestFiles() []string {
 	if !p.isValid() {
 		return nil
 	}
 
+	// Return both the internally and externally packaged test files.
 	return append(p.buildPackage.TestGoFiles, p.buildPackage.XTestGoFiles...)
 }
 
@@ -118,15 +120,28 @@ func (p Package) Imports() []string {
 	return p.buildPackage.Imports
 }
 
-// TestImports returns a list of imports in the package. The list includes only imports from the
-// test files, not the source files. To get a list of imports from the source files, see Package's
-// Imports.
+// TestImports returns a list of imports from test files both within the package (e.g. mypkg_test.go
+// in package mypkg) and outside of the package but within the package's directory (e.g.
+// other_test.go in package mypkg_test). The list includes only imports from the test files, not the
+// source files. To get a list of imports from the source files, see Package's Imports.
 func (p Package) TestImports() []string {
 	if !p.isValid() {
 		return nil
 	}
 
-	return p.buildPackage.TestImports
+	// Return the imports from both the internally and externally packaged test files. Make sure the
+	// list is sorted and free of duplicates.
+	imports := make(map[string]bool)
+	for _, path := range append(p.buildPackage.TestImports, p.buildPackage.XTestImports...) {
+		imports[path] = true
+	}
+	all := make([]string, 0, len(imports))
+	for path := range imports {
+		all = append(all, path)
+	}
+	sort.Strings(all)
+
+	return all
 }
 
 // Types returns a list of exported types in the package.
