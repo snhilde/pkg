@@ -34,6 +34,8 @@ var testPackages = []string{
 
 // TestNew tests creating a new Package for each of the test packages.
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	for _, testPackage := range testPackages {
 		p, err := pkg.New(testPackage)
 		if err != nil {
@@ -46,6 +48,8 @@ func TestNew(t *testing.T) {
 
 // TestName checks that the returned name is correct for each of the test packages.
 func TestName(t *testing.T) {
+	t.Parallel()
+
 	for _, testPackage := range testPackages {
 		p, _ := pkg.New(testPackage)
 
@@ -63,6 +67,8 @@ func TestName(t *testing.T) {
 
 // TestFiles checks that the returned list of source files is correct for each of the test packages.
 func TestFiles(t *testing.T) {
+	t.Parallel()
+
 	// These are the source files in each test package. We're going to hard-code these values so
 	// that we can achieve repeatable accuracy.
 	fileMap := map[string][]string{
@@ -93,6 +99,8 @@ func TestFiles(t *testing.T) {
 
 // TestTestFiles checks that the returned list of test files is correct for each of the test packages.
 func TestTestFiles(t *testing.T) {
+	t.Parallel()
+
 	// These are the test files in each test package. We're going to hard-code these values so that
 	// we can achieve repeatable accuracy.
 	testFileMap := map[string][]string{
@@ -124,6 +132,8 @@ func TestTestFiles(t *testing.T) {
 
 // TestImports checks that the returned list of imports is correct for each of the test packages.
 func TestImports(t *testing.T) {
+	t.Parallel()
+
 	// These are the imports used in each test package. We're going to hard-code these values so
 	// that we can achieve repeatable accuracy.
 	importMap := map[string][]string{
@@ -156,6 +166,8 @@ func TestImports(t *testing.T) {
 
 // TestTestImports checks that the returned list of test imports is correct for each of the test packages.
 func TestTestImports(t *testing.T) {
+	t.Parallel()
+
 	// These are the imports used in each test package. We're going to hard-code these values so
 	// that we can achieve repeatable accuracy.
 	testImportMap := map[string][]string{
@@ -191,6 +203,8 @@ func TestTestImports(t *testing.T) {
 
 // TestFunctions checks that the returned list of functions is correct for each of the test packages.
 func TestFunctions(t *testing.T) {
+	t.Parallel()
+
 	// These are the functions in each test package. We're going to hard-code these values so that
 	// we can achieve repeatable accuracy.
 	functionMap := map[string][]string{
@@ -230,6 +244,8 @@ func TestFunctions(t *testing.T) {
 
 // TestTypes checks that the returned list of types is correct for each of the test packages.
 func TestTypes(t *testing.T) {
+	t.Parallel()
+
 	// These are the types in each test package. We're going to hard-code these values so that we
 	// can achieve repeatable accuracy.
 	typeMap := map[string][]string{
@@ -311,6 +327,8 @@ func checkLists(t *testing.T, pkgMap map[string][]string, cb func(pkg.Package) [
 // TestTypeFunctions checks that the returned list of functions returning each type is correct for
 // each of the test packages.
 func TestTypeFunctions(t *testing.T) {
+	t.Parallel()
+
 	// These are the functions returning each type in each test package. We're going to hard-code
 	// these values so that we can achieve repeatable accuracy.
 	funcMap := map[string]map[string][]string{
@@ -361,6 +379,8 @@ func TestTypeFunctions(t *testing.T) {
 // TestTypeMethods checks that the returned list of methods for each type is correct for each of the
 // test packages.
 func TestTypeMethods(t *testing.T) {
+	t.Parallel()
+
 	// These are the methods for each type in each test package. We're going to hard-code these
 	// values so that we can achieve repeatable accuracy.
 	methodMap := map[string]map[string][]string{
