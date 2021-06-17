@@ -86,44 +86,14 @@ func TestFiles(t *testing.T) {
 		},
 	}
 
-	for testPackage, files := range fileMap {
-		p, _ := pkg.New(testPackage)
-
-		want := files
-		have := p.Files()
-
-		// First, let's make sure that we have the correct number of files.
-		if len(want) != len(have) {
-			t.Errorf("%s: incorrect file list", testPackage)
-			t.Log("\twant:", want)
-			t.Log("\thave:", have)
-		}
-
-		// Then, let's check that each file is present in the returned list.
-		for _, w := range want {
-			found := false
-			for _, h := range have {
-				if w == h {
-					// If we've already found this file, then something is wrong.
-					if found {
-						t.Errorf("%s: duplicate file in list: %s", testPackage, w)
-						return
-					}
-					found = true
-				}
-			}
-			if !found {
-				t.Errorf("%s: missing file: %s", testPackage, w)
-			}
-		}
-	}
+	checkLists(t, fileMap, pkg.Package.Files)
 }
 
 // TestTestFiles checks that pkg correctly reports the correct test files in each test package.
 func TestTestFiles(t *testing.T) {
 	// These are the test files in each test package. We're going to hard-code these values so that
 	// we can achieve repeatable accuracy.
-	fileMap := map[string][]string{
+	testFileMap := map[string][]string{
 		"errors": {
 			"errors_test.go", "example_test.go", "wrap_test.go",
 		},
@@ -145,37 +115,7 @@ func TestTestFiles(t *testing.T) {
 		},
 	}
 
-	for testPackage, files := range fileMap {
-		p, _ := pkg.New(testPackage)
-
-		want := files
-		have := p.TestFiles()
-
-		// First, let's make sure that we have the correct number of files.
-		if len(want) != len(have) {
-			t.Errorf("%s: incorrect file list", testPackage)
-			t.Log("\twant:", want)
-			t.Log("\thave:", have)
-		}
-
-		// Then, let's check that each file is present in the returned list.
-		for _, w := range want {
-			found := false
-			for _, h := range have {
-				if w == h {
-					// If we've already found this file, then something is wrong.
-					if found {
-						t.Errorf("%s: duplicate file in list: %s", testPackage, w)
-						return
-					}
-					found = true
-				}
-			}
-			if !found {
-				t.Errorf("%s: missing file: %s", testPackage, w)
-			}
-		}
-	}
+	checkLists(t, testFileMap, pkg.Package.TestFiles)
 }
 
 // TestImports checks that the returned list of imports is correct for each test package.
@@ -205,34 +145,39 @@ func TestImports(t *testing.T) {
 		},
 	}
 
-	for testPackage, imports := range importMap {
+	checkLists(t, importMap, pkg.Package.Imports)
+}
+
+// checkLists checks that the list returned for each of the test packages from method matches the
+// expected output in wantMap.
+func checkLists(t *testing.T, wantMap map[string][]string, method func(pkg.Package) []string) {
+	for testPackage, want := range wantMap {
 		p, _ := pkg.New(testPackage)
+		have := method(p)
 
-		want := imports
-		have := p.Imports()
-
-		// First, let's make sure that we have the correct number of imported packages.
+		// First, let's make sure that we have the correct number of items in the list.
 		if len(want) != len(have) {
-			t.Errorf("%s: incorrect import list", testPackage)
+			t.Errorf("%s: incorrect list", testPackage)
 			t.Log("\twant:", want)
 			t.Log("\thave:", have)
+			continue
 		}
 
-		// Then, let's check that each import is present in the returned list.
+		// Then, let's check that each wanted item is present in the returned list.
 		for _, w := range want {
 			found := false
 			for _, h := range have {
 				if w == h {
-					// If we've already found this import, then something is wrong.
+					// If we've already found this item, then something is wrong.
 					if found {
-						t.Errorf("%s: duplicate import in list: %s", testPackage, w)
-						return
+						t.Errorf("%s: duplicate in list: %s", testPackage, w)
+						break
 					}
 					found = true
 				}
 			}
 			if !found {
-				t.Errorf("%s: missing import: %s", testPackage, w)
+				t.Errorf("%s: missing item: %s", testPackage, w)
 			}
 		}
 	}
