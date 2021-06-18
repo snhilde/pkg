@@ -12,6 +12,7 @@
 //   packages that aren't in the standard library
 //   packages with Cgo files
 //   packages with C/C++ files
+//   packages with file naming conventions that might sort differently
 package pkg_test
 
 import (
@@ -40,7 +41,7 @@ func TestNew(t *testing.T) {
 		p, err := pkg.New(testPackage)
 		if err != nil {
 			t.Error(err)
-		} else if p == (pkg.Package{}) {
+		} else if !p.IsValid() {
 			t.Errorf("%s: received empty Package object", testPackage)
 		}
 	}
