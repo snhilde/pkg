@@ -6,9 +6,8 @@ import (
 	"io"
 )
 
-// getSource gets the source text in r between the start and end positions, optionally adding a
-// prefix to the front of it.
-func getSource(r *bytes.Reader, start, end int, prefix []byte) []byte {
+// getSource gets the source text in r between the start and end positions.
+func getSource(r *bytes.Reader, start, end int) []byte {
 	if start < 0 || start >= end || end >= r.Len() {
 		return nil
 	}
@@ -24,6 +23,5 @@ func getSource(r *bytes.Reader, start, end int, prefix []byte) []byte {
 		return nil
 	}
 
-	// If a prefix is present, add that to the beginning.
-	return append(prefix, b...)
+	return b
 }
