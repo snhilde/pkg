@@ -15,13 +15,11 @@ type Parameter struct {
 	typeName string
 }
 
-// extractParameters looks inside funcDecl and extracts all input and output parameters.
-func extractParameters(funcDecl *ast.FuncDecl, r *bytes.Reader) ([]Parameter, []Parameter) {
-	if funcDecl == nil || r.Len() == 0 {
+// extractParameters looks inside ft and extracts all input and output parameters.
+func extractParameters(ft *ast.FuncType, r *bytes.Reader) ([]Parameter, []Parameter) {
+	if ft == nil || r.Len() == 0 {
 		return nil, nil
 	}
-
-	ft := funcDecl.Type
 
 	// Build the list of inputs.
 	in := make([]Parameter, 0)
