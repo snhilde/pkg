@@ -90,11 +90,11 @@ func New(importPath string) (Package, error) {
 	}
 
 	// Put everything together into our Package type.
-	return buildPackage(astPackage, buildPackage, docPackage)
+	return newPackage(astPackage, buildPackage, docPackage)
 }
 
-// buildPackage puts together the internal structure for a Package object.
-func buildPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
+// newPackage puts together the internal structure for a Package object.
+func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
 	// Begin with structuring up our object.
 	p := Package{
 		astPackage:   astPackage,
