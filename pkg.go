@@ -138,10 +138,16 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 	}
 
 	// Extract the exported functions for this package.
-	p.functions = p.extractFunctions(r)
+	p.functions = make([]Function, len(p.docPackage.Funcs))
+	for i, f := range p.docPackage.Funcs {
+		p.functions[i] = newFunction(f, r)
+	}
 
 	// Extract the exported types for this package.
-	p.types = p.extractTypes(r)
+	p.types = make([]Type, len(p.docPackage.Types))
+	for i, t := range p.docPackage.Types {
+		p.types[i] = newType(t, r)
+	}
 
 	// TODO: extract all other information
 
