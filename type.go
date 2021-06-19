@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"bytes"
 	"go/doc"
 )
 
@@ -8,15 +9,53 @@ import (
 type Type struct {
 	// Type object from go/doc.
 	docType *doc.Type
+
+	// Original declaration in source for this type.
+	decl *bytes.Reader
+
+	// Functions in the package that primarily return this type.
+	functions []Function
+
+	// Methods for this type.
+	methods []Method
 }
 
-// isValid checks whether or not t is a valid Type object.
-func (t Type) isValid() bool {
-	if t == (Type{}) {
+// newType builds a new Type object based on go/doc's Type.
+func newType(t *doc.Type, r *bytes.Reader) Type {
+	if t == nil || r == nil {
+		return Type{}
+	}
+	// Read out the source declaration.
+	start, end := t.Decl.Pos()-1, t.Decl.End()-1 // -1 to index properly
+	decl := extractSource(r, start, end)
+
+	// Make a list of functions for this type.
+	functions := make([]Function, len(t.Funcs))
+	for i, f := range t.Funcs {
+		functions[i] = newFunction(f, r)
+	}
+
+	// Make a list of methods for this type.
+	methods := make([]Method, len(t.Methods))
+	for i, m := range t.Methods {
+		methods[i] = newMethod(m, r)
+	}
+
+	return Type{
+		docType:   t,
+		decl:      decl,
+		functions: functions,
+		methods:   methods,
+	}
+}
+
+// IsValid checks whether or not t is a valid Type object.
+func (t Type) IsValid() bool {
+	if t.docType == nil {
 		return false
 	}
 
-	if t.docType == nil {
+	if t.decl == nil {
 		return false
 	}
 
@@ -26,7 +65,7 @@ func (t Type) isValid() bool {
 
 // Name returns the type's name.
 func (t Type) Name() string {
-	if !t.isValid() {
+	if !t.IsValid() {
 		return ""
 	}
 
@@ -35,36 +74,20 @@ func (t Type) Name() string {
 
 // Functions returns a list of functions that primarily return this type.
 func (t Type) Functions() []Function {
-	if !t.isValid() {
+	if !t.IsValid() {
 		return nil
 	}
 
-	// Wrap every go/doc Func in our own Function.
-	functions := make([]Function, len(t.docType.Funcs))
-	for i, f := range t.docType.Funcs {
-		functions[i] = Function{
-			docFunc: f,
-		}
-	}
-
-	return functions
+	return t.functions
 }
 
 // Methods returns a list of methods for this type.
 func (t Type) Methods() []Method {
-	if !t.isValid() {
+	if !t.IsValid() {
 		return nil
 	}
 
-	// Wrap every go/doc Func in our own Method.
-	methods := make([]Method, len(t.docType.Methods))
-	for i, m := range t.docType.Methods {
-		methods[i] = Method{
-			docMethod: m,
-		}
-	}
-
-	return methods
+	return t.methods
 }
 
 func (t Type) Exports() []interface{} {
