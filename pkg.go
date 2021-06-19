@@ -2,18 +2,21 @@
 package pkg
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"go/build"
 	"go/doc"
 	"go/parser"
 	"go/token"
+	"os"
+	"path/filepath"
 	"sort"
 )
 
 var ErrInvalidPkg = fmt.Errorf("invalid package")
 
-// Package is the main type for this package. It holds details about the package.
+// Package is the main type for this package. It holds details about the package's structure.
 type Package struct {
 	// Package object from go/ast. This is used to gather the files in the particular package we
 	// want and exclude other packages in the same import directory (like external test packages).
@@ -26,6 +29,29 @@ type Package struct {
 
 	// Package object from go/doc. This holds the information about the structure of the code.
 	docPackage *doc.Package
+
+	// List of source files for this package. This includes both the source files for this system's
+	// build and those ignored for this system's build.
+	files []string
+
+	// List of test files for this package. This includes both the test files within this package
+	// and the test files for any other external test package in this package's directory.
+	testFiles []string
+
+	// List of imports in the source files (no test files) for this package.
+	imports []string
+
+	// List of imports in the test files (no source files) for this package. This includes test
+	// files in the package and test files not in the package but in the package's directory.
+	testImports []string
+
+	// List of exported functions for this package. This includes only exported functions from the
+	// source files, not from the test files.
+	functions []Function
+
+	// List of exported types for this package. This includes only exported types from the source
+	// files, not from the test files.
+	types []Type
 }
 
 // New parses the package at importPath and creates a new Package object with its information.
@@ -64,21 +90,102 @@ func New(importPath string) (Package, error) {
 	}
 
 	// Put everything together into our Package type.
+	return buildPackage(astPackage, buildPackage, docPackage)
+}
+
+// buildPackage puts together the internal structure for a Package object.
+func buildPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
+	// Begin with structuring up our object.
 	p := Package{
 		astPackage:   astPackage,
 		buildPackage: buildPackage,
 		docPackage:   docPackage,
 	}
 
+	// Put together the list of source files, both for this system's build and those ignored for
+	// this system's build.
+	for _, s := range [][]string{p.buildPackage.GoFiles, p.buildPackage.IgnoredGoFiles} {
+		p.files = append(p.files, s...)
+	}
+
+	// Put together the list of test files, both for this package and any other external test
+	// package in this package's directory.
+	for _, s := range [][]string{p.buildPackage.TestGoFiles, p.buildPackage.XTestGoFiles} {
+		p.testFiles = append(p.testFiles, s...)
+	}
+
+	// Copy the list of imports from the source files.
+	p.imports = append([]string{}, p.buildPackage.Imports...)
+
+	// Put together the list of imports from both the internally and externally packaged test files.
+	// Make sure the list is sorted and free of duplicates.
+	m := make(map[string]bool)
+	for _, ss := range [][]string{p.buildPackage.TestImports, p.buildPackage.XTestImports} {
+		for _, s := range ss {
+			m[s] = true
+		}
+	}
+	p.testImports = make([]string, 0, len(m))
+	for v := range m {
+		p.testImports = append(p.testImports, v)
+	}
+	sort.Strings(p.testImports)
+
+	// Put together all the source files so we can generate documentation with embedded code.
+	r, err := buildSource(buildPackage)
+	if err != nil {
+		return Package{}, fmt.Errorf("error reading source files: %w", err)
+	}
+
+	// Extract the exported functions for this package.
+	p.functions = p.extractFunctions(r)
+
+	// Extract the exported types for this package.
+	p.types = p.extractTypes(r)
+
+	// TODO: extract all other information
+
 	return p, nil
 }
 
-// isValid checks whether or not p is a valid Package object.
-func (p Package) isValid() bool {
-	if p == (Package{}) {
-		return false
+// buildSource concatenates the source files for the package into a bytes.Reader.
+func buildSource(bp *build.Package) (*bytes.Reader, error) {
+	if bp == nil {
+		return nil, fmt.Errorf("missing internal build package")
 	}
 
+	// First, we need to read in all the source files. When the internal go/* libraries generate the
+	// AST and documentation for the package, they read in all source and test files in alphabetical
+	// order, joined with newlines. We must use the same approach to make sure that the position
+	// indexes line up later.
+	files := make([]string, 0)
+	for _, s := range [][]string{
+		// TODO: what other files need to be added here?
+		bp.GoFiles,
+		bp.CgoFiles,
+		bp.IgnoredGoFiles,
+		bp.TestGoFiles,
+		bp.XTestGoFiles,
+	} {
+		files = append(files, s...)
+	}
+	sort.Strings(files)
+
+	bufs := make([][]byte, len(files))
+	for i, f := range files {
+		f = filepath.Join(bp.Dir, f)
+		data, err := os.ReadFile(f)
+		if err != nil {
+			return nil, err
+		}
+		bufs[i] = data
+	}
+
+	return bytes.NewReader(bytes.Join(bufs, []byte{'\n'})), nil
+}
+
+// IsValid checks whether or not p is a valid Package object.
+func (p Package) IsValid() bool {
 	if p.astPackage == nil {
 		return false
 	}
@@ -97,7 +204,7 @@ func (p Package) isValid() bool {
 
 // Name returns the package's name.
 func (p Package) Name() string {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return ""
 	}
 
@@ -110,13 +217,11 @@ func (p Package) Name() string {
 // source files in the package's directory and does not limit the files based on what is actually
 // used when building for the current system.
 func (p Package) Files() []string {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return nil
 	}
 
-	// Return both the source files for this system's build and the source files ignored for this
-	// system's build.
-	return append(p.buildPackage.GoFiles, p.buildPackage.IgnoredGoFiles...)
+	return p.files
 }
 
 // TestFiles returns a list of test files in the package's directory. This includes test files both
@@ -125,22 +230,21 @@ func (p Package) Files() []string {
 // to the package's directory, not absolute on the filesystem. Source files are not included in the
 // list. To get a list of source files in the package, see Package's Files.
 func (p Package) TestFiles() []string {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return nil
 	}
 
-	// Return both the internally and externally packaged test files.
-	return append(p.buildPackage.TestGoFiles, p.buildPackage.XTestGoFiles...)
+	return p.testFiles
 }
 
 // Imports returns a list of imports in the package. The list includes only imports from the source
 // files, not the test files. To get a list of imports from the test files, see Package's TestImports.
 func (p Package) Imports() []string {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return nil
 	}
 
-	return p.buildPackage.Imports
+	return p.imports
 }
 
 // TestImports returns a list of imports from test files both within the package (e.g. mypkg_test.go
@@ -148,66 +252,28 @@ func (p Package) Imports() []string {
 // other_test.go in package mypkg_test). The list includes only imports from the test files, not the
 // source files. To get a list of imports from the source files, see Package's Imports.
 func (p Package) TestImports() []string {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return nil
 	}
 
-	// Return the imports from both the internally and externally packaged test files. Make sure the
-	// list is sorted and free of duplicates.
-	imports := make(map[string]bool)
-	for _, path := range append(p.buildPackage.TestImports, p.buildPackage.XTestImports...) {
-		imports[path] = true
-	}
-	all := make([]string, 0, len(imports))
-	for path := range imports {
-		all = append(all, path)
-	}
-	sort.Strings(all)
-
-	return all
+	return p.testImports
 }
 
 // Functions returns a list of exported functions in the package. The list includes exported
 // functions from source files for the package only, not from test files (internal or external).
 func (p Package) Functions() []Function {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return nil
 	}
 
-	// If there aren't any exported functions in this package, then don't return anything.
-	if len(p.docPackage.Funcs) == 0 {
-		return nil
-	}
-
-	// Wrap every go/doc Func in our own Function.
-	funcs := make([]Function, len(p.docPackage.Funcs))
-	for i, v := range p.docPackage.Funcs {
-		funcs[i] = Function{
-			docFunc: v,
-		}
-	}
-
-	return funcs
+	return p.functions
 }
 
 // Types returns a list of exported types in the package.
 func (p Package) Types() []Type {
-	if !p.isValid() {
+	if !p.IsValid() {
 		return nil
 	}
 
-	// If there aren't any exported types in this package, then don't return anything.
-	if len(p.docPackage.Types) == 0 {
-		return nil
-	}
-
-	// Wrap every go/doc Type in our own Type.
-	types := make([]Type, len(p.docPackage.Types))
-	for i, v := range p.docPackage.Types {
-		types[i] = Type{
-			docType: v,
-		}
-	}
-
-	return types
+	return p.types
 }
