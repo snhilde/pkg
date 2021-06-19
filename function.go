@@ -1,3 +1,4 @@
+// This file contains the information and logic for the Function type.
 package pkg
 
 import (
@@ -10,7 +11,7 @@ type Function struct {
 	// Func object from go/doc.
 	docFunc *doc.Func
 
-	// Function name.
+	// Function's name.
 	name string
 
 	// Original declaration in source for this function.
@@ -23,32 +24,25 @@ type Function struct {
 	output []Parameter
 }
 
-// extractFunctions returns a list of exported functions from source files in p.
-func (p Package) extractFunctions(r *bytes.Reader) []Function {
-	if !p.IsValid() {
-		return nil
+// newFunction builds a new Function object based on go/doc's Func.
+func newFunction(f *doc.Func, r *bytes.Reader) Function {
+	if f == nil || r == nil {
+		return Function{}
 	}
+	// Read out the source declaration.
+	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
+	decl := extractSource(r, start, end)
 
-	funcs := make([]Function, len(p.docPackage.Funcs))
-	for i, v := range p.docPackage.Funcs {
-		// Read out the source declaration.
-		start, end := v.Decl.Type.Pos()-1, v.Decl.Type.End()-1 // -1 to index properly
-		decl := extractSource(r, start, end)
+	// Extract the parameters.
+	in, out := extractParameters(f.Decl.Type, r)
 
-		// Extract the parameters.
-		in, out := extractParameters(v.Decl, r)
-
-		// Put everything together.
-		funcs[i] = Function{
-			docFunc: v,
-			name:    v.Name,
-			decl:    decl,
-			input:   in,
-			output:  out,
-		}
+	return Function{
+		docFunc: f,
+		name:    f.Name,
+		decl:    decl,
+		input:   in,
+		output:  out,
 	}
-
-	return funcs
 }
 
 // IsValid checks whether or not f is a valid Function object.
