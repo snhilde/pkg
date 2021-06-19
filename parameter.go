@@ -61,7 +61,7 @@ func extractParameters(ft *ast.FuncType, r *bytes.Reader) ([]Parameter, []Parame
 				// Get the names of all grouped parameters of this type and add the members to the list.
 				for _, name := range p.Names {
 					out = append(out, Parameter{
-						name:  name.Name,
+						name:     name.Name,
 						typeName: string(tb),
 					})
 				}

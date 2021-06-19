@@ -182,7 +182,7 @@ func buildSource(bp *build.Package) (*bytes.Reader, error) {
 		f = filepath.Join(bp.Dir, f)
 		data, err := os.ReadFile(f)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error reading file: %w", err)
 		}
 		bufs[i] = data
 	}

@@ -13,8 +13,8 @@ func extractSource(r io.ReaderAt, start, end token.Pos) *bytes.Reader {
 		return nil
 	}
 
-	b := make([]byte, end - start)
-	if n, err := r.ReadAt(b, int64(start)); n != int(end - start) || err != nil {
+	b := make([]byte, end-start)
+	if n, err := r.ReadAt(b, int64(start)); n != int(end-start) || err != nil {
 		return nil
 	}
 
