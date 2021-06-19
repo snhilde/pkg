@@ -16,11 +16,11 @@ type Function struct {
 	// Original declaration in source for this function.
 	decl *bytes.Reader
 
-	// Arguments sent in to the function.
-	args []Parameter
+	// Input parameters.
+	input []Parameter
 
-	// Results returned from the functions.
-	rets []Parameter
+	// Output parameters.
+	output []Parameter
 }
 
 // extractFunctions returns a list of exported functions from source files in p.
@@ -31,21 +31,20 @@ func (p Package) extractFunctions(r *bytes.Reader) []Function {
 
 	funcs := make([]Function, len(p.docPackage.Funcs))
 	for i, v := range p.docPackage.Funcs {
-		tp := v.Decl.Type
-
 		// Read out the source declaration.
+		start, end := v.Decl.Type.Pos()-1, v.Decl.Type.End()-1 // -1 to index properly
 		decl := extractSource(r, start, end)
 
 		// Extract the parameters.
-		in, out := extractParameters(tp)
+		in, out := extractParameters(v.Decl, r)
 
-		start, end := tp.Pos()-1, tp.End()-1 // -1 to index properly
+		// Put everything together.
 		funcs[i] = Function{
 			docFunc: v,
 			name:    v.Name,
 			decl:    decl,
-			args:    in,
-			rets:    out,
+			input:   in,
+			output:  out,
 		}
 	}
 
@@ -77,4 +76,24 @@ func (f Function) Name() string {
 	}
 
 	return f.name
+}
+
+// Input returns a list of input parameters sent to this function, or nil on invalid object. If
+// there are no input parameters, this returns a slice of size 0..
+func (f Function) Input() []Parameter {
+	if !f.IsValid() {
+		return nil
+	}
+
+	return f.input
+}
+
+// Output returns a list of output parameters returned from this function, or nil on invalid object.
+// If there are no output parameters, this returns a slice of size 0..
+func (f Function) Output() []Parameter {
+	if !f.IsValid() {
+		return nil
+	}
+
+	return f.output
 }
