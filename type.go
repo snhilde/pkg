@@ -10,9 +10,6 @@ type Type struct {
 	// Name of this type.
 	name string
 
-	// Original declaration in source for this type.
-	decl *bytes.Reader
-
 	// Functions in the package that primarily return this type.
 	functions []Function
 
@@ -28,6 +25,7 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 	// Read out the source declaration.
 	start, end := t.Decl.Pos()-1, t.Decl.End()-1 // -1 to index properly
 	decl := extractSource(r, start, end)
+	_ = decl // TODO
 
 	// Make a list of functions for this type.
 	functions := make([]Function, len(t.Funcs))
@@ -43,7 +41,6 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 
 	return Type{
 		name:      t.Name,
-		decl:      decl,
 		functions: functions,
 		methods:   methods,
 	}

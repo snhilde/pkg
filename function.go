@@ -11,9 +11,6 @@ type Function struct {
 	// Function's name.
 	name string
 
-	// Original declaration in source for this function.
-	decl *bytes.Reader
-
 	// Input parameters.
 	input []Parameter
 
@@ -29,13 +26,13 @@ func newFunction(f *doc.Func, r *bytes.Reader) Function {
 	// Read out the source declaration.
 	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
 	decl := extractSource(r, start, end)
+	_ = decl // TODO
 
 	// Extract the parameters.
 	in, out := extractParameters(f.Decl.Type, r)
 
 	return Function{
 		name:   f.Name,
-		decl:   decl,
 		input:  in,
 		output: out,
 	}
