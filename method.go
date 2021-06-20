@@ -12,14 +12,20 @@ type Method struct {
 	// Method's name.
 	name string
 
-	// Input parameters.
-	input []Parameter
+	// Comments for this method.
+	comments string
 
-	// Output parameters.
-	output []Parameter
+	// Receiver of this method.
+	receiver string
 
 	// Whether or not the receiver of this method is a pointer.
-	pointer bool
+	pointerRcvr bool
+
+	// Input parameters.
+	inputs []Parameter
+
+	// Output parameters.
+	outputs []Parameter
 }
 
 // newMethod builds a new Method object based on go/doc's Func.
@@ -36,10 +42,11 @@ func newMethod(f *doc.Func, r *bytes.Reader) Method {
 	in, out := extractParameters(f.Decl.Type, r)
 
 	return Method{
-		name:    f.Name,
-		input:   in,
-		output:  out,
-		pointer: strings.HasPrefix(f.Recv, "*"),
+		name:        f.Name,
+		receiver:    f.Recv,
+		pointerRcvr: strings.HasPrefix(f.Recv, "*"),
+		inputs:      in,
+		outputs:     out,
 	}
 }
 
@@ -48,15 +55,15 @@ func (m Method) Name() string {
 	return m.name
 }
 
-// Input returns a list of input parameters sent to this method, or nil on invalid object. If
+// Inputs returns a list of input parameters sent to this method, or nil on invalid object. If
 // there are no input parameters, this returns a slice of size 0.. The list does not include the
 // method receiver.
-func (m Method) Input() []Parameter {
-	return m.input
+func (m Method) Inputs() []Parameter {
+	return m.inputs
 }
 
-// Output returns a list of output parameters returned from this method, or nil on invalid object.
+// Outputs returns a list of output parameters returned from this method, or nil on invalid object.
 // If there are no output parameters, this returns a slice of size 0..
-func (m Method) Output() []Parameter {
-	return m.output
+func (m Method) Outputs() []Parameter {
+	return m.outputs
 }

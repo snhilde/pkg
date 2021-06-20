@@ -11,11 +11,14 @@ type Function struct {
 	// Function's name.
 	name string
 
+	// Comments for this function.
+	comments string
+
 	// Input parameters.
-	input []Parameter
+	inputs []Parameter
 
 	// Output parameters.
-	output []Parameter
+	outputs []Parameter
 }
 
 // newFunction builds a new Function object based on go/doc's Func.
@@ -32,9 +35,9 @@ func newFunction(f *doc.Func, r *bytes.Reader) Function {
 	in, out := extractParameters(f.Decl.Type, r)
 
 	return Function{
-		name:   f.Name,
-		input:  in,
-		output: out,
+		name:    f.Name,
+		inputs:  in,
+		outputs: out,
 	}
 }
 
@@ -43,14 +46,14 @@ func (f Function) Name() string {
 	return f.name
 }
 
-// Input returns a list of input parameters sent to this function, or nil on invalid object. If
+// Inputs returns a list of input parameters sent to this function, or nil on invalid object. If
 // there are no input parameters, this returns a slice of size 0..
-func (f Function) Input() []Parameter {
-	return f.input
+func (f Function) Inputs() []Parameter {
+	return f.inputs
 }
 
-// Output returns a list of output parameters returned from this function, or nil on invalid object.
+// Outputs returns a list of output parameters returned from this function, or nil on invalid object.
 // If there are no output parameters, this returns a slice of size 0..
-func (f Function) Output() []Parameter {
-	return f.output
+func (f Function) Outputs() []Parameter {
+	return f.outputs
 }
