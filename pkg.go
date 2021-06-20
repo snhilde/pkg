@@ -94,12 +94,14 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 	for _, s := range [][]string{buildPackage.GoFiles, buildPackage.IgnoredGoFiles} {
 		p.files = append(p.files, s...)
 	}
+	sort.Strings(p.files)
 
 	// Put together the list of test files, both for this package and any other external test
 	// package in this package's directory.
 	for _, s := range [][]string{buildPackage.TestGoFiles, buildPackage.XTestGoFiles} {
 		p.testFiles = append(p.testFiles, s...)
 	}
+	sort.Strings(p.testFiles)
 
 	// Copy the list of imports from the source files.
 	p.imports = append([]string{}, buildPackage.Imports...)
