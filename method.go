@@ -4,7 +4,7 @@ package pkg
 import (
 	"bytes"
 	"go/doc"
-	"strings"
+	"io"
 )
 
 // Method holds information about a type's method.
@@ -33,21 +33,45 @@ func newMethod(f *doc.Func, r *bytes.Reader) Method {
 	if f == nil || r == nil {
 		return Method{}
 	}
-	// Read out the source declaration.
-	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
-	decl := extractSource(r, start, end)
-	_ = decl // TODO
+
+	// Extract the receiver.
+	receiver, pointerRcvr := extractReceiver(f, r)
 
 	// Extract the parameters.
 	in, out := extractParameters(f.Decl.Type, r)
 
 	return Method{
 		name:        f.Name,
-		receiver:    f.Recv,
-		pointerRcvr: strings.HasPrefix(f.Recv, "*"),
+		receiver:    string(receiver),
+		pointerRcvr: pointerRcvr,
 		inputs:      in,
 		outputs:     out,
 	}
+}
+
+// extractReceiver parses the source of this method and extracts its receiver, also returning
+// whether or not the receiver is a pointer.
+func extractReceiver(f *doc.Func, r *bytes.Reader) ([]byte, bool) {
+	// Read out the source declaration.
+	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
+	source := extractSource(r, start, end)
+	b, err := io.ReadAll(source)
+	if err != nil {
+		return nil, false
+	}
+
+	// Remove the func keyword and opening parenthesis from the beginning.
+	b = bytes.TrimPrefix(b, []byte("func ("))
+
+	// Remove everything after (and including) the closing parenthesis.
+	i := bytes.IndexByte(b, ')')
+	b = bytes.TrimSpace(b[:i])
+
+	// Figure out if the receiver is a pointer or not.
+	i = bytes.IndexByte(b, ' ')
+	isPointer := b[i+1] == '*'
+
+	return b, isPointer
 }
 
 // Name returns the method's name.
@@ -67,7 +91,7 @@ func (m Method) PointerReceiver() bool {
 
 // Inputs returns a list of input parameters sent to this method, or nil on invalid object. If
 // there are no input parameters, this returns a slice of size 0.. The list does not include the
-// method receiver.
+// method's receiver.
 func (m Method) Inputs() []Parameter {
 	return m.inputs
 }
