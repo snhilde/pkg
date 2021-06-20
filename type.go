@@ -3,12 +3,22 @@ package pkg
 import (
 	"bytes"
 	"go/doc"
+	"io"
 )
 
 // Type holds information about an exported type in a package.
 type Type struct {
 	// Name of this type.
 	name string
+
+	// Name of this type's underlying type.
+	typeName string
+
+	// Original declaration in source for this type.
+	source *bytes.Reader
+
+	// Comments for this type.
+	comments string
 
 	// Functions in the package that primarily return this type.
 	functions []Function
@@ -24,8 +34,10 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 	}
 	// Read out the source declaration.
 	start, end := t.Decl.Pos()-1, t.Decl.End()-1 // -1 to index properly
-	decl := extractSource(r, start, end)
-	_ = decl // TODO
+	source := extractSource(r, start, end)
+
+	// Extract the underlying type.
+	typeName := extractType(t, r)
 
 	// Make a list of functions for this type.
 	functions := make([]Function, len(t.Funcs))
@@ -41,14 +53,48 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 
 	return Type{
 		name:      t.Name,
+		typeName:  string(typeName),
+		source:    source,
 		functions: functions,
 		methods:   methods,
 	}
 }
 
+// extractType extracts the underlying type name for this type.
+func extractType(t *doc.Type, r *bytes.Reader) []byte {
+	// Read out the source declaration.
+	start, end := t.Decl.Pos()-1, t.Decl.End()-1 // -1 to index properly
+	source := extractSource(r, start, end)
+	b, err := io.ReadAll(source)
+	if err != nil {
+		return nil
+	}
+
+	// Remove the type keyword and name of this type from the beginning.
+	b = bytes.TrimPrefix(b, []byte("type "+t.Name+" "))
+
+	// Remove any other lines in this declaration.
+	if i := bytes.IndexByte(b, '\n'); i > 0 {
+		b = b[:i]
+	}
+
+	// If we have an opening curly bracket still, we need to remove that.
+	b = bytes.TrimSpace(b)
+	if bytes.HasSuffix(b, []byte{'{'}) {
+		b = b[:len(b)-2]
+	}
+
+	return bytes.TrimSpace(b)
+}
+
 // Name returns the type's name.
 func (t Type) Name() string {
 	return t.name
+}
+
+// Type returns the name of the type's underlying type, like "struct" or "map[string]chan int".
+func (t Type) Type() string {
+	return t.typeName
 }
 
 // Functions returns a list of functions that primarily return this type.
