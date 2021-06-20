@@ -38,11 +38,8 @@ func TestNew(t *testing.T) {
 	t.Parallel()
 
 	for _, testPackage := range testPackages {
-		p, err := pkg.New(testPackage)
-		if err != nil {
+		if _, err := pkg.New(testPackage); err != nil {
 			t.Error(err)
-		} else if !p.IsValid() {
-			t.Errorf("%s: received empty Package object", testPackage)
 		}
 	}
 }
