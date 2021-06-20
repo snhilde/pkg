@@ -7,8 +7,8 @@ import (
 
 // Type holds information about an exported type in a package.
 type Type struct {
-	// Type object from go/doc.
-	docType *doc.Type
+	// Name of this type.
+	name string
 
 	// Original declaration in source for this type.
 	decl *bytes.Reader
@@ -42,51 +42,25 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 	}
 
 	return Type{
-		docType:   t,
+		name:      t.Name,
 		decl:      decl,
 		functions: functions,
 		methods:   methods,
 	}
 }
 
-// IsValid checks whether or not t is a valid Type object.
-func (t Type) IsValid() bool {
-	if t.docType == nil {
-		return false
-	}
-
-	if t.decl == nil {
-		return false
-	}
-
-	// All checks passed.
-	return true
-}
-
 // Name returns the type's name.
 func (t Type) Name() string {
-	if !t.IsValid() {
-		return ""
-	}
-
-	return t.docType.Name
+	return t.name
 }
 
 // Functions returns a list of functions that primarily return this type.
 func (t Type) Functions() []Function {
-	if !t.IsValid() {
-		return nil
-	}
-
 	return t.functions
 }
 
 // Methods returns a list of methods for this type.
 func (t Type) Methods() []Method {
-	if !t.IsValid() {
-		return nil
-	}
-
 	return t.methods
 }
 
