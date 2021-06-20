@@ -55,6 +55,16 @@ func (m Method) Name() string {
 	return m.name
 }
 
+// Receiver returns method's receiver.
+func (m Method) Receiver() string {
+	return m.receiver
+}
+
+// PointerReceiver returns whether or not the method's receiver is a pointer to the method's type.
+func (m Method) PointerReceiver() bool {
+	return m.pointerRcvr
+}
+
 // Inputs returns a list of input parameters sent to this method, or nil on invalid object. If
 // there are no input parameters, this returns a slice of size 0.. The list does not include the
 // method receiver.
