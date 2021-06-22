@@ -21,6 +21,9 @@ type Package struct {
 	// Name of this package.
 	name string
 
+	// Import path for this package.
+	importPath string
+
 	// General package overview comments/documentation.
 	comments string
 
@@ -92,8 +95,9 @@ func New(importPath string) (Package, error) {
 func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
 	// Begin with structuring up our object.
 	p := Package{
-		name:     docPackage.Name,
-		comments: docPackage.Doc,
+		name:       docPackage.Name,
+		importPath: docPackage.ImportPath,
+		comments:   docPackage.Doc,
 	}
 
 	// Put together the list of source files, both for this system's build and those ignored for
@@ -145,8 +149,6 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 		p.types[i] = newType(t, r)
 	}
 
-	// TODO: extract all other information
-
 	return p, nil
 }
 
@@ -189,6 +191,11 @@ func buildSource(bp *build.Package) (*bytes.Reader, error) {
 // Name returns the package's name.
 func (p Package) Name() string {
 	return p.name
+}
+
+// ImportPath returns the package's import path.
+func (p Package) ImportPath() string {
+	return p.importPath
 }
 
 // Comments returns the general package overview documentation with pkg's formatting applied.
