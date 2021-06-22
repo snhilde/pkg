@@ -51,10 +51,9 @@ type testParameter struct {
 
 // Structure for package "errors".
 var pkgErrors = testPackage{
-	importPath:  "errors",
-	name:        "errors",
-	comments:
-`Package errors implements functions to manipulate errors.
+	importPath: "errors",
+	name:       "errors",
+	comments: `Package errors implements functions to manipulate errors.
 
 The New function creates errors whose only content is a text message.
 
@@ -103,9 +102,8 @@ because the former will succeed if err wraps an *fs.PathError.
 	testImports: []string{"errors", "fmt", "io/fs", "os", "reflect", "testing", "time"},
 	functions: []testFunction{
 		{
-			name:     "As",
-			comments:
-`As finds the first error in err's chain that matches target, and if so, sets target to that error value and returns true. Otherwise, it returns false.
+			name: "As",
+			comments: `As finds the first error in err's chain that matches target, and if so, sets target to that error value and returns true. Otherwise, it returns false.
 
 The chain consists of err itself followed by the sequence of errors obtained by repeatedly calling Unwrap.
 
@@ -133,9 +131,8 @@ As panics if target is not a non-nil pointer to either a type that implements er
 			},
 		},
 		{
-			name:     "Is",
-			comments:
-`Is reports whether any error in err's chain matches target.
+			name: "Is",
+			comments: `Is reports whether any error in err's chain matches target.
 
 The chain consists of err itself followed by the sequence of errors obtained by repeatedly calling Unwrap.
 
@@ -165,9 +162,8 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 			},
 		},
 		{
-			name:     "New",
-			comments:
-`New returns an error that formats as the given text. Each call to New returns a distinct error value even if the text is identical.
+			name: "New",
+			comments: `New returns an error that formats as the given text. Each call to New returns a distinct error value even if the text is identical.
 `,
 			inputs: []testParameter{
 				{
@@ -183,9 +179,8 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 			},
 		},
 		{
-			name:     "Unwrap",
-			comments:
-`Unwrap returns the result of calling the Unwrap method on err, if err's type contains an Unwrap method returning error. Otherwise, Unwrap returns nil.
+			name: "Unwrap",
+			comments: `Unwrap returns the result of calling the Unwrap method on err, if err's type contains an Unwrap method returning error. Otherwise, Unwrap returns nil.
 `,
 			inputs: []testParameter{
 				{
@@ -211,8 +206,7 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 var pkgFmt = testPackage{
 	importPath: "fmt",
 	name:       "fmt",
-	comments:
-`Package fmt implements formatted I/O with functions analogous to C's printf and scanf. The format 'verbs' are derived from C's but are simpler.
+	comments: `Package fmt implements formatted I/O with functions analogous to C's printf and scanf. The format 'verbs' are derived from C's but are simpler.
 
 
 Printing
@@ -472,9 +466,8 @@ Note: Fscan etc. can read one character (rune) past the input they return, which
 	},
 	functions: []testFunction{
 		{
-			name:     "Errorf",
-			comments:
-`Errorf formats according to a format specifier and returns the string as a value that satisfies error.
+			name: "Errorf",
+			comments: `Errorf formats according to a format specifier and returns the string as a value that satisfies error.
 
 If the format specifier includes a %w verb with an error operand, the returned error will implement an Unwrap method returning the operand. It is invalid to include more than one %w verb or to supply it with an operand that does not implement the error interface. The %w verb is otherwise a synonym for %v.
 `,
@@ -496,9 +489,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Fprint",
-			comments:
-`Fprint formats using the default formats for its operands and writes to w. Spaces are added between operands when neither is a string. It returns the number of bytes written and any write error encountered.
+			name: "Fprint",
+			comments: `Fprint formats using the default formats for its operands and writes to w. Spaces are added between operands when neither is a string. It returns the number of bytes written and any write error encountered.
 `,
 			inputs: []testParameter{
 				{
@@ -522,9 +514,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Fprintf",
-			comments:
-`Fprintf formats according to a format specifier and writes to w. It returns the number of bytes written and any write error encountered.
+			name: "Fprintf",
+			comments: `Fprintf formats according to a format specifier and writes to w. It returns the number of bytes written and any write error encountered.
 `,
 			inputs: []testParameter{
 				{
@@ -552,9 +543,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Fprintln",
-			comments:
-`Fprintln formats using the default formats for its operands and writes to w. Spaces are always added between operands and a newline is appended. It returns the number of bytes written and any write error encountered.
+			name: "Fprintln",
+			comments: `Fprintln formats using the default formats for its operands and writes to w. Spaces are always added between operands and a newline is appended. It returns the number of bytes written and any write error encountered.
 `,
 			inputs: []testParameter{
 				{
@@ -578,9 +568,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Fscan",
-			comments:
-`Fscan scans text read from r, storing successive space-separated values into successive arguments. Newlines count as space. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why.
+			name: "Fscan",
+			comments: `Fscan scans text read from r, storing successive space-separated values into successive arguments. Newlines count as space. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why.
 `,
 			inputs: []testParameter{
 				{
@@ -604,9 +593,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Fscanf",
-			comments:
-`Fscanf scans text read from r, storing successive space-separated values into successive arguments as determined by the format. It returns the number of items successfully parsed. Newlines in the input must match newlines in the format.
+			name: "Fscanf",
+			comments: `Fscanf scans text read from r, storing successive space-separated values into successive arguments as determined by the format. It returns the number of items successfully parsed. Newlines in the input must match newlines in the format.
 `,
 			inputs: []testParameter{
 				{
@@ -634,9 +622,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Fscanln",
-			comments:
-`Fscanln is similar to Fscan, but stops scanning at a newline and after the final item there must be a newline or EOF.
+			name: "Fscanln",
+			comments: `Fscanln is similar to Fscan, but stops scanning at a newline and after the final item there must be a newline or EOF.
 `,
 			inputs: []testParameter{
 				{
@@ -660,9 +647,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Print",
-			comments:
-`Print formats using the default formats for its operands and writes to standard output. Spaces are added between operands when neither is a string. It returns the number of bytes written and any write error encountered.
+			name: "Print",
+			comments: `Print formats using the default formats for its operands and writes to standard output. Spaces are added between operands when neither is a string. It returns the number of bytes written and any write error encountered.
 `,
 			inputs: []testParameter{
 				{
@@ -682,9 +668,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Printf",
-			comments:
-`Printf formats according to a format specifier and writes to standard output. It returns the number of bytes written and any write error encountered.
+			name: "Printf",
+			comments: `Printf formats according to a format specifier and writes to standard output. It returns the number of bytes written and any write error encountered.
 `,
 			inputs: []testParameter{
 				{
@@ -708,9 +693,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Println",
-			comments:
-`Println formats using the default formats for its operands and writes to standard output. Spaces are always added between operands and a newline is appended. It returns the number of bytes written and any write error encountered.
+			name: "Println",
+			comments: `Println formats using the default formats for its operands and writes to standard output. Spaces are always added between operands and a newline is appended. It returns the number of bytes written and any write error encountered.
 `,
 			inputs: []testParameter{
 				{
@@ -730,9 +714,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Scan",
-			comments:
-`Scan scans text read from standard input, storing successive space-separated values into successive arguments. Newlines count as space. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why.
+			name: "Scan",
+			comments: `Scan scans text read from standard input, storing successive space-separated values into successive arguments. Newlines count as space. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why.
 `,
 			inputs: []testParameter{
 				{
@@ -752,9 +735,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Scanf",
-			comments:
-`Scanf scans text read from standard input, storing successive space-separated values into successive arguments as determined by the format. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why. Newlines in the input must match newlines in the format. The one exception: the verb %c always scans the next rune in the input, even if it is a space (or tab etc.) or newline.
+			name: "Scanf",
+			comments: `Scanf scans text read from standard input, storing successive space-separated values into successive arguments as determined by the format. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why. Newlines in the input must match newlines in the format. The one exception: the verb %c always scans the next rune in the input, even if it is a space (or tab etc.) or newline.
 `,
 			inputs: []testParameter{
 				{
@@ -778,9 +760,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Scanln",
-			comments:
-`Scanln is similar to Scan, but stops scanning at a newline and after the final item there must be a newline or EOF.
+			name: "Scanln",
+			comments: `Scanln is similar to Scan, but stops scanning at a newline and after the final item there must be a newline or EOF.
 `,
 			inputs: []testParameter{
 				{
@@ -800,9 +781,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Sprint",
-			comments:
-`Sprint formats using the default formats for its operands and returns the resulting string. Spaces are added between operands when neither is a string.
+			name: "Sprint",
+			comments: `Sprint formats using the default formats for its operands and returns the resulting string. Spaces are added between operands when neither is a string.
 `,
 			inputs: []testParameter{
 				{
@@ -818,9 +798,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Sprintf",
-			comments:
-`Sprintf formats according to a format specifier and returns the resulting string.
+			name: "Sprintf",
+			comments: `Sprintf formats according to a format specifier and returns the resulting string.
 `,
 			inputs: []testParameter{
 				{
@@ -840,9 +819,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Sprintln",
-			comments:
-`Sprintln formats using the default formats for its operands and returns the resulting string. Spaces are always added between operands and a newline is appended.
+			name: "Sprintln",
+			comments: `Sprintln formats using the default formats for its operands and returns the resulting string. Spaces are always added between operands and a newline is appended.
 `,
 			inputs: []testParameter{
 				{
@@ -858,9 +836,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Sscan",
-			comments:
-`Sscan scans the argument string, storing successive space-separated values into successive arguments. Newlines count as space. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why.
+			name: "Sscan",
+			comments: `Sscan scans the argument string, storing successive space-separated values into successive arguments. Newlines count as space. It returns the number of items successfully scanned. If that is less than the number of arguments, err will report why.
 `,
 			inputs: []testParameter{
 				{
@@ -884,9 +861,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Sscanf",
-			comments:
-`Sscanf scans the argument string, storing successive space-separated values into successive arguments as determined by the format. It returns the number of items successfully parsed. Newlines in the input must match newlines in the format.
+			name: "Sscanf",
+			comments: `Sscanf scans the argument string, storing successive space-separated values into successive arguments as determined by the format. It returns the number of items successfully parsed. Newlines in the input must match newlines in the format.
 `,
 			inputs: []testParameter{
 				{
@@ -914,9 +890,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			},
 		},
 		{
-			name:     "Sscanln",
-			comments:
-`Sscanln is similar to Sscan, but stops scanning at a newline and after the final item there must be a newline or EOF.
+			name: "Sscanln",
+			comments: `Sscanln is similar to Sscan, but stops scanning at a newline and after the final item there must be a newline or EOF.
 `,
 			inputs: []testParameter{
 				{
@@ -942,61 +917,55 @@ If the format specifier includes a %w verb with an error operand, the returned e
 	},
 	types: []testType{
 		{
-			name:      "Formatter",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`Formatter is implemented by any value that has a Format method. The implementation controls how State and rune are interpreted, and may call Sprint(f) or Fprint(f) etc. to generate its output.
+			name:     "Formatter",
+			typeName: "interface",
+			source:   "",
+			comments: `Formatter is implemented by any value that has a Format method. The implementation controls how State and rune are interpreted, and may call Sprint(f) or Fprint(f) etc. to generate its output.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "GoStringer",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value. The GoString method is used to print values passed as an operand to a %#v format.
+			name:     "GoStringer",
+			typeName: "interface",
+			source:   "",
+			comments: `GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value. The GoString method is used to print values passed as an operand to a %#v format.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "ScanState",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`ScanState represents the scanner state passed to custom scanners. Scanners may do rune-at-a-time scanning or ask the ScanState to discover the next space-delimited token.
+			name:     "ScanState",
+			typeName: "interface",
+			source:   "",
+			comments: `ScanState represents the scanner state passed to custom scanners. Scanners may do rune-at-a-time scanning or ask the ScanState to discover the next space-delimited token.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Scanner",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`Scanner is implemented by any value that has a Scan method, which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful. The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.
+			name:     "Scanner",
+			typeName: "interface",
+			source:   "",
+			comments: `Scanner is implemented by any value that has a Scan method, which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful. The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "State",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`State represents the printer state passed to custom formatters. It provides access to the io.Writer interface plus information about the flags and options for the operand's format specifier.
+			name:     "State",
+			typeName: "interface",
+			source:   "",
+			comments: `State represents the printer state passed to custom formatters. It provides access to the io.Writer interface plus information about the flags and options for the operand's format specifier.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Stringer",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`Stringer is implemented by any value that has a String method, which defines the “native” format for that value. The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.
+			name:     "Stringer",
+			typeName: "interface",
+			source:   "",
+			comments: `Stringer is implemented by any value that has a String method, which defines the “native” format for that value. The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
@@ -1011,8 +980,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 var pkgHash = testPackage{
 	importPath: "hash",
 	name:       "hash",
-	comments:
-`Package hash provides interfaces for hash functions.
+	comments: `Package hash provides interfaces for hash functions.
 `,
 	files: []string{
 		"hash.go",
@@ -1030,11 +998,10 @@ var pkgHash = testPackage{
 	functions: []testFunction{}, // no functions in this package
 	types: []testType{
 		{
-			name:      "Hash",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`Hash is the common interface implemented by all hash functions.
+			name:     "Hash",
+			typeName: "interface",
+			source:   "",
+			comments: `Hash is the common interface implemented by all hash functions.
 
 Hash implementations in the standard library (e.g. hash/crc32 and crypto/sha256) implement the encoding.BinaryMarshaler and encoding.BinaryUnmarshaler interfaces. Marshaling a hash implementation allows its internal state to be saved and used for additional processing later, without having to re-write the data previously written to the hash. The hash state may contain portions of the input in its original form, which users are expected to handle for any possible security implications.
 
@@ -1044,21 +1011,19 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Hash32",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`Hash32 is the common interface implemented by all 32-bit hash functions.
+			name:     "Hash32",
+			typeName: "interface",
+			source:   "",
+			comments: `Hash32 is the common interface implemented by all 32-bit hash functions.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Hash64",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`Hash64 is the common interface implemented by all 64-bit hash functions.
+			name:     "Hash64",
+			typeName: "interface",
+			source:   "",
+			comments: `Hash64 is the common interface implemented by all 64-bit hash functions.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
@@ -1073,8 +1038,7 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 var pkgArchiveTar = testPackage{
 	importPath: "archive/tar",
 	name:       "tar",
-	comments:
-`Package tar implements access to tar archives.
+	comments: `Package tar implements access to tar archives.
 
 Tape archives (tar) are a file format for storing a sequence of files that can be read and written in a streaming manner. This package aims to cover most variations of the format, including those produced by GNU and BSD tar tools.
 `,
@@ -1097,11 +1061,10 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 	functions: []testFunction{}, // no functions in this package
 	types: []testType{
 		{
-			name:      "Format",
-			typeName:  "int",
-			source:    "",
-			comments:
-`Format represents the tar archive format.
+			name:     "Format",
+			typeName: "int",
+			source:   "",
+			comments: `Format represents the tar archive format.
 
 The original tar format was introduced in Unix V7. Since then, there have been multiple competing formats attempting to standardize or extend the V7 format to overcome its limitations. The most common formats are the USTAR, PAX, and GNU formats, each with their own advantages and limitations.
 
@@ -1151,16 +1114,14 @@ The Writer currently provides no support for sparse files.
 			name:     "Header",
 			typeName: "struct",
 			source:   "",
-			comments:
-`A Header represents a single header in a tar archive. Some fields may not be populated.
+			comments: `A Header represents a single header in a tar archive. Some fields may not be populated.
 
 For forward compatibility, users that retrieve a Header from Reader.Next, mutate it in some ways, and then pass it back to Writer.WriteHeader should do so by creating a new Header and copying the fields that they are interested in preserving.
 `,
 			functions: []testFunction{
 				{
-					name:     "FileInfoHeader",
-					comments:
-`FileInfoHeader creates a partially-populated Header from fi. If fi describes a symlink, FileInfoHeader records link as the link target. If fi describes a directory, a slash is appended to the name.
+					name: "FileInfoHeader",
+					comments: `FileInfoHeader creates a partially-populated Header from fi. If fi describes a symlink, FileInfoHeader records link as the link target. If fi describes a directory, a slash is appended to the name.
 
 Since fs.FileInfo's Name method only returns the base name of the file it describes, it may be necessary to modify Header.Name to provide the full path name of the file.
 `,
@@ -1188,9 +1149,8 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 			},
 			methods: []testMethod{
 				{
-					name:        "FileInfo",
-					comments:
-`FileInfo returns an fs.FileInfo for the Header.
+					name: "FileInfo",
+					comments: `FileInfo returns an fs.FileInfo for the Header.
 `,
 					receiver:    "h *Header",
 					pointerRcvr: true,
@@ -1208,14 +1168,12 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 			name:     "Reader",
 			typeName: "struct",
 			source:   "",
-			comments:
-`Reader provides sequential access to the contents of a tar archive. Reader.Next advances to the next file in the archive (including the first), and then Reader can be treated as an io.Reader to access the file's data.
+			comments: `Reader provides sequential access to the contents of a tar archive. Reader.Next advances to the next file in the archive (including the first), and then Reader can be treated as an io.Reader to access the file's data.
 `,
 			functions: []testFunction{
 				{
-					name:     "NewReader",
-					comments:
-`NewReader creates a new Reader reading from r.
+					name: "NewReader",
+					comments: `NewReader creates a new Reader reading from r.
 `,
 					inputs: []testParameter{
 						{
@@ -1233,9 +1191,8 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 			},
 			methods: []testMethod{
 				{
-					name:        "Next",
-					comments:
-`Next advances to the next entry in the tar archive. The Header.Size determines how many bytes can be read for the next file. Any remaining data in the current file is automatically discarded.
+					name: "Next",
+					comments: `Next advances to the next entry in the tar archive. The Header.Size determines how many bytes can be read for the next file. Any remaining data in the current file is automatically discarded.
 
 io.EOF is returned at the end of the input.
 `,
@@ -1254,9 +1211,8 @@ io.EOF is returned at the end of the input.
 					},
 				},
 				{
-					name:        "Read",
-					comments:
-`Read reads from the current file in the tar archive. It returns (0, io.EOF) when it reaches the end of that file, until Next is called to advance to the next file.
+					name: "Read",
+					comments: `Read reads from the current file in the tar archive. It returns (0, io.EOF) when it reaches the end of that file, until Next is called to advance to the next file.
 
 If the current file is sparse, then the regions marked as a hole are read back as NUL-bytes.
 
@@ -1287,14 +1243,12 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 			name:     "Writer",
 			typeName: "struct",
 			source:   "",
-			comments:
-`Writer provides sequential writing of a tar archive. Write.WriteHeader begins a new file with the provided Header, and then Writer can be treated as an io.Writer to supply that file's data.
+			comments: `Writer provides sequential writing of a tar archive. Write.WriteHeader begins a new file with the provided Header, and then Writer can be treated as an io.Writer to supply that file's data.
 `,
 			functions: []testFunction{
 				{
-					name:     "NewWriter",
-					comments:
-`NewWriter creates a new Writer writing to w.
+					name: "NewWriter",
+					comments: `NewWriter creates a new Writer writing to w.
 `,
 					inputs: []testParameter{
 						{
@@ -1312,9 +1266,8 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 			},
 			methods: []testMethod{
 				{
-					name:        "Close",
-					comments:
-`Close closes the tar archive by flushing the padding, and writing the footer. If the current file (from a prior call to WriteHeader) is not fully written, then this returns an error.
+					name: "Close",
+					comments: `Close closes the tar archive by flushing the padding, and writing the footer. If the current file (from a prior call to WriteHeader) is not fully written, then this returns an error.
 `,
 					receiver:    "tw *Writer",
 					pointerRcvr: true,
@@ -1327,9 +1280,8 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 					},
 				},
 				{
-					name:        "Flush",
-					comments:
-`Flush finishes writing the current file's block padding. The current file must be fully written before Flush can be called.
+					name: "Flush",
+					comments: `Flush finishes writing the current file's block padding. The current file must be fully written before Flush can be called.
 
 This is unnecessary as the next call to WriteHeader or Close will implicitly flush out the file's padding.
 `,
@@ -1344,9 +1296,8 @@ This is unnecessary as the next call to WriteHeader or Close will implicitly flu
 					},
 				},
 				{
-					name:        "Write",
-					comments:
-`Write writes to the current file in the tar archive. Write returns the error ErrWriteTooLong if more than Header.Size bytes are written after WriteHeader.
+					name: "Write",
+					comments: `Write writes to the current file in the tar archive. Write returns the error ErrWriteTooLong if more than Header.Size bytes are written after WriteHeader.
 
 Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, TypeDir, and TypeFifo returns (0, ErrWriteTooLong) regardless of what the Header.Size claims.
 `,
@@ -1370,9 +1321,8 @@ Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, 
 					},
 				},
 				{
-					name:        "WriteHeader",
-					comments:
-`WriteHeader writes hdr and prepares to accept the file's contents. The Header.Size determines how many bytes can be written for the next file. If the current file is not fully written, then this returns an error. This implicitly flushes any padding necessary before writing the header.
+					name: "WriteHeader",
+					comments: `WriteHeader writes hdr and prepares to accept the file's contents. The Header.Size determines how many bytes can be written for the next file. If the current file is not fully written, then this returns an error. This implicitly flushes any padding necessary before writing the header.
 `,
 					receiver:    "tw *Writer",
 					pointerRcvr: true,
@@ -1401,8 +1351,7 @@ Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, 
 var pkgUnicode = testPackage{
 	importPath: "unicode",
 	name:       "unicode",
-	comments:
-`Package unicode provides data and functions to test some properties of Unicode code points.
+	comments: `Package unicode provides data and functions to test some properties of Unicode code points.
 `,
 	files: []string{
 		"casetables.go", "digit.go", "graphic.go", "letter.go", "tables.go",
@@ -1416,9 +1365,8 @@ var pkgUnicode = testPackage{
 	},
 	functions: []testFunction{
 		{
-			name:     "In",
-			comments:
-`In reports whether the rune is a member of one of the ranges.
+			name: "In",
+			comments: `In reports whether the rune is a member of one of the ranges.
 `,
 			inputs: []testParameter{
 				{
@@ -1438,9 +1386,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "Is",
-			comments:
-`Is reports whether the rune is in the specified table of ranges.
+			name: "Is",
+			comments: `Is reports whether the rune is in the specified table of ranges.
 `,
 			inputs: []testParameter{
 				{
@@ -1460,9 +1407,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsControl",
-			comments:
-`IsControl reports whether the rune is a control character. The C (Other) Unicode category includes more code points such as surrogates; use Is(C, r) to test for them.
+			name: "IsControl",
+			comments: `IsControl reports whether the rune is a control character. The C (Other) Unicode category includes more code points such as surrogates; use Is(C, r) to test for them.
 `,
 			inputs: []testParameter{
 				{
@@ -1478,9 +1424,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsDigit",
-			comments:
-`IsDigit reports whether the rune is a decimal digit.
+			name: "IsDigit",
+			comments: `IsDigit reports whether the rune is a decimal digit.
 `,
 			inputs: []testParameter{
 				{
@@ -1496,9 +1441,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsGraphic",
-			comments:
-`IsGraphic reports whether the rune is defined as a Graphic by Unicode. Such characters include letters, marks, numbers, punctuation, symbols, and spaces, from categories L, M, N, P, S, Zs.
+			name: "IsGraphic",
+			comments: `IsGraphic reports whether the rune is defined as a Graphic by Unicode. Such characters include letters, marks, numbers, punctuation, symbols, and spaces, from categories L, M, N, P, S, Zs.
 `,
 			inputs: []testParameter{
 				{
@@ -1514,9 +1458,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsLetter",
-			comments:
-`IsLetter reports whether the rune is a letter (category L).
+			name: "IsLetter",
+			comments: `IsLetter reports whether the rune is a letter (category L).
 `,
 			inputs: []testParameter{
 				{
@@ -1532,9 +1475,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsLower",
-			comments:
-`IsLower reports whether the rune is a lower case letter.
+			name: "IsLower",
+			comments: `IsLower reports whether the rune is a lower case letter.
 `,
 			inputs: []testParameter{
 				{
@@ -1550,9 +1492,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsMark",
-			comments:
-`IsMark reports whether the rune is a mark character (category M).
+			name: "IsMark",
+			comments: `IsMark reports whether the rune is a mark character (category M).
 `,
 			inputs: []testParameter{
 				{
@@ -1568,9 +1509,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsNumber",
-			comments:
-`IsNumber reports whether the rune is a number (category N).
+			name: "IsNumber",
+			comments: `IsNumber reports whether the rune is a number (category N).
 `,
 			inputs: []testParameter{
 				{
@@ -1586,9 +1526,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsOneOf",
-			comments:
-`IsOneOf reports whether the rune is a member of one of the ranges. The function "In" provides a nicer signature and should be used in preference to IsOneOf.
+			name: "IsOneOf",
+			comments: `IsOneOf reports whether the rune is a member of one of the ranges. The function "In" provides a nicer signature and should be used in preference to IsOneOf.
 `,
 			inputs: []testParameter{
 				{
@@ -1608,9 +1547,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsPrint",
-			comments:
-`IsPrint reports whether the rune is defined as printable by Go. Such characters include letters, marks, numbers, punctuation, symbols, and the ASCII space character, from categories L, M, N, P, S and the ASCII space character. This categorization is the same as IsGraphic except that the only spacing character is ASCII space, U+0020.
+			name: "IsPrint",
+			comments: `IsPrint reports whether the rune is defined as printable by Go. Such characters include letters, marks, numbers, punctuation, symbols, and the ASCII space character, from categories L, M, N, P, S and the ASCII space character. This categorization is the same as IsGraphic except that the only spacing character is ASCII space, U+0020.
 `,
 			inputs: []testParameter{
 				{
@@ -1626,9 +1564,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsPunct",
-			comments:
-`IsPunct reports whether the rune is a Unicode punctuation character (category P).
+			name: "IsPunct",
+			comments: `IsPunct reports whether the rune is a Unicode punctuation character (category P).
 `,
 			inputs: []testParameter{
 				{
@@ -1644,9 +1581,8 @@ var pkgUnicode = testPackage{
 			},
 		},
 		{
-			name:     "IsSpace",
-			comments:
-`IsSpace reports whether the rune is a space character as defined by Unicode's White Space property; in the Latin-1 space this is
+			name: "IsSpace",
+			comments: `IsSpace reports whether the rune is a space character as defined by Unicode's White Space property; in the Latin-1 space this is
 
 	'\t', '\n', '\v', '\f', '\r', ' ', U+0085 (NEL), U+00A0 (NBSP).
 
@@ -1666,9 +1602,8 @@ Other definitions of spacing characters are set by category Z and property Patte
 			},
 		},
 		{
-			name:     "IsSymbol",
-			comments:
-`IsSymbol reports whether the rune is a symbolic character.
+			name: "IsSymbol",
+			comments: `IsSymbol reports whether the rune is a symbolic character.
 `,
 			inputs: []testParameter{
 				{
@@ -1684,9 +1619,8 @@ Other definitions of spacing characters are set by category Z and property Patte
 			},
 		},
 		{
-			name:     "IsTitle",
-			comments:
-`IsTitle reports whether the rune is a title case letter.
+			name: "IsTitle",
+			comments: `IsTitle reports whether the rune is a title case letter.
 `,
 			inputs: []testParameter{
 				{
@@ -1702,9 +1636,8 @@ Other definitions of spacing characters are set by category Z and property Patte
 			},
 		},
 		{
-			name:     "IsUpper",
-			comments:
-`IsUpper reports whether the rune is an upper case letter.
+			name: "IsUpper",
+			comments: `IsUpper reports whether the rune is an upper case letter.
 `,
 			inputs: []testParameter{
 				{
@@ -1720,9 +1653,8 @@ Other definitions of spacing characters are set by category Z and property Patte
 			},
 		},
 		{
-			name:     "SimpleFold",
-			comments:
-`SimpleFold iterates over Unicode code points equivalent under the Unicode-defined simple case folding. Among the code points equivalent to rune (including rune itself), SimpleFold returns the smallest rune > r if one exists, or else the smallest rune >= 0. If r is not a valid Unicode code point, SimpleFold(r) returns r.
+			name: "SimpleFold",
+			comments: `SimpleFold iterates over Unicode code points equivalent under the Unicode-defined simple case folding. Among the code points equivalent to rune (including rune itself), SimpleFold returns the smallest rune > r if one exists, or else the smallest rune >= 0. If r is not a valid Unicode code point, SimpleFold(r) returns r.
 
 For example:
 
@@ -1751,9 +1683,8 @@ For example:
 			},
 		},
 		{
-			name:     "To",
-			comments:
-`To maps the rune to the specified case: UpperCase, LowerCase, or TitleCase.
+			name: "To",
+			comments: `To maps the rune to the specified case: UpperCase, LowerCase, or TitleCase.
 `,
 			inputs: []testParameter{
 				{
@@ -1773,9 +1704,8 @@ For example:
 			},
 		},
 		{
-			name:     "ToLower",
-			comments:
-`ToLower maps the rune to lower case.
+			name: "ToLower",
+			comments: `ToLower maps the rune to lower case.
 `,
 			inputs: []testParameter{
 				{
@@ -1791,9 +1721,8 @@ For example:
 			},
 		},
 		{
-			name:     "ToTitle",
-			comments:
-`ToTitle maps the rune to title case.
+			name: "ToTitle",
+			comments: `ToTitle maps the rune to title case.
 `,
 			inputs: []testParameter{
 				{
@@ -1809,9 +1738,8 @@ For example:
 			},
 		},
 		{
-			name:     "ToUpper",
-			comments:
-`ToUpper maps the rune to upper case.
+			name: "ToUpper",
+			comments: `ToUpper maps the rune to upper case.
 `,
 			inputs: []testParameter{
 				{
@@ -1829,11 +1757,10 @@ For example:
 	},
 	types: []testType{
 		{
-			name:      "CaseRange",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`CaseRange represents a range of Unicode code points for simple (one code point to one code point) case conversion. The range runs from Lo to Hi inclusive, with a fixed stride of 1. Deltas are the number to add to the code point to reach the code point for a different case for that character. They may be negative. If zero, it means the character is in the corresponding case. There is a special case representing sequences of alternating corresponding Upper and Lower pairs. It appears with a fixed Delta of
+			name:     "CaseRange",
+			typeName: "struct",
+			source:   "",
+			comments: `CaseRange represents a range of Unicode code points for simple (one code point to one code point) case conversion. The range runs from Lo to Hi inclusive, with a fixed stride of 1. Deltas are the number to add to the code point to reach the code point for a different case for that character. They may be negative. If zero, it means the character is in the corresponding case. There is a special case representing sequences of alternating corresponding Upper and Lower pairs. It appears with a fixed Delta of
 
 	{UpperLower, UpperLower, UpperLower}
 
@@ -1843,48 +1770,43 @@ The constant UpperLower has an otherwise impossible delta value.
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Range16",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`Range16 represents of a range of 16-bit Unicode code points. The range runs from Lo to Hi inclusive and has the specified stride.
+			name:     "Range16",
+			typeName: "struct",
+			source:   "",
+			comments: `Range16 represents of a range of 16-bit Unicode code points. The range runs from Lo to Hi inclusive and has the specified stride.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Range32",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`Range32 represents of a range of Unicode code points and is used when one or more of the values will not fit in 16 bits. The range runs from Lo to Hi inclusive and has the specified stride. Lo and Hi must always be >= 1<<16.
+			name:     "Range32",
+			typeName: "struct",
+			source:   "",
+			comments: `Range32 represents of a range of Unicode code points and is used when one or more of the values will not fit in 16 bits. The range runs from Lo to Hi inclusive and has the specified stride. Lo and Hi must always be >= 1<<16.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "RangeTable",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`RangeTable defines a set of Unicode code points by listing the ranges of code points within the set. The ranges are listed in two slices to save space: a slice of 16-bit ranges and a slice of 32-bit ranges. The two slices must be in sorted order and non-overlapping. Also, R32 should contain only values >= 0x10000 (1<<16).
+			name:     "RangeTable",
+			typeName: "struct",
+			source:   "",
+			comments: `RangeTable defines a set of Unicode code points by listing the ranges of code points within the set. The ranges are listed in two slices to save space: a slice of 16-bit ranges and a slice of 32-bit ranges. The two slices must be in sorted order and non-overlapping. Also, R32 should contain only values >= 0x10000 (1<<16).
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "SpecialCase",
-			typeName:  "[]CaseRange",
-			source:    "",
-			comments:
-`SpecialCase represents language-specific case mappings such as Turkish. Methods of SpecialCase customize (by overriding) the standard mappings.
+			name:     "SpecialCase",
+			typeName: "[]CaseRange",
+			source:   "",
+			comments: `SpecialCase represents language-specific case mappings such as Turkish. Methods of SpecialCase customize (by overriding) the standard mappings.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods: []testMethod{
 				{
-					name:        "ToLower",
-					comments:
-`ToLower maps the rune to lower case giving priority to the special mapping.
+					name: "ToLower",
+					comments: `ToLower maps the rune to lower case giving priority to the special mapping.
 `,
 					receiver:    "special SpecialCase",
 					pointerRcvr: false,
@@ -1902,9 +1824,8 @@ The constant UpperLower has an otherwise impossible delta value.
 					},
 				},
 				{
-					name:        "ToTitle",
-					comments:
-`ToTitle maps the rune to title case giving priority to the special mapping.
+					name: "ToTitle",
+					comments: `ToTitle maps the rune to title case giving priority to the special mapping.
 `,
 					receiver:    "special SpecialCase",
 					pointerRcvr: false,
@@ -1922,9 +1843,8 @@ The constant UpperLower has an otherwise impossible delta value.
 					},
 				},
 				{
-					name:        "ToUpper",
-					comments:
-`ToUpper maps the rune to upper case giving priority to the special mapping.
+					name: "ToUpper",
+					comments: `ToUpper maps the rune to upper case giving priority to the special mapping.
 `,
 					receiver:    "special SpecialCase",
 					pointerRcvr: false,
@@ -1953,8 +1873,7 @@ The constant UpperLower has an otherwise impossible delta value.
 var pkgNetRPC = testPackage{
 	importPath: "net/rpc",
 	name:       "rpc",
-	comments:
-`Package rpc provides access to the exported methods of an object across a network or other I/O connection. A server registers an object, making it visible as a service with the name of the type of the object. After registration, exported methods of the object will be accessible remotely. A server may register multiple objects (services) of different types but it is an error to register multiple objects of the same type.
+	comments: `Package rpc provides access to the exported methods of an object across a network or other I/O connection. A server registers an object, making it visible as a service with the name of the type of the object. After registration, exported methods of the object will be accessible remotely. A server may register multiple objects (services) of different types but it is an error to register multiple objects of the same type.
 
 Only methods that satisfy these criteria will be made available for remote access; other methods will be ignored:
 
@@ -2067,9 +1986,8 @@ The net/rpc package is frozen and is not accepting new features.
 	},
 	functions: []testFunction{
 		{
-			name:     "Accept",
-			comments:
-`Accept accepts connections on the listener and serves requests to DefaultServer for each incoming connection. Accept blocks; the caller typically invokes it in a go statement.
+			name: "Accept",
+			comments: `Accept accepts connections on the listener and serves requests to DefaultServer for each incoming connection. Accept blocks; the caller typically invokes it in a go statement.
 `,
 			inputs: []testParameter{
 				{
@@ -2080,17 +1998,15 @@ The net/rpc package is frozen and is not accepting new features.
 			outputs: []testParameter{}, // no outputs for this function
 		},
 		{
-			name:     "HandleHTTP",
-			comments:
-`HandleHTTP registers an HTTP handler for RPC messages to DefaultServer on DefaultRPCPath and a debugging handler on DefaultDebugPath. It is still necessary to invoke http.Serve(), typically in a go statement.
+			name: "HandleHTTP",
+			comments: `HandleHTTP registers an HTTP handler for RPC messages to DefaultServer on DefaultRPCPath and a debugging handler on DefaultDebugPath. It is still necessary to invoke http.Serve(), typically in a go statement.
 `,
-			inputs:   []testParameter{}, // no inputs for this function
-			outputs:  []testParameter{}, // no outputs for this function
+			inputs:  []testParameter{}, // no inputs for this function
+			outputs: []testParameter{}, // no outputs for this function
 		},
 		{
-			name:     "Register",
-			comments:
-`Register publishes the receiver's methods in the DefaultServer.
+			name: "Register",
+			comments: `Register publishes the receiver's methods in the DefaultServer.
 `,
 			inputs: []testParameter{
 				{
@@ -2106,9 +2022,8 @@ The net/rpc package is frozen and is not accepting new features.
 			},
 		},
 		{
-			name:     "RegisterName",
-			comments:
-`RegisterName is like Register but uses the provided name for the type instead of the receiver's concrete type.
+			name: "RegisterName",
+			comments: `RegisterName is like Register but uses the provided name for the type instead of the receiver's concrete type.
 `,
 			inputs: []testParameter{
 				{
@@ -2128,9 +2043,8 @@ The net/rpc package is frozen and is not accepting new features.
 			},
 		},
 		{
-			name:     "ServeCodec",
-			comments:
-`ServeCodec is like ServeConn but uses the specified codec to decode requests and encode responses.
+			name: "ServeCodec",
+			comments: `ServeCodec is like ServeConn but uses the specified codec to decode requests and encode responses.
 `,
 			inputs: []testParameter{
 				{
@@ -2141,9 +2055,8 @@ The net/rpc package is frozen and is not accepting new features.
 			outputs: []testParameter{}, // no outputs for this function
 		},
 		{
-			name:     "ServeConn",
-			comments:
-`ServeConn runs the DefaultServer on a single connection. ServeConn blocks, serving the connection until the client hangs up. The caller typically invokes ServeConn in a go statement. ServeConn uses the gob wire format (see package gob) on the connection. To use an alternate codec, use ServeCodec. See NewClient's comment for information about concurrent access.
+			name: "ServeConn",
+			comments: `ServeConn runs the DefaultServer on a single connection. ServeConn blocks, serving the connection until the client hangs up. The caller typically invokes ServeConn in a go statement. ServeConn uses the gob wire format (see package gob) on the connection. To use an alternate codec, use ServeCodec. See NewClient's comment for information about concurrent access.
 `,
 			inputs: []testParameter{
 				{
@@ -2154,9 +2067,8 @@ The net/rpc package is frozen and is not accepting new features.
 			outputs: []testParameter{}, // no outputs for this function
 		},
 		{
-			name:     "ServeRequest",
-			comments:
-`ServeRequest is like ServeCodec but synchronously serves a single request. It does not close the codec upon completion.
+			name: "ServeRequest",
+			comments: `ServeRequest is like ServeCodec but synchronously serves a single request. It does not close the codec upon completion.
 `,
 			inputs: []testParameter{
 				{
@@ -2174,11 +2086,10 @@ The net/rpc package is frozen and is not accepting new features.
 	},
 	types: []testType{
 		{
-			name:      "Call",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`Call represents an active RPC.
+			name:     "Call",
+			typeName: "struct",
+			source:   "",
+			comments: `Call represents an active RPC.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
@@ -2187,14 +2098,12 @@ The net/rpc package is frozen and is not accepting new features.
 			name:     "Client",
 			typeName: "struct",
 			source:   "",
-			comments:
-`Client represents an RPC Client. There may be multiple outstanding Calls associated with a single Client, and a Client may be used by multiple goroutines simultaneously.
+			comments: `Client represents an RPC Client. There may be multiple outstanding Calls associated with a single Client, and a Client may be used by multiple goroutines simultaneously.
 `,
 			functions: []testFunction{
 				{
-					name:     "Dial",
-					comments:
-`Dial connects to an RPC server at the specified network address.
+					name: "Dial",
+					comments: `Dial connects to an RPC server at the specified network address.
 `,
 					inputs: []testParameter{
 						{
@@ -2218,9 +2127,8 @@ The net/rpc package is frozen and is not accepting new features.
 					},
 				},
 				{
-					name:     "DialHTTP",
-					comments:
-`DialHTTP connects to an HTTP RPC server at the specified network address listening on the default HTTP RPC path.
+					name: "DialHTTP",
+					comments: `DialHTTP connects to an HTTP RPC server at the specified network address listening on the default HTTP RPC path.
 `,
 					inputs: []testParameter{
 						{
@@ -2244,9 +2152,8 @@ The net/rpc package is frozen and is not accepting new features.
 					},
 				},
 				{
-					name:     "DialHTTPPath",
-					comments:
-`DialHTTPPath connects to an HTTP RPC server at the specified network address and path.
+					name: "DialHTTPPath",
+					comments: `DialHTTPPath connects to an HTTP RPC server at the specified network address and path.
 `,
 					inputs: []testParameter{
 						{
@@ -2274,9 +2181,8 @@ The net/rpc package is frozen and is not accepting new features.
 					},
 				},
 				{
-					name:     "NewClient",
-					comments:
-`NewClient returns a new Client to handle requests to the set of services at the other end of the connection. It adds a buffer to the write side of the connection so the header and payload are sent as a unit.
+					name: "NewClient",
+					comments: `NewClient returns a new Client to handle requests to the set of services at the other end of the connection. It adds a buffer to the write side of the connection so the header and payload are sent as a unit.
 
 The read and write halves of the connection are serialized independently, so no interlocking is required. However each half may be accessed concurrently so the implementation of conn should protect against concurrent reads or concurrent writes.
 `,
@@ -2294,9 +2200,8 @@ The read and write halves of the connection are serialized independently, so no 
 					},
 				},
 				{
-					name:     "NewClientWithCodec",
-					comments:
-`NewClientWithCodec is like NewClient but uses the specified codec to encode requests and decode responses.
+					name: "NewClientWithCodec",
+					comments: `NewClientWithCodec is like NewClient but uses the specified codec to encode requests and decode responses.
 `,
 					inputs: []testParameter{
 						{
@@ -2314,9 +2219,8 @@ The read and write halves of the connection are serialized independently, so no 
 			},
 			methods: []testMethod{
 				{
-					name:        "Call",
-					comments:
-`Call invokes the named function, waits for it to complete, and returns its error status.
+					name: "Call",
+					comments: `Call invokes the named function, waits for it to complete, and returns its error status.
 `,
 					receiver:    "client *Client",
 					pointerRcvr: true,
@@ -2342,9 +2246,8 @@ The read and write halves of the connection are serialized independently, so no 
 					},
 				},
 				{
-					name:        "Close",
-					comments:
-`Close calls the underlying codec's Close method. If the connection is already shutting down, ErrShutdown is returned.
+					name: "Close",
+					comments: `Close calls the underlying codec's Close method. If the connection is already shutting down, ErrShutdown is returned.
 `,
 					receiver:    "client *Client",
 					pointerRcvr: true,
@@ -2357,9 +2260,8 @@ The read and write halves of the connection are serialized independently, so no 
 					},
 				},
 				{
-					name:        "Go",
-					comments:
-`Go invokes the function asynchronously. It returns the Call structure representing the invocation. The done channel will signal when the call is complete by returning the same Call object. If done is nil, Go will allocate a new channel. If non-nil, done must be buffered or Go will deliberately crash.
+					name: "Go",
+					comments: `Go invokes the function asynchronously. It returns the Call structure representing the invocation. The done channel will signal when the call is complete by returning the same Call object. If done is nil, Go will allocate a new channel. If non-nil, done must be buffered or Go will deliberately crash.
 `,
 					receiver:    "client *Client",
 					pointerRcvr: true,
@@ -2391,31 +2293,28 @@ The read and write halves of the connection are serialized independently, so no 
 			},
 		},
 		{
-			name:      "ClientCodec",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`A ClientCodec implements writing of RPC requests and reading of RPC responses for the client side of an RPC session. The client calls WriteRequest to write a request to the connection and calls ReadResponseHeader and ReadResponseBody in pairs to read responses. The client calls Close when finished with the connection. ReadResponseBody may be called with a nil argument to force the body of the response to be read and then discarded. See NewClient's comment for information about concurrent access.
+			name:     "ClientCodec",
+			typeName: "interface",
+			source:   "",
+			comments: `A ClientCodec implements writing of RPC requests and reading of RPC responses for the client side of an RPC session. The client calls WriteRequest to write a request to the connection and calls ReadResponseHeader and ReadResponseBody in pairs to read responses. The client calls Close when finished with the connection. ReadResponseBody may be called with a nil argument to force the body of the response to be read and then discarded. See NewClient's comment for information about concurrent access.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Request",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`Request is a header written before every RPC call. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
+			name:     "Request",
+			typeName: "struct",
+			source:   "",
+			comments: `Request is a header written before every RPC call. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "Response",
-			typeName:  "struct",
-			source:    "",
-			comments:
-`Response is a header written before every RPC return. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
+			name:     "Response",
+			typeName: "struct",
+			source:   "",
+			comments: `Response is a header written before every RPC return. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
@@ -2424,16 +2323,14 @@ The read and write halves of the connection are serialized independently, so no 
 			name:     "Server",
 			typeName: "struct",
 			source:   "",
-			comments:
-`Server represents an RPC Server.
+			comments: `Server represents an RPC Server.
 `,
 			functions: []testFunction{
 				{
-					name:     "NewServer",
-					comments:
-`NewServer returns a new Server.
+					name: "NewServer",
+					comments: `NewServer returns a new Server.
 `,
-					inputs:   []testParameter{}, // no inputs for this function
+					inputs: []testParameter{}, // no inputs for this function
 					outputs: []testParameter{
 						{
 							name:     "",
@@ -2444,9 +2341,8 @@ The read and write halves of the connection are serialized independently, so no 
 			},
 			methods: []testMethod{
 				{
-					name:        "Accept",
-					comments:
-`Accept accepts connections on the listener and serves requests for each incoming connection. Accept blocks until the listener returns a non-nil error. The caller typically invokes Accept in a go statement.
+					name: "Accept",
+					comments: `Accept accepts connections on the listener and serves requests for each incoming connection. Accept blocks until the listener returns a non-nil error. The caller typically invokes Accept in a go statement.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2459,9 +2355,8 @@ The read and write halves of the connection are serialized independently, so no 
 					outputs: []testParameter{}, // no outputs for this method
 				},
 				{
-					name:        "HandleHTTP",
-					comments:
-`HandleHTTP registers an HTTP handler for RPC messages on rpcPath, and a debugging handler on debugPath. It is still necessary to invoke http.Serve(), typically in a go statement.
+					name: "HandleHTTP",
+					comments: `HandleHTTP registers an HTTP handler for RPC messages on rpcPath, and a debugging handler on debugPath. It is still necessary to invoke http.Serve(), typically in a go statement.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2478,9 +2373,8 @@ The read and write halves of the connection are serialized independently, so no 
 					outputs: []testParameter{}, // no outputs for this method
 				},
 				{
-					name:        "Register",
-					comments:
-`Register publishes in the server the set of methods of the receiver value that satisfy the following conditions:
+					name: "Register",
+					comments: `Register publishes in the server the set of methods of the receiver value that satisfy the following conditions:
 
 	- exported method of exported type
 	- two arguments, both of exported type
@@ -2505,9 +2399,8 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					},
 				},
 				{
-					name:        "RegisterName",
-					comments:
-`RegisterName is like Register but uses the provided name for the type instead of the receiver's concrete type.
+					name: "RegisterName",
+					comments: `RegisterName is like Register but uses the provided name for the type instead of the receiver's concrete type.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2529,9 +2422,8 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					},
 				},
 				{
-					name:        "ServeCodec",
-					comments:
-`ServeCodec is like ServeConn but uses the specified codec to decode requests and encode responses.
+					name: "ServeCodec",
+					comments: `ServeCodec is like ServeConn but uses the specified codec to decode requests and encode responses.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2544,9 +2436,8 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					outputs: []testParameter{}, // no outputs for this method
 				},
 				{
-					name:        "ServeConn",
-					comments:
-`ServeConn runs the server on a single connection. ServeConn blocks, serving the connection until the client hangs up. The caller typically invokes ServeConn in a go statement. ServeConn uses the gob wire format (see package gob) on the connection. To use an alternate codec, use ServeCodec. See NewClient's comment for information about concurrent access.
+					name: "ServeConn",
+					comments: `ServeConn runs the server on a single connection. ServeConn blocks, serving the connection until the client hangs up. The caller typically invokes ServeConn in a go statement. ServeConn uses the gob wire format (see package gob) on the connection. To use an alternate codec, use ServeCodec. See NewClient's comment for information about concurrent access.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2559,9 +2450,8 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					outputs: []testParameter{}, // no outputs for this method
 				},
 				{
-					name:        "ServeHTTP",
-					comments:
-`ServeHTTP implements an http.Handler that answers RPC requests.
+					name: "ServeHTTP",
+					comments: `ServeHTTP implements an http.Handler that answers RPC requests.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2578,9 +2468,8 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					outputs: []testParameter{}, // no outputs for this method
 				},
 				{
-					name:        "ServeRequest",
-					comments:
-`ServeRequest is like ServeCodec but synchronously serves a single request. It does not close the codec upon completion.
+					name: "ServeRequest",
+					comments: `ServeRequest is like ServeCodec but synchronously serves a single request. It does not close the codec upon completion.
 `,
 					receiver:    "server *Server",
 					pointerRcvr: true,
@@ -2600,21 +2489,19 @@ It returns an error if the receiver is not an exported type or has no suitable m
 			},
 		},
 		{
-			name:      "ServerCodec",
-			typeName:  "interface",
-			source:    "",
-			comments:
-`A ServerCodec implements reading of RPC requests and writing of RPC responses for the server side of an RPC session. The server calls ReadRequestHeader and ReadRequestBody in pairs to read requests from the connection, and it calls WriteResponse to write a response back. The server calls Close when finished with the connection. ReadRequestBody may be called with a nil argument to force the body of the request to be read and discarded. See NewClient's comment for information about concurrent access.
+			name:     "ServerCodec",
+			typeName: "interface",
+			source:   "",
+			comments: `A ServerCodec implements reading of RPC requests and writing of RPC responses for the server side of an RPC session. The server calls ReadRequestHeader and ReadRequestBody in pairs to read requests from the connection, and it calls WriteResponse to write a response back. The server calls Close when finished with the connection. ReadRequestBody may be called with a nil argument to force the body of the request to be read and discarded. See NewClient's comment for information about concurrent access.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods:   []testMethod{},   // no methods for this type
 		},
 		{
-			name:      "ServerError",
-			typeName:  "string",
-			source:    "",
-			comments:
-`ServerError represents an error that has been returned from the remote side of the RPC connection.
+			name:     "ServerError",
+			typeName: "string",
+			source:   "",
+			comments: `ServerError represents an error that has been returned from the remote side of the RPC connection.
 `,
 			functions: []testFunction{}, // no functions for this type
 			methods: []testMethod{
