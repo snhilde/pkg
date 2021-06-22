@@ -56,6 +56,15 @@ func TestPackages(t *testing.T) {
 			t.Log("\thave:", have)
 		}
 
+		// Check that the package's import path is correct.
+		want = testPkg.importPath
+		have = p.ImportPath()
+		if want != have {
+			t.Errorf("%s: incorrect package import path", testPkg.name)
+			t.Log("\twant:", want)
+			t.Log("\thave:", have)
+		}
+
 		// Check that the general package overview comments are correct.
 		want = testPkg.comments
 		have = p.Comments(99999)

@@ -5,8 +5,8 @@ package pkg_test
 
 // testPackage is the main structure for how a package should look after assembly.
 type testPackage struct {
-	importPath  string
 	name        string
+	importPath  string
 	comments    string
 	files       []string
 	testFiles   []string
@@ -51,8 +51,8 @@ type testParameter struct {
 
 // Structure for package "errors".
 var pkgErrors = testPackage{
-	importPath: "errors",
 	name:       "errors",
+	importPath: "errors",
 	comments: `Package errors implements functions to manipulate errors.
 
 The New function creates errors whose only content is a text message.
@@ -204,8 +204,8 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 
 // Structure for package "fmt".
 var pkgFmt = testPackage{
-	importPath: "fmt",
 	name:       "fmt",
+	importPath: "fmt",
 	comments: `Package fmt implements formatted I/O with functions analogous to C's printf and scanf. The format 'verbs' are derived from C's but are simpler.
 
 
@@ -978,8 +978,8 @@ If the format specifier includes a %w verb with an error operand, the returned e
 
 // Structure for package "hash".
 var pkgHash = testPackage{
-	importPath: "hash",
 	name:       "hash",
+	importPath: "hash",
 	comments: `Package hash provides interfaces for hash functions.
 `,
 	files: []string{
@@ -1036,8 +1036,8 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 
 // Structure for package "archive/tar".
 var pkgArchiveTar = testPackage{
-	importPath: "archive/tar",
 	name:       "tar",
+	importPath: "archive/tar",
 	comments: `Package tar implements access to tar archives.
 
 Tape archives (tar) are a file format for storing a sequence of files that can be read and written in a streaming manner. This package aims to cover most variations of the format, including those produced by GNU and BSD tar tools.
@@ -1349,8 +1349,8 @@ Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, 
 
 // Structure for package "unicode".
 var pkgUnicode = testPackage{
-	importPath: "unicode",
 	name:       "unicode",
+	importPath: "unicode",
 	comments: `Package unicode provides data and functions to test some properties of Unicode code points.
 `,
 	files: []string{
@@ -1871,8 +1871,8 @@ The constant UpperLower has an otherwise impossible delta value.
 
 // Structure for package "net/rpc".
 var pkgNetRPC = testPackage{
-	importPath: "net/rpc",
 	name:       "rpc",
+	importPath: "net/rpc",
 	comments: `Package rpc provides access to the exported methods of an object across a network or other I/O connection. A server registers an object, making it visible as a service with the name of the type of the object. After registration, exported methods of the object will be accessible remotely. A server may register multiple objects (services) of different types but it is an error to register multiple objects of the same type.
 
 Only methods that satisfy these criteria will be made available for remote access; other methods will be ignored:
