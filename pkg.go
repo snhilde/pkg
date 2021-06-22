@@ -21,6 +21,9 @@ type Package struct {
 	// Name of this package.
 	name string
 
+	// General package overview comments/documentation.
+	comments string
+
 	// List of source files for this package. This includes both the source files for this system's
 	// build and those ignored for this system's build.
 	files []string
@@ -55,7 +58,7 @@ func New(importPath string) (Package, error) {
 
 	// Generate all the go/ast Package's for the import path.
 	fset := token.NewFileSet()
-	astPackages, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.AllErrors)
+	astPackages, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.ParseComments)
 	if err != nil {
 		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
 	}
@@ -67,7 +70,8 @@ func New(importPath string) (Package, error) {
 	}
 
 	// Generate the go/doc Package for the package named by the import path. We first have to
-	// flatten out the map of ast files and then use that list to parse the individual files.
+	// flatten out the map of ast files and then use that list to parse the individual files. We
+	// want to gather all files for the package and not filter out any based on build system.
 	astFiles := make([]*ast.File, 0, len(astPackage.Files))
 	for _, v := range astPackage.Files {
 		astFiles = append(astFiles, v)
@@ -87,7 +91,10 @@ func New(importPath string) (Package, error) {
 // newPackage puts together the internal structure for a Package object.
 func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
 	// Begin with structuring up our object.
-	p := Package{name: docPackage.Name}
+	p := Package{
+		name:     docPackage.Name,
+		comments: docPackage.Doc,
+	}
 
 	// Put together the list of source files, both for this system's build and those ignored for
 	// this system's build.
@@ -182,6 +189,11 @@ func buildSource(bp *build.Package) (*bytes.Reader, error) {
 // Name returns the package's name.
 func (p Package) Name() string {
 	return p.name
+}
+
+// Comments returns the general package overview documentation with pkg's formatting applied.
+func (p Package) Comments(width int) string {
+	return formatComments(p.comments, width)
 }
 
 // Files returns a list of source files in the package. The file paths are relative to the package's

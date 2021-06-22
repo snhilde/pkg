@@ -11,14 +11,14 @@ type Type struct {
 	// Name of this type.
 	name string
 
+	// Comments for this type.
+	comments string
+
 	// Name of this type's underlying type.
 	typeName string
 
 	// Original declaration in source for this type.
 	source *bytes.Reader
-
-	// Comments for this type.
-	comments string
 
 	// Functions in the package that primarily return this type.
 	functions []Function
@@ -53,6 +53,7 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 
 	return Type{
 		name:      t.Name,
+		comments:  t.Doc,
 		typeName:  string(typeName),
 		source:    source,
 		functions: functions,
@@ -90,6 +91,11 @@ func extractType(t *doc.Type, r *bytes.Reader) []byte {
 // Name returns the type's name.
 func (t Type) Name() string {
 	return t.name
+}
+
+// Comments returns the documentation for this type with pkg's formatting applied.
+func (t Type) Comments(width int) string {
+	return formatComments(t.comments, width)
 }
 
 // Type returns the name of the type's underlying type, like "struct" or "map[string]chan int".

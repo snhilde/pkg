@@ -42,6 +42,7 @@ func newMethod(f *doc.Func, r *bytes.Reader) Method {
 
 	return Method{
 		name:        f.Name,
+		comments:    f.Doc,
 		receiver:    string(receiver),
 		pointerRcvr: pointerRcvr,
 		inputs:      in,
@@ -77,6 +78,11 @@ func extractReceiver(f *doc.Func, r *bytes.Reader) ([]byte, bool) {
 // Name returns the method's name.
 func (m Method) Name() string {
 	return m.name
+}
+
+// Comments returns the documentation for this method with pkg's formatting applied.
+func (m Method) Comments(width int) string {
+	return formatComments(m.comments, width)
 }
 
 // Receiver returns method's receiver.

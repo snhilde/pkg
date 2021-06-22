@@ -26,6 +26,7 @@ func newFunction(f *doc.Func, r *bytes.Reader) Function {
 	if f == nil || r == nil {
 		return Function{}
 	}
+
 	// Read out the source declaration.
 	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
 	decl := extractSource(r, start, end)
@@ -35,15 +36,21 @@ func newFunction(f *doc.Func, r *bytes.Reader) Function {
 	in, out := extractParameters(f.Decl.Type, r)
 
 	return Function{
-		name:    f.Name,
-		inputs:  in,
-		outputs: out,
+		name:     f.Name,
+		comments: f.Doc,
+		inputs:   in,
+		outputs:  out,
 	}
 }
 
 // Name returns the function's name.
 func (f Function) Name() string {
 	return f.name
+}
+
+// Comments returns the documentation for this function with pkg's formatting applied.
+func (f Function) Comments(width int) string {
+	return formatComments(f.comments, width)
 }
 
 // Inputs returns a list of input parameters sent to this function, or nil on invalid object. If

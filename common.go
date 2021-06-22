@@ -3,6 +3,7 @@ package pkg
 
 import (
 	"bytes"
+	"go/doc"
 	"go/token"
 	"io"
 )
@@ -19,4 +20,21 @@ func extractSource(r io.ReaderAt, start, end token.Pos) *bytes.Reader {
 	}
 
 	return bytes.NewReader(b)
+}
+
+// formatComments returns formatted comment text with pkg's formatting applied.
+func formatComments(comments string, width int) string {
+	if width <= 0 {
+		return comments
+	}
+
+	b := new(bytes.Buffer)
+	doc.ToText(b, comments, "", "\t", width)
+
+	r, err := io.ReadAll(b)
+	if err != nil {
+		return ""
+	}
+
+	return string(r)
 }
