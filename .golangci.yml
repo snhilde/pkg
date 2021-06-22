@@ -30,7 +30,6 @@ linters:
     - gosimple         # Simplifies code.
     - govet            # Reports suspicious constructs.
     - ineffassign      # Detects when assignments to existing variables are not used.
-    - lll              # Reports long lines.
     - makezero         # Finds slice declarations with non-zero initial length.
     - misspell         # Finds commonly misspelled English words in comments.
     - nakedret         # Finds naked returns in functions greater than a specified function length.
@@ -65,6 +64,7 @@ linters:
     - gochecknoinits   # Checks that no init functions are present.
     - gocritic         # The most opinionated Go source code linter.
     - goerr113         # Checks the errors handling expressions.
+    - lll              # Reports long lines.
     - wsl              # Forces you to use empty lines.
 
 output:
