@@ -3,11 +3,12 @@
 // test packages has been chosen for a specific characteristic, like only having functions or only
 // having types without methods. These are the test packages used:
 //   errors - Has only functions.
-//   fmt - Has only functions and interfaces.
+//   fmt - Has only functions and interfaces. Has backticks in one doc string.
 //   hash - Has only types without methods.
 //   archive/tar - Has only types with methods, and some global variables/errors.
 //   unicode - Has lots of constants and global variables and no imported packages.
-//   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc).
+//   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc) and indented package
+//             overview comments.
 // TODO: need to also test packages with these features:
 //   packages that aren't in the standard library
 //   packages with Cgo files
@@ -53,6 +54,17 @@ func TestPackages(t *testing.T) {
 			t.Errorf("%s: incorrect package name", testPkg.name)
 			t.Log("\twant:", want)
 			t.Log("\thave:", have)
+		}
+
+		// Check that the general package overview comments are correct.
+		want = testPkg.comments
+		have = p.Comments(99999)
+		if want != have {
+			t.Errorf("%s: incorrect package comments", testPkg.name)
+			t.Log("\twant:\n", want)
+			t.Log("\thave:\n", have)
+
+			continue
 		}
 
 		// Check that pkg found the correct source files in the package's directory and that
@@ -135,8 +147,10 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 			return fmt.Errorf("%s: name mismatch (want %s, have %s)", haveFunc.Name(), wantFunc.name, haveFunc.Name())
 		}
 
-		// Check that function's comments are correct.
-		// TODO
+		// Check that the function's comments are correct.
+		if wantFunc.comments != haveFunc.Comments(99999) {
+			return fmt.Errorf("%s: comments mismatch", haveFunc.Name())
+		}
 
 		// Check that the input parameters are correct.
 		wantInputs := wantFunc.inputs
@@ -202,15 +216,17 @@ func cmpTypeLists(wantTypes []testType, haveTypes []pkg.Type) error {
 			return fmt.Errorf("%s: name mismatch (want %s, have %s)", haveType.Name(), wantType.name, haveType.Name())
 		}
 
+		// Check that the type's comments are correct.
+		if wantType.comments != haveType.Comments(99999) {
+			return fmt.Errorf("%s: comments mismatch", haveType.Name())
+		}
+
 		// Check that the name of the type's underlying type is correct.
 		if wantType.typeName != haveType.Type() {
 			return fmt.Errorf("%s: type mismatch (want %s, have %s)", haveType.Name(), wantType.typeName, haveType.Type())
 		}
 
 		// Check that the type's source is correct.
-		// TODO
-
-		// Check that the type's comments are correct.
 		// TODO
 
 		// Check that the type's functions are correct.
@@ -241,8 +257,10 @@ func cmpMethodLists(wantMethods []testMethod, haveMethods []pkg.Method) error {
 			return fmt.Errorf("%s: name mismatch (want %s, have %s)", haveMethod.Name(), wantMethod.name, haveMethod.Name())
 		}
 
-		// Check that method's comments are correct.
-		// TODO
+		// Check that the method's comments are correct.
+		if wantMethod.comments != haveMethod.Comments(99999) {
+			return fmt.Errorf("%s: comments mismatch", haveMethod.Name())
+		}
 
 		// Check that the method's receiver is correct.
 		if wantMethod.receiver != haveMethod.Receiver() {
