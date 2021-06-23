@@ -209,7 +209,7 @@ func (p Package) Comments(width int) string {
 // source files in the package's directory and does not limit the files based on what is actually
 // used when building for the current system.
 func (p Package) Files() []string {
-	return p.files
+	return append([]string{}, p.files...)
 }
 
 // TestFiles returns a list of test files in the package's directory. This includes test files both
@@ -218,13 +218,13 @@ func (p Package) Files() []string {
 // to the package's directory, not absolute on the filesystem. Source files are not included in the
 // list. To get a list of source files in the package, see Package's Files.
 func (p Package) TestFiles() []string {
-	return p.testFiles
+	return append([]string{}, p.testFiles...)
 }
 
 // Imports returns a list of imports in the package. The list includes only imports from the source
 // files, not the test files. To get a list of imports from the test files, see Package's TestImports.
 func (p Package) Imports() []string {
-	return p.imports
+	return append([]string{}, p.imports...)
 }
 
 // TestImports returns a list of imports from test files both within the package (e.g. mypkg_test.go
@@ -232,16 +232,16 @@ func (p Package) Imports() []string {
 // other_test.go in package mypkg_test). The list includes only imports from the test files, not the
 // source files. To get a list of imports from the source files, see Package's Imports.
 func (p Package) TestImports() []string {
-	return p.testImports
+	return append([]string{}, p.testImports...)
 }
 
 // Functions returns a list of exported functions in the package. The list includes exported
 // functions from source files for the package only, not from test files (internal or external).
 func (p Package) Functions() []Function {
-	return p.functions
+	return append([]Function{}, p.functions...)
 }
 
 // Types returns a list of exported types in the package.
 func (p Package) Types() []Type {
-	return p.types
+	return append([]Type{}, p.types...)
 }

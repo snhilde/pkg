@@ -56,11 +56,11 @@ func (f Function) Comments(width int) string {
 // Inputs returns a list of input parameters sent to this function, or nil on invalid object. If
 // there are no input parameters, this returns a slice of size 0..
 func (f Function) Inputs() []Parameter {
-	return f.inputs
+	return append([]Parameter{}, f.inputs...)
 }
 
 // Outputs returns a list of output parameters returned from this function, or nil on invalid object.
 // If there are no output parameters, this returns a slice of size 0..
 func (f Function) Outputs() []Parameter {
-	return f.outputs
+	return append([]Parameter{}, f.outputs...)
 }

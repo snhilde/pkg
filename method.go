@@ -99,11 +99,11 @@ func (m Method) PointerReceiver() bool {
 // there are no input parameters, this returns a slice of size 0.. The list does not include the
 // method's receiver.
 func (m Method) Inputs() []Parameter {
-	return m.inputs
+	return append([]Parameter{}, m.inputs...)
 }
 
 // Outputs returns a list of output parameters returned from this method, or nil on invalid object.
 // If there are no output parameters, this returns a slice of size 0..
 func (m Method) Outputs() []Parameter {
-	return m.outputs
+	return append([]Parameter{}, m.outputs...)
 }

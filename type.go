@@ -105,14 +105,14 @@ func (t Type) Type() string {
 
 // Functions returns a list of functions that primarily return this type.
 func (t Type) Functions() []Function {
-	return t.functions
+	return append([]Function{}, t.functions...)
 }
 
 // Methods returns a list of methods for this type.
 func (t Type) Methods() []Method {
-	return t.methods
+	return append([]Method{}, t.methods...)
 }
 
 func (t Type) Exports() []interface{} {
-	return nil
+	return append([]interface{}{}, nil)
 }
