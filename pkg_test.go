@@ -177,8 +177,6 @@ func cmpConstantBlockLists(wantConstantBlocks []testConstantBlock, haveConstantB
 		wantConstants := wantConstantBlock.constants
 		haveConstants := haveConstantBlock.Constants()
 		if len(wantConstants) != len(haveConstants) {
-			fmt.Println("want", wantConstants)
-			fmt.Println("have", haveConstants)
 			return fmt.Errorf("block %v: incorrect number of constants (want %v, have %v)", i, len(wantConstants), len(haveConstants))
 		}
 		for i, wantConstant := range wantConstants {
