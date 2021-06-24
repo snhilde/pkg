@@ -7,8 +7,8 @@
 //   hash - Has only types without methods.
 //   archive/tar - Has only types with methods, and some global variables/errors.
 //   unicode - Has lots of constants and global variables and no imported packages.
-//   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc) and indented package
-//             overview comments.
+//   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc), indented package overview
+//             comments, and global constants, errors, and variables.
 // TODO: need to also test packages with these features:
 //   packages that aren't in the standard library
 //   packages with Cgo files
@@ -108,6 +108,13 @@ func TestPackages(t *testing.T) {
 			continue
 		}
 
+		// Check that pkg found the correct blocks of exported constants in the source files.
+		if err := cmpConstantBlockLists(testPkg.constantBlocks, p.ConstantBlocks()); err != nil {
+			t.Errorf("%s: constant blocks: %s", testPkg.name, err.Error())
+
+			continue
+		}
+
 		// Check that pkg found the correct functions in the source files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpFunctionLists(testPkg.functions, p.Functions()); err != nil {
@@ -129,7 +136,7 @@ func TestPackages(t *testing.T) {
 // cmpLists checks that two lists of strings have the exact same elements.
 func cmpStringLists(want, have []string) error {
 	if len(want) != len(have) {
-		return fmt.Errorf("incorrent number of items (want %v, have %v)", len(want), len(have))
+		return fmt.Errorf("incorrect number of items (want %v, have %v)", len(want), len(have))
 	}
 
 	for i, w := range want {
@@ -142,10 +149,55 @@ func cmpStringLists(want, have []string) error {
 	return nil
 }
 
+// cmpConstantBlockLists checks that two lists of blocks of constants have the exact same elements.
+func cmpConstantBlockLists(wantConstantBlocks []testConstantBlock, haveConstantBlocks []pkg.ConstantBlock) error {
+	if len(wantConstantBlocks) != len(haveConstantBlocks) {
+		return fmt.Errorf("incorrect number of constant blocks (want %v, have %v)", len(wantConstantBlocks), len(haveConstantBlocks))
+	}
+
+	for i, wantConstantBlock := range wantConstantBlocks {
+		haveConstantBlock := haveConstantBlocks[i]
+
+		// Check that the block's comments are correct.
+		if wantConstantBlock.comments != haveConstantBlock.Comments(99999) {
+			return fmt.Errorf("block %v: comments mismatch", i)
+		}
+
+		// Check that the block's source is correct.
+		if wantConstantBlock.source != haveConstantBlock.Source() {
+			return fmt.Errorf("block %v: source mismatch", i)
+		}
+
+		// Check that the block's type is correct.
+		if wantConstantBlock.typeName != haveConstantBlock.Type() {
+			return fmt.Errorf("block %v: type mismatch (want %s, have %s)", i, wantConstantBlock.typeName, haveConstantBlock.Type())
+		}
+
+		// Check that all constants within this block are correct.
+		wantConstants := wantConstantBlock.constants
+		haveConstants := haveConstantBlock.Constants()
+		if len(wantConstants) != len(haveConstants) {
+			fmt.Println("want", wantConstants)
+			fmt.Println("have", haveConstants)
+			return fmt.Errorf("block %v: incorrect number of constants (want %v, have %v)", i, len(wantConstants), len(haveConstants))
+		}
+		for i, wantConstant := range wantConstants {
+			haveConstant := haveConstants[i]
+
+			// Check that the constant's name is correct.
+			if wantConstant.name != haveConstant.Name() {
+				return fmt.Errorf("block %v: constant name mismatch (want %s, have %s)", i, wantConstant.name, haveConstant.Name())
+			}
+		}
+	}
+
+	return nil
+}
+
 // cmpFunctionLists checks that two lists of functions have the exact same elements.
 func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error {
 	if len(wantFuncs) != len(haveFuncs) {
-		return fmt.Errorf("incorrent number of functions (want %v, have %v)", len(wantFuncs), len(haveFuncs))
+		return fmt.Errorf("incorrect number of functions (want %v, have %v)", len(wantFuncs), len(haveFuncs))
 	}
 
 	for i, wantFunc := range wantFuncs {
@@ -153,7 +205,7 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 
 		// Check that the function's name is correct.
 		if wantFunc.name != haveFunc.Name() {
-			return fmt.Errorf("%s: name mismatch (want %s, have %s)", haveFunc.Name(), wantFunc.name, haveFunc.Name())
+			return fmt.Errorf("name mismatch (want %s, have %s)", wantFunc.name, haveFunc.Name())
 		}
 
 		// Check that the function's comments are correct.
@@ -165,7 +217,7 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 		wantInputs := wantFunc.inputs
 		haveInputs := haveFunc.Inputs()
 		if len(wantInputs) != len(haveInputs) {
-			return fmt.Errorf("%s: incorrent number of inputs (want %v, have %v)",
+			return fmt.Errorf("%s: incorrect number of inputs (want %v, have %v)",
 				haveFunc.Name(), len(wantInputs), len(haveInputs))
 		}
 		for i, wantInput := range wantInputs {
@@ -173,8 +225,8 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 
 			// Check that the input's name is correct.
 			if wantInput.name != haveInput.Name() {
-				return fmt.Errorf("%s: %s: input name mismatch (want %s, have %s)",
-					haveFunc.Name(), haveInput.Name(), wantInput.name, haveInput.Name())
+				return fmt.Errorf("%s: input name mismatch (want %s, have %s)",
+					haveFunc.Name(), wantInput.name, haveInput.Name())
 			}
 
 			// Check that the input type's name is correct.
@@ -188,7 +240,7 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 		wantOutputs := wantFunc.outputs
 		haveOutputs := haveFunc.Outputs()
 		if len(wantOutputs) != len(haveOutputs) {
-			return fmt.Errorf("%s: incorrent number of outputs (want %v, have %v)",
+			return fmt.Errorf("%s: incorrect number of outputs (want %v, have %v)",
 				haveFunc.Name(), len(wantOutputs), len(haveOutputs))
 		}
 		for i, wantOutput := range wantOutputs {
@@ -196,8 +248,8 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 
 			// Check that the output's name is correct.
 			if wantOutput.name != haveOutput.Name() {
-				return fmt.Errorf("%s: %s: output name mismatch (want %s, have %s)",
-					haveFunc.Name(), haveOutput.Name(), wantOutput.name, haveOutput.Name())
+				return fmt.Errorf("%s: s: output name mismatch (want %s, have %s)",
+					haveFunc.Name(), wantOutput.name, haveOutput.Name())
 			}
 
 			// Check that the output type's name is correct.
@@ -214,7 +266,7 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 // cmpTypeLists checks that two lists of types have the exact same elements.
 func cmpTypeLists(wantTypes []testType, haveTypes []pkg.Type) error {
 	if len(wantTypes) != len(haveTypes) {
-		return fmt.Errorf("incorrent number of types (want %v, have %v)", len(wantTypes), len(haveTypes))
+		return fmt.Errorf("incorrect number of types (want %v, have %v)", len(wantTypes), len(haveTypes))
 	}
 
 	for i, wantType := range wantTypes {
@@ -222,7 +274,7 @@ func cmpTypeLists(wantTypes []testType, haveTypes []pkg.Type) error {
 
 		// Check that the type's name is correct.
 		if wantType.name != haveType.Name() {
-			return fmt.Errorf("%s: name mismatch (want %s, have %s)", haveType.Name(), wantType.name, haveType.Name())
+			return fmt.Errorf("name mismatch (want %s, have %s)", wantType.name, haveType.Name())
 		}
 
 		// Check that the type's comments are correct.
@@ -255,7 +307,7 @@ func cmpTypeLists(wantTypes []testType, haveTypes []pkg.Type) error {
 // cmpMethodLists checks that two lists of methods have the exact same elements.
 func cmpMethodLists(wantMethods []testMethod, haveMethods []pkg.Method) error {
 	if len(wantMethods) != len(haveMethods) {
-		return fmt.Errorf("incorrent number of methods (want %v, have %v)", len(wantMethods), len(haveMethods))
+		return fmt.Errorf("incorrect number of methods (want %v, have %v)", len(wantMethods), len(haveMethods))
 	}
 
 	for i, wantMethod := range wantMethods {
@@ -263,7 +315,7 @@ func cmpMethodLists(wantMethods []testMethod, haveMethods []pkg.Method) error {
 
 		// Check that the method's name is correct.
 		if wantMethod.name != haveMethod.Name() {
-			return fmt.Errorf("%s: name mismatch (want %s, have %s)", haveMethod.Name(), wantMethod.name, haveMethod.Name())
+			return fmt.Errorf("name mismatch (want %s, have %s)", wantMethod.name, haveMethod.Name())
 		}
 
 		// Check that the method's comments are correct.
@@ -287,7 +339,7 @@ func cmpMethodLists(wantMethods []testMethod, haveMethods []pkg.Method) error {
 		wantInputs := wantMethod.inputs
 		haveInputs := haveMethod.Inputs()
 		if len(wantInputs) != len(haveInputs) {
-			return fmt.Errorf("%s: incorrent number of inputs (want %v, have %v)",
+			return fmt.Errorf("%s: incorrect number of inputs (want %v, have %v)",
 				haveMethod.Name(), len(wantInputs), len(haveInputs))
 		}
 		for i, wantInput := range wantInputs {
@@ -310,7 +362,7 @@ func cmpMethodLists(wantMethods []testMethod, haveMethods []pkg.Method) error {
 		wantOutputs := wantMethod.outputs
 		haveOutputs := haveMethod.Outputs()
 		if len(wantOutputs) != len(haveOutputs) {
-			return fmt.Errorf("%s: incorrent number of outputs (want %v, have %v)",
+			return fmt.Errorf("%s: incorrect number of outputs (want %v, have %v)",
 				haveMethod.Name(), len(wantOutputs), len(haveOutputs))
 		}
 		for i, wantOutput := range wantOutputs {
