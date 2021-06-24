@@ -42,6 +42,15 @@ type Package struct {
 	// files in the package and test files not in the package but in the package's directory.
 	testImports []string
 
+	// List of groups of one or more exported constants in this package.
+	constantBlocks []ConstantBlock
+
+	// List of exported errors in this package.
+	errors []Error
+
+	// List of exported variables in this package.
+	variables []Variable
+
 	// List of exported functions for this package. This includes only exported functions from the
 	// source files, not from the test files.
 	functions []Function
@@ -135,6 +144,17 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 	r, err := buildSource(buildPackage)
 	if err != nil {
 		return Package{}, fmt.Errorf("error reading source files: %w", err)
+	}
+
+	// Extract the blocks of exported constants for this package, both for standard types (go/doc's
+	// Consts) and for custom types (go/doc's Type's Consts).
+	for _, cb := range docPackage.Consts {
+		p.constantBlocks = append(p.constantBlocks, newConstantBlock(cb, nil, r))
+	}
+	for _, t := range docPackage.Types {
+		for _, cb := range t.Consts {
+			p.constantBlocks = append(p.constantBlocks, newConstantBlock(cb, t, r))
+		}
 	}
 
 	// Extract the exported functions for this package.
@@ -233,6 +253,14 @@ func (p Package) Imports() []string {
 // source files. To get a list of imports from the source files, see Package's Imports.
 func (p Package) TestImports() []string {
 	return append([]string{}, p.testImports...)
+}
+
+// ConstantBlocks returns a list of blocks of exported constants in the package. This includes both
+// blocks of a standard type (like int or string) and blocks of a custom type (like io.Reader or
+// *http.Client). In the latter case, ConstantBlock's Type method can be used to determine the
+// block's general type.
+func (p Package) ConstantBlocks() []ConstantBlock {
+	return append([]ConstantBlock{}, p.constantBlocks...)
 }
 
 // Functions returns a list of exported functions in the package. The list includes exported
