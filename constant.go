@@ -9,14 +9,14 @@ import (
 // ConstantBlock holds information about a block of one or more (grouped) exported constants in a
 // package.
 type ConstantBlock struct {
+	// General type of this block of constants.
+	typeName string
+
 	// Comments for this block of constants.
 	comments string
 
 	// Original declaration in source for this block of constants.
 	source string
-
-	// General type of this block of constants.
-	typeName string
 
 	// List of constants within this block.
 	constants []Constant
@@ -35,6 +35,12 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 		return ConstantBlock{}
 	}
 
+	// If this is a block of constants linked to a type, store the name of the type as well.
+	typeName := ""
+	if t != nil {
+		typeName = t.Name
+	}
+
 	// Read out the source declaration.
 	start, end := v.Decl.Pos()-1, v.Decl.End()-1 // -1 to index properly
 	decl := extractSource(r, start, end)
@@ -45,18 +51,17 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 		constants[i] = Constant{name: n}
 	}
 
-	// If this is a block of constants linked to a type, store the name of the type as well.
-	typeName := ""
-	if t != nil {
-		typeName = t.Name
-	}
-
 	return ConstantBlock{
+		typeName:  typeName,
 		comments:  v.Doc,
 		source:    string(source),
-		typeName:  typeName,
 		constants: constants,
 	}
+}
+
+// Type returns the name of the general type for this block of constants.
+func (cb ConstantBlock) Type() string {
+	return cb.typeName
 }
 
 // Comments returns the documentation for this block of constants with pkg's formatting applied.
@@ -67,11 +72,6 @@ func (cb ConstantBlock) Comments(width int) string {
 // Source returns the source declaration for this block of constants.
 func (cb ConstantBlock) Source() string {
 	return cb.source
-}
-
-// Type returns the name of the general type for this block of constants.
-func (cb ConstantBlock) Type() string {
-	return cb.typeName
 }
 
 // Constants returns a list of constants in this block of constants.

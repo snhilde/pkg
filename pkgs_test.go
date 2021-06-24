@@ -5,18 +5,30 @@ package pkg_test
 
 // testPackage is the main structure for how a package should look after assembly.
 type testPackage struct {
-	name        string
-	importPath  string
-	comments    string
-	files       []string
-	testFiles   []string
-	imports     []string
-	testImports []string
-	functions   []testFunction
-	types       []testType
-	constants   []string
-	variables   []string
-	errors      []string
+	name           string
+	importPath     string
+	comments       string
+	files          []string
+	testFiles      []string
+	imports        []string
+	testImports    []string
+	constantBlocks []testConstantBlock
+	variables      []string
+	errors         []string
+	functions      []testFunction
+	types          []testType
+}
+
+type testConstantBlock struct {
+	typeName  string
+	comments  string
+	source    string
+	constants []testConstant
+}
+
+type testConstant struct {
+	name   string
+	source string // TODO
 }
 
 type testFunction struct {
@@ -96,10 +108,13 @@ is preferable to
 
 because the former will succeed if err wraps an *fs.PathError.
 `,
-	files:       []string{"errors.go", "wrap.go"},
-	testFiles:   []string{"errors_test.go", "example_test.go", "wrap_test.go"},
-	imports:     []string{"internal/reflectlite"},
-	testImports: []string{"errors", "fmt", "io/fs", "os", "reflect", "testing", "time"},
+	files:          []string{"errors.go", "wrap.go"},
+	testFiles:      []string{"errors_test.go", "example_test.go", "wrap_test.go"},
+	imports:        []string{"internal/reflectlite"},
+	testImports:    []string{"errors", "fmt", "io/fs", "os", "reflect", "testing", "time"},
+	constantBlocks: []testConstantBlock{}, // no exported constants in this package
+	variables:      []string{},            // TODO
+	errors:         []string{},            // TODO
 	functions: []testFunction{
 		{
 			name: "As",
@@ -196,10 +211,7 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 			},
 		},
 	},
-	types:     []testType{}, // no types in this package
-	constants: []string{},   // TODO
-	variables: []string{},   // TODO
-	errors:    []string{},   // TODO
+	types: []testType{}, // no types in this package
 }
 
 // Structure for package "fmt".
@@ -464,6 +476,9 @@ Note: Fscan etc. can read one character (rune) past the input they return, which
 		"bufio", "bytes", "errors", "fmt", "internal/race", "io", "math", "os", "reflect", "regexp",
 		"runtime", "strings", "testing", "testing/iotest", "time", "unicode", "unicode/utf8",
 	},
+	constantBlocks: []testConstantBlock{}, // no exported constants in this package
+	variables:      []string{},            // TODO
+	errors:         []string{},            // TODO
 	functions: []testFunction{
 		{
 			name: "Errorf",
@@ -971,9 +986,6 @@ If the format specifier includes a %w verb with an error operand, the returned e
 			methods:   []testMethod{},   // no methods for this type
 		},
 	},
-	constants: []string{}, // TODO
-	variables: []string{}, // TODO
-	errors:    []string{}, // TODO
 }
 
 // Structure for package "hash".
@@ -995,7 +1007,10 @@ var pkgHash = testPackage{
 		"bytes", "crypto/md5", "crypto/sha1", "crypto/sha256", "crypto/sha512", "encoding", "encoding/hex",
 		"fmt", "hash", "hash/adler32", "hash/crc32", "hash/crc64", "hash/fnv", "log", "testing",
 	},
-	functions: []testFunction{}, // no functions in this package
+	constantBlocks: []testConstantBlock{}, // no exported constants in this package
+	variables:      []string{},            // TODO
+	errors:         []string{},            // TODO
+	functions:      []testFunction{},      // no functions in this package
 	types: []testType{
 		{
 			name:     "Hash",
@@ -1029,9 +1044,6 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 			methods:   []testMethod{},   // no methods for this type
 		},
 	},
-	constants: []string{}, // TODO
-	variables: []string{}, // TODO
-	errors:    []string{}, // TODO
 }
 
 // Structure for package "archive/tar".
@@ -1058,6 +1070,191 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 		"io", "io/fs", "log", "math", "os", "path", "path/filepath", "reflect", "sort", "strconv",
 		"strings", "testing", "testing/iotest", "time",
 	},
+	constantBlocks: []testConstantBlock{
+		{
+			typeName: "", // no general type for this block of constants
+			comments: `Type flags for Header.Typeflag.
+`,
+			source: `const (
+	// Type '0' indicates a regular file.
+	TypeReg  = '0'
+	TypeRegA = '\x00' // Deprecated: Use TypeReg instead.
+
+	// Type '1' to '6' are header-only flags and may not have a data body.
+	TypeLink    = '1' // Hard link
+	TypeSymlink = '2' // Symbolic link
+	TypeChar    = '3' // Character device node
+	TypeBlock   = '4' // Block device node
+	TypeDir     = '5' // Directory
+	TypeFifo    = '6' // FIFO node
+
+	// Type '7' is reserved.
+	TypeCont = '7'
+
+	// Type 'x' is used by the PAX format to store key-value records that
+	// are only relevant to the next file.
+	// This package transparently handles these types.
+	TypeXHeader = 'x'
+
+	// Type 'g' is used by the PAX format to store key-value records that
+	// are relevant to all subsequent files.
+	// This package only supports parsing and composing such headers,
+	// but does not currently support persisting the global state across files.
+	TypeXGlobalHeader = 'g'
+
+	// Type 'S' indicates a sparse file in the GNU format.
+	TypeGNUSparse = 'S'
+
+	// Types 'L' and 'K' are used by the GNU format for a meta file
+	// used to store the path or link name for the next file.
+	// This package transparently handles these types.
+	TypeGNULongName = 'L'
+	TypeGNULongLink = 'K'
+)`,
+			constants: []testConstant{
+				{
+					name:   "TypeReg",
+					source: `TypeReg  = '0'`,
+				},
+				{
+					name:   "TypeRegA",
+					source: `TypeRegA = '\x00' // Deprecated: Use TypeReg instead.`,
+				},
+				{
+					name:   "TypeLink",
+					source: `TypeLink    = '1' // Hard link`,
+				},
+				{
+					name:   "TypeSymlink",
+					source: `TypeSymlink = '2' // Symbolic link`,
+				},
+				{
+					name:   "TypeChar",
+					source: `TypeChar    = '3' // Character device node`,
+				},
+				{
+					name:   "TypeBlock",
+					source: `TypeBlock   = '4' // Block device node`,
+				},
+				{
+					name:   "TypeDir",
+					source: `TypeDir     = '5' // Directory`,
+				},
+				{
+					name:   "TypeFifo",
+					source: `TypeFifo    = '6' // FIFO node`,
+				},
+				{
+					name:   "TypeCont",
+					source: `TypeCont = '7'`,
+				},
+				{
+					name:   "TypeXHeader",
+					source: `TypeXHeader = 'x'`,
+				},
+				{
+					name:   "TypeXGlobalHeader",
+					source: `TypeXGlobalHeader = 'g'`,
+				},
+				{
+					name:   "TypeGNUSparse",
+					source: `TypeGNUSparse = 'S'`,
+				},
+				{
+					name:   "TypeGNULongName",
+					source: `TypeGNULongName = 'L'`,
+				},
+				{
+					name:   "TypeGNULongLink",
+					source: `TypeGNULongLink = 'K'`,
+				},
+			},
+		},
+		{
+			typeName: "Format",
+			comments:
+`Constants to identify various tar formats.
+`,
+			source: `const (
+	// Deliberately hide the meaning of constants from public API.
+	_ Format = (1 << iota) / 4 // Sequence of 0, 0, 1, 2, 4, 8, etc...
+
+	// FormatUnknown indicates that the format is unknown.
+	FormatUnknown
+
+	// The format of the original Unix V7 tar tool prior to standardization.
+	formatV7
+
+	// FormatUSTAR represents the USTAR header format defined in POSIX.1-1988.
+	//
+	// While this format is compatible with most tar readers,
+	// the format has several limitations making it unsuitable for some usages.
+	// Most notably, it cannot support sparse files, files larger than 8GiB,
+	// filenames larger than 256 characters, and non-ASCII filenames.
+	//
+	// Reference:
+	//	http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html#tag_20_92_13_06
+	FormatUSTAR
+
+	// FormatPAX represents the PAX header format defined in POSIX.1-2001.
+	//
+	// PAX extends USTAR by writing a special file with Typeflag TypeXHeader
+	// preceding the original header. This file contains a set of key-value
+	// records, which are used to overcome USTAR's shortcomings, in addition to
+	// providing the ability to have sub-second resolution for timestamps.
+	//
+	// Some newer formats add their own extensions to PAX by defining their
+	// own keys and assigning certain semantic meaning to the associated values.
+	// For example, sparse file support in PAX is implemented using keys
+	// defined by the GNU manual (e.g., "GNU.sparse.map").
+	//
+	// Reference:
+	//	http://pubs.opengroup.org/onlinepubs/009695399/utilities/pax.html
+	FormatPAX
+
+	// FormatGNU represents the GNU header format.
+	//
+	// The GNU header format is older than the USTAR and PAX standards and
+	// is not compatible with them. The GNU format supports
+	// arbitrary file sizes, filenames of arbitrary encoding and length,
+	// sparse files, and other features.
+	//
+	// It is recommended that PAX be chosen over GNU unless the target
+	// application can only parse GNU formatted archives.
+	//
+	// Reference:
+	//	https://www.gnu.org/software/tar/manual/html_node/Standard.html
+	FormatGNU
+
+	// Schily's tar format, which is incompatible with USTAR.
+	// This does not cover STAR extensions to the PAX format; these fall under
+	// the PAX format.
+	formatSTAR
+
+	formatMax
+)`,
+			constants: []testConstant{
+				{
+					name:   "FormatUnknown",
+					source: `FormatUnknown`,
+				},
+				{
+					name:   "FormatUSTAR",
+					source: `FormatUSTAR`,
+				},
+				{
+					name:   "FormatPAX",
+					source: `FormatPAX`,
+				},
+				{
+					name:   "FormatGNU",
+					source: `FormatGNU`,
+				},
+			},
+		},
+	},
+	variables: []string{},       // TODO
+	errors:    []string{},       // TODO
 	functions: []testFunction{}, // no functions in this package
 	types: []testType{
 		{
@@ -1342,9 +1539,6 @@ Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, 
 			},
 		},
 	},
-	constants: []string{}, // TODO
-	variables: []string{}, // TODO
-	errors:    []string{}, // TODO
 }
 
 // Structure for package "unicode".
@@ -1363,6 +1557,93 @@ var pkgUnicode = testPackage{
 	testImports: []string{
 		"flag", "fmt", "runtime", "sort", "strings", "testing", "unicode",
 	},
+	constantBlocks: []testConstantBlock{
+		{
+			typeName: "", // no general type for this block of constants
+			comments: ``, // no comments for this block of constants
+			source: `const (
+	MaxRune         = '\U0010FFFF' // Maximum valid Unicode code point.
+	ReplacementChar = '\uFFFD'     // Represents invalid code points.
+	MaxASCII        = '\u007F'     // maximum ASCII value.
+	MaxLatin1       = '\u00FF'     // maximum Latin-1 value.
+)`,
+			constants: []testConstant{
+				{
+					name:   "MaxRune",
+					source: `MaxRune         = '\U0010FFFF' // Maximum valid Unicode code point.`,
+				},
+				{
+					name:   "ReplacementChar",
+					source: `ReplacementChar = '\uFFFD'     // Represents invalid code points.`,
+				},
+				{
+					name:   "MaxASCII",
+					source: `MaxASCII        = '\u007F'     // maximum ASCII value.`,
+				},
+				{
+					name:   "MaxLatin1",
+					source: `MaxLatin1       = '\u00FF'     // maximum Latin-1 value.`,
+				},
+			},
+		},
+		{
+			typeName: "", // no general type for this block of constants
+			comments: `Indices into the Delta arrays inside CaseRanges for case mapping.
+`,
+			source: `const (
+	UpperCase = iota
+	LowerCase
+	TitleCase
+	MaxCase
+)`,
+			constants: []testConstant{
+				{
+					name:   "UpperCase",
+					source: `UpperCase = iota`,
+				},
+				{
+					name:   "LowerCase",
+					source: `LowerCase`,
+				},
+				{
+					name:   "TitleCase",
+					source: `TitleCase`,
+				},
+				{
+					name:   "MaxCase",
+					source: `MaxCase`,
+				},
+			},
+		},
+		{
+			typeName: "", // no general type for this block of constants
+			comments: `If the Delta field of a CaseRange is UpperLower, it means this CaseRange represents a sequence of the form (say) Upper Lower Upper Lower.
+`,
+			source: `const (
+	UpperLower = MaxRune + 1 // (Cannot be a valid delta.)
+)`,
+			constants: []testConstant{
+				{
+					name:   "UpperLower",
+					source: `UpperLower = MaxRune + 1 // (Cannot be a valid delta.)`,
+				},
+			},
+		},
+		{
+			typeName: "", // no general type for this block of constants
+			comments: `Version is the Unicode edition from which the tables are derived.
+`,
+			source: `const Version = "13.0.0"`,
+			constants: []testConstant{
+				{
+					name:   "Version",
+					source: `Version = "13.0.0"`,
+				},
+			},
+		},
+	},
+	variables:      []string{},            // TODO
+	errors:         []string{},            // TODO
 	functions: []testFunction{
 		{
 			name: "In",
@@ -1864,9 +2145,6 @@ The constant UpperLower has an otherwise impossible delta value.
 			},
 		},
 	},
-	constants: []string{}, // TODO
-	variables: []string{}, // TODO
-	errors:    []string{}, // TODO
 }
 
 // Structure for package "net/rpc".
@@ -1984,6 +2262,29 @@ The net/rpc package is frozen and is not accepting new features.
 		"errors", "fmt", "io", "log", "net", "net/http/httptest", "reflect", "runtime", "strings",
 		"sync", "sync/atomic", "testing", "time",
 	},
+	constantBlocks: []testConstantBlock{
+		{
+			typeName: "", // no general type for this block of constants
+			comments: ``, // no comments for this block of constants
+			source: `const (
+	// Defaults used by HandleHTTP
+	DefaultRPCPath   = "/_goRPC_"
+	DefaultDebugPath = "/debug/rpc"
+)`,
+			constants: []testConstant{
+				{
+					name:   "DefaultRPCPath",
+					source: `DefaultRPCPath   = "/_goRPC_"`,
+				},
+				{
+					name:   "DefaultDebugPath",
+					source: `DefaultDebugPath = "/debug/rpc"`,
+				},
+			},
+		},
+	},
+	variables:      []string{},            // TODO
+	errors:         []string{},            // TODO
 	functions: []testFunction{
 		{
 			name: "Accept",
@@ -2521,7 +2822,4 @@ It returns an error if the receiver is not an exported type or has no suitable m
 			},
 		},
 	},
-	constants: []string{}, // TODO
-	variables: []string{}, // TODO
-	errors:    []string{}, // TODO
 }

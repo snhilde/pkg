@@ -4,9 +4,10 @@
 // having types without methods. These are the test packages used:
 //   errors - Has only functions.
 //   fmt - Has only functions and interfaces. Has backticks in one doc string.
-//   hash - Has only types without methods.
+//   hash - Has only types without methods. Makes sure sub-packages are not included.
 //   archive/tar - Has only types with methods, and some global variables/errors.
-//   unicode - Has lots of constants and global variables and no imported packages.
+//   unicode - Has lots of constants and global variables and no imported packages. Has unexported
+//   constants.
 //   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc), indented package overview
 //             comments, and global constants, errors, and variables.
 // TODO: need to also test packages with these features:
@@ -158,6 +159,11 @@ func cmpConstantBlockLists(wantConstantBlocks []testConstantBlock, haveConstantB
 	for i, wantConstantBlock := range wantConstantBlocks {
 		haveConstantBlock := haveConstantBlocks[i]
 
+		// Check that the block's type is correct.
+		if wantConstantBlock.typeName != haveConstantBlock.Type() {
+			return fmt.Errorf("block %v: type mismatch (want %s, have %s)", i, wantConstantBlock.typeName, haveConstantBlock.Type())
+		}
+
 		// Check that the block's comments are correct.
 		if wantConstantBlock.comments != haveConstantBlock.Comments(99999) {
 			return fmt.Errorf("block %v: comments mismatch", i)
@@ -166,11 +172,6 @@ func cmpConstantBlockLists(wantConstantBlocks []testConstantBlock, haveConstantB
 		// Check that the block's source is correct.
 		if wantConstantBlock.source != haveConstantBlock.Source() {
 			return fmt.Errorf("block %v: source mismatch", i)
-		}
-
-		// Check that the block's type is correct.
-		if wantConstantBlock.typeName != haveConstantBlock.Type() {
-			return fmt.Errorf("block %v: type mismatch (want %s, have %s)", i, wantConstantBlock.typeName, haveConstantBlock.Type())
 		}
 
 		// Check that all constants within this block are correct.
