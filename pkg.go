@@ -45,11 +45,8 @@ type Package struct {
 	// List of groups of one or more exported constants in this package.
 	constantBlocks []ConstantBlock
 
-	// List of exported errors in this package.
-	errors []Error
-
-	// List of exported variables in this package.
-	variables []Variable
+	// List of groups of one or more exported variables in this package.
+	variableBlocks []VariableBlock
 
 	// List of exported functions for this package. This includes only exported functions from the
 	// source files, not from the test files.
@@ -157,6 +154,17 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 		}
 	}
 
+	// Extract the blocks of exported variables for this package, both for standard types (go/doc's
+	// Vars) and for custom types (go/doc's Type's Vars).
+	for _, vb := range docPackage.Vars {
+		p.variableBlocks = append(p.variableBlocks, newVariableBlock(vb, nil, r))
+	}
+	for _, t := range docPackage.Types {
+		for _, vb := range t.Vars {
+			p.variableBlocks = append(p.variableBlocks, newVariableBlock(vb, t, r))
+		}
+	}
+
 	// Extract the exported functions for this package.
 	p.functions = make([]Function, len(docPackage.Funcs))
 	for i, f := range docPackage.Funcs {
@@ -258,9 +266,19 @@ func (p Package) TestImports() []string {
 // ConstantBlocks returns a list of blocks of exported constants in the package. This includes both
 // blocks of a standard type (like int or string) and blocks of a custom type (like io.Reader or
 // *http.Client). In the latter case, ConstantBlock's Type method can be used to determine the
-// block's general type.
+// block's general type. The list includes only blocks of exported constants from the source files,
+// not the test files.
 func (p Package) ConstantBlocks() []ConstantBlock {
 	return append([]ConstantBlock{}, p.constantBlocks...)
+}
+
+// VariableBlocks returns a list of blocks of exported variables in the package. This includes both
+// blocks of a standard type (like int or string) and blocks of a custom type (like io.Reader or
+// *http.Client). In the latter case, VariableBlock's Type method can be used to determine the
+// block's general type. The list includes only blocks of exported variables from the source files,
+// not the test files.
+func (p Package) VariableBlocks() []VariableBlock {
+	return append([]VariableBlock{}, p.variableBlocks...)
 }
 
 // Functions returns a list of exported functions in the package. The list includes exported

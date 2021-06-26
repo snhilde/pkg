@@ -3,7 +3,6 @@ package pkg
 import (
 	"bytes"
 	"go/doc"
-	"io"
 )
 
 // ConstantBlock holds information about a block of one or more (grouped) exported constants in a
@@ -41,10 +40,9 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 	}
 
 	// Read out the source declaration.
-	start, end := v.Decl.Pos()-1, v.Decl.End()-1 // -1 to index properly
-	decl := extractSource(r, start, end)
-	source, _ := io.ReadAll(decl)
+	source := extractGlobalsSource(v, r, true)
 
+	// Build the list of individual constants.
 	constants := make([]Constant, len(v.Names))
 	for i, n := range v.Names {
 		constants[i] = Constant{name: n}
