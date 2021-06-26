@@ -22,8 +22,7 @@ type ConstantBlock struct {
 	constants []Constant
 }
 
-// Constant holds information about a single exported constant within a block of (possibly) other
-// constants.
+// Constant holds information about a single exported constant within a block.
 type Constant struct {
 	// Name of this constant.
 	name string
@@ -59,7 +58,8 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 	}
 }
 
-// Type returns the name of the general type for this block of constants.
+// Type returns the name of the general, non-built-in type for this block of constants, or "" if this block
+// generally does not represent a non-built-in type.
 func (cb ConstantBlock) Type() string {
 	return cb.typeName
 }
