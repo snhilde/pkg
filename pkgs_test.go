@@ -13,8 +13,7 @@ type testPackage struct {
 	imports        []string
 	testImports    []string
 	constantBlocks []testConstantBlock
-	variables      []string
-	errors         []string
+	variableBlocks []testVariableBlock
 	functions      []testFunction
 	types          []testType
 }
@@ -28,7 +27,25 @@ type testConstantBlock struct {
 
 type testConstant struct {
 	name   string
-	source string // TODO
+	source string // TODO, not currently checking this
+}
+
+type testVariableBlock struct {
+	typeName  string
+	comments  string
+	source    string
+	variables []testVariable
+	errors    []testError
+}
+
+type testVariable struct {
+	name   string
+	source string // TODO, not currently checking this
+}
+
+type testError struct {
+	name   string
+	source string // TODO, not currently checking this
 }
 
 type testFunction struct {
@@ -113,8 +130,7 @@ because the former will succeed if err wraps an *fs.PathError.
 	imports:        []string{"internal/reflectlite"},
 	testImports:    []string{"errors", "fmt", "io/fs", "os", "reflect", "testing", "time"},
 	constantBlocks: []testConstantBlock{}, // no exported constants in this package
-	variables:      []string{},            // TODO
-	errors:         []string{},            // TODO
+	variableBlocks: []testVariableBlock{}, // no exported variables or errors in this package
 	functions: []testFunction{
 		{
 			name: "As",
@@ -477,8 +493,7 @@ Note: Fscan etc. can read one character (rune) past the input they return, which
 		"runtime", "strings", "testing", "testing/iotest", "time", "unicode", "unicode/utf8",
 	},
 	constantBlocks: []testConstantBlock{}, // no exported constants in this package
-	variables:      []string{},            // TODO
-	errors:         []string{},            // TODO
+	variableBlocks: []testVariableBlock{}, // no exported variables or errors in this package
 	functions: []testFunction{
 		{
 			name: "Errorf",
@@ -934,7 +949,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Formatter",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `Formatter is implemented by any value that has a Format method. The implementation controls how State and rune are interpreted, and may call Sprint(f) or Fprint(f) etc. to generate its output.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -943,7 +958,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "GoStringer",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value. The GoString method is used to print values passed as an operand to a %#v format.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -952,7 +967,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "ScanState",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `ScanState represents the scanner state passed to custom scanners. Scanners may do rune-at-a-time scanning or ask the ScanState to discover the next space-delimited token.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -961,7 +976,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Scanner",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `Scanner is implemented by any value that has a Scan method, which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful. The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -970,7 +985,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "State",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `State represents the printer state passed to custom formatters. It provides access to the io.Writer interface plus information about the flags and options for the operand's format specifier.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -979,7 +994,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Stringer",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `Stringer is implemented by any value that has a String method, which defines the “native” format for that value. The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -1008,14 +1023,13 @@ var pkgHash = testPackage{
 		"fmt", "hash", "hash/adler32", "hash/crc32", "hash/crc64", "hash/fnv", "log", "testing",
 	},
 	constantBlocks: []testConstantBlock{}, // no exported constants in this package
-	variables:      []string{},            // TODO
-	errors:         []string{},            // TODO
+	variableBlocks: []testVariableBlock{}, // no exported variables or errors in this package
 	functions:      []testFunction{},      // no functions in this package
 	types: []testType{
 		{
 			name:     "Hash",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `Hash is the common interface implemented by all hash functions.
 
 Hash implementations in the standard library (e.g. hash/crc32 and crypto/sha256) implement the encoding.BinaryMarshaler and encoding.BinaryUnmarshaler interfaces. Marshaling a hash implementation allows its internal state to be saved and used for additional processing later, without having to re-write the data previously written to the hash. The hash state may contain portions of the input in its original form, which users are expected to handle for any possible security implications.
@@ -1028,7 +1042,7 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 		{
 			name:     "Hash32",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `Hash32 is the common interface implemented by all 32-bit hash functions.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -1037,7 +1051,7 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 		{
 			name:     "Hash64",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `Hash64 is the common interface implemented by all 64-bit hash functions.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -1172,18 +1186,11 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 		},
 		{
 			typeName: "Format",
-			comments:
-`Constants to identify various tar formats.
+			comments: `Constants to identify various tar formats.
 `,
 			source: `const (
-	// Deliberately hide the meaning of constants from public API.
-	_ Format = (1 << iota) / 4 // Sequence of 0, 0, 1, 2, 4, 8, etc...
-
 	// FormatUnknown indicates that the format is unknown.
 	FormatUnknown
-
-	// The format of the original Unix V7 tar tool prior to standardization.
-	formatV7
 
 	// FormatUSTAR represents the USTAR header format defined in POSIX.1-1988.
 	//
@@ -1225,13 +1232,6 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 	// Reference:
 	//	https://www.gnu.org/software/tar/manual/html_node/Standard.html
 	FormatGNU
-
-	// Schily's tar format, which is incompatible with USTAR.
-	// This does not cover STAR extensions to the PAX format; these fall under
-	// the PAX format.
-	formatSTAR
-
-	formatMax
 )`,
 			constants: []testConstant{
 				{
@@ -1253,14 +1253,68 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 			},
 		},
 	},
-	variables: []string{},       // TODO
-	errors:    []string{},       // TODO
+	variableBlocks: []testVariableBlock{
+		{
+			typeName: "",
+			comments: ``, // no comments for this block of variables
+			source: `var (
+	ErrHeader          = errors.New("archive/tar: invalid tar header")
+	ErrWriteTooLong    = errors.New("archive/tar: write too long")
+	ErrFieldTooLong    = errors.New("archive/tar: header field too long")
+	ErrWriteAfterClose = errors.New("archive/tar: write after close")
+)`,
+			variables: []testVariable{
+				{
+					name: "ErrHeader",
+					source: `ErrHeader          = errors.New("archive/tar: invalid tar header")
+`,
+				},
+				{
+					name: "ErrWriteTooLong",
+					source: `ErrWriteTooLong    = errors.New("archive/tar: write too long")
+`,
+				},
+				{
+					name: "ErrFieldTooLong",
+					source: `ErrFieldTooLong    = errors.New("archive/tar: header field too long")
+`,
+				},
+				{
+					name: "ErrWriteAfterClose",
+					source: `ErrWriteAfterClose = errors.New("archive/tar: write after close")
+`,
+				},
+			},
+			errors: []testError{
+				{
+					name: "ErrHeader",
+					source: `ErrHeader          = errors.New("archive/tar: invalid tar header")
+`,
+				},
+				{
+					name: "ErrWriteTooLong",
+					source: `ErrWriteTooLong    = errors.New("archive/tar: write too long")
+`,
+				},
+				{
+					name: "ErrFieldTooLong",
+					source: `ErrFieldTooLong    = errors.New("archive/tar: header field too long")
+`,
+				},
+				{
+					name: "ErrWriteAfterClose",
+					source: `ErrWriteAfterClose = errors.New("archive/tar: write after close")
+`,
+				},
+			},
+		},
+	},
 	functions: []testFunction{}, // no functions in this package
 	types: []testType{
 		{
 			name:     "Format",
 			typeName: "int",
-			source:   "",
+			source:   ``,
 			comments: `Format represents the tar archive format.
 
 The original tar format was introduced in Unix V7. Since then, there have been multiple competing formats attempting to standardize or extend the V7 format to overcome its limitations. The most common formats are the USTAR, PAX, and GNU formats, each with their own advantages and limitations.
@@ -1310,7 +1364,7 @@ The Writer currently provides no support for sparse files.
 		{
 			name:     "Header",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `A Header represents a single header in a tar archive. Some fields may not be populated.
 
 For forward compatibility, users that retrieve a Header from Reader.Next, mutate it in some ways, and then pass it back to Writer.WriteHeader should do so by creating a new Header and copying the fields that they are interested in preserving.
@@ -1364,7 +1418,7 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 		{
 			name:     "Reader",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Reader provides sequential access to the contents of a tar archive. Reader.Next advances to the next file in the archive (including the first), and then Reader can be treated as an io.Reader to access the file's data.
 `,
 			functions: []testFunction{
@@ -1439,7 +1493,7 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 		{
 			name:     "Writer",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Writer provides sequential writing of a tar archive. Write.WriteHeader begins a new file with the provided Header, and then Writer can be treated as an io.Writer to supply that file's data.
 `,
 			functions: []testFunction{
@@ -1642,8 +1696,1846 @@ var pkgUnicode = testPackage{
 			},
 		},
 	},
-	variables:      []string{},            // TODO
-	errors:         []string{},            // TODO
+	variableBlocks: []testVariableBlock{
+		{
+			typeName: "",
+			comments: `These variables have type *RangeTable.
+`,
+			source: `var (
+	Cc     = _Cc // Cc is the set of Unicode characters in category Cc (Other, control).
+	Cf     = _Cf // Cf is the set of Unicode characters in category Cf (Other, format).
+	Co     = _Co // Co is the set of Unicode characters in category Co (Other, private use).
+	Cs     = _Cs // Cs is the set of Unicode characters in category Cs (Other, surrogate).
+	Digit  = _Nd // Digit is the set of Unicode characters with the "decimal digit" property.
+	Nd     = _Nd // Nd is the set of Unicode characters in category Nd (Number, decimal digit).
+	Letter = _L  // Letter/L is the set of Unicode letters, category L.
+	L      = _L
+	Lm     = _Lm // Lm is the set of Unicode characters in category Lm (Letter, modifier).
+	Lo     = _Lo // Lo is the set of Unicode characters in category Lo (Letter, other).
+	Lower  = _Ll // Lower is the set of Unicode lower case letters.
+	Ll     = _Ll // Ll is the set of Unicode characters in category Ll (Letter, lowercase).
+	Mark   = _M  // Mark/M is the set of Unicode mark characters, category M.
+	M      = _M
+	Mc     = _Mc // Mc is the set of Unicode characters in category Mc (Mark, spacing combining).
+	Me     = _Me // Me is the set of Unicode characters in category Me (Mark, enclosing).
+	Mn     = _Mn // Mn is the set of Unicode characters in category Mn (Mark, nonspacing).
+	Nl     = _Nl // Nl is the set of Unicode characters in category Nl (Number, letter).
+	No     = _No // No is the set of Unicode characters in category No (Number, other).
+	Number = _N  // Number/N is the set of Unicode number characters, category N.
+	N      = _N
+	Other  = _C // Other/C is the set of Unicode control and special characters, category C.
+	C      = _C
+	Pc     = _Pc // Pc is the set of Unicode characters in category Pc (Punctuation, connector).
+	Pd     = _Pd // Pd is the set of Unicode characters in category Pd (Punctuation, dash).
+	Pe     = _Pe // Pe is the set of Unicode characters in category Pe (Punctuation, close).
+	Pf     = _Pf // Pf is the set of Unicode characters in category Pf (Punctuation, final quote).
+	Pi     = _Pi // Pi is the set of Unicode characters in category Pi (Punctuation, initial quote).
+	Po     = _Po // Po is the set of Unicode characters in category Po (Punctuation, other).
+	Ps     = _Ps // Ps is the set of Unicode characters in category Ps (Punctuation, open).
+	Punct  = _P  // Punct/P is the set of Unicode punctuation characters, category P.
+	P      = _P
+	Sc     = _Sc // Sc is the set of Unicode characters in category Sc (Symbol, currency).
+	Sk     = _Sk // Sk is the set of Unicode characters in category Sk (Symbol, modifier).
+	Sm     = _Sm // Sm is the set of Unicode characters in category Sm (Symbol, math).
+	So     = _So // So is the set of Unicode characters in category So (Symbol, other).
+	Space  = _Z  // Space/Z is the set of Unicode space characters, category Z.
+	Z      = _Z
+	Symbol = _S // Symbol/S is the set of Unicode symbol characters, category S.
+	S      = _S
+	Title  = _Lt // Title is the set of Unicode title case letters.
+	Lt     = _Lt // Lt is the set of Unicode characters in category Lt (Letter, titlecase).
+	Upper  = _Lu // Upper is the set of Unicode upper case letters.
+	Lu     = _Lu // Lu is the set of Unicode characters in category Lu (Letter, uppercase).
+	Zl     = _Zl // Zl is the set of Unicode characters in category Zl (Separator, line).
+	Zp     = _Zp // Zp is the set of Unicode characters in category Zp (Separator, paragraph).
+	Zs     = _Zs // Zs is the set of Unicode characters in category Zs (Separator, space).
+)`,
+			variables: []testVariable{
+				{
+					name:   "Cc",
+					source: `Cc     = _Cc // Cc is the set of Unicode characters in category Cc (Other, control).`,
+				},
+				{
+					name:   "Cf",
+					source: `Cf     = _Cf // Cf is the set of Unicode characters in category Cf (Other, format).`,
+				},
+				{
+					name:   "Co",
+					source: `Co     = _Co // Co is the set of Unicode characters in category Co (Other, private use).`,
+				},
+				{
+					name:   "Cs",
+					source: `Cs     = _Cs // Cs is the set of Unicode characters in category Cs (Other, surrogate).`,
+				},
+				{
+					name:   "Digit",
+					source: `Digit  = _Nd // Digit is the set of Unicode characters with the "decimal digit" property.`,
+				},
+				{
+					name:   "Nd",
+					source: `Nd     = _Nd // Nd is the set of Unicode characters in category Nd (Number, decimal digit).`,
+				},
+				{
+					name:   "Letter",
+					source: `Letter = _L  // Letter/L is the set of Unicode letters, category L.`,
+				},
+				{
+					name:   "L",
+					source: `L      = _L`,
+				},
+				{
+					name:   "Lm",
+					source: `Lm     = _Lm // Lm is the set of Unicode characters in category Lm (Letter, modifier).`,
+				},
+				{
+					name:   "Lo",
+					source: `Lo     = _Lo // Lo is the set of Unicode characters in category Lo (Letter, other).`,
+				},
+				{
+					name:   "Lower",
+					source: `Lower  = _Ll // Lower is the set of Unicode lower case letters.`,
+				},
+				{
+					name:   "Ll",
+					source: `Ll     = _Ll // Ll is the set of Unicode characters in category Ll (Letter, lowercase).`,
+				},
+				{
+					name:   "Mark",
+					source: `Mark   = _M  // Mark/M is the set of Unicode mark characters, category M.`,
+				},
+				{
+					name:   "M",
+					source: `M      = _M`,
+				},
+				{
+					name:   "Mc",
+					source: `Mc     = _Mc // Mc is the set of Unicode characters in category Mc (Mark, spacing combining).`,
+				},
+				{
+					name:   "Me",
+					source: `Me     = _Me // Me is the set of Unicode characters in category Me (Mark, enclosing).`,
+				},
+				{
+					name:   "Mn",
+					source: `Mn     = _Mn // Mn is the set of Unicode characters in category Mn (Mark, nonspacing).`,
+				},
+				{
+					name:   "Nl",
+					source: `Nl     = _Nl // Nl is the set of Unicode characters in category Nl (Number, letter).`,
+				},
+				{
+					name:   "No",
+					source: `No     = _No // No is the set of Unicode characters in category No (Number, other).`,
+				},
+				{
+					name:   "Number",
+					source: `Number = _N  // Number/N is the set of Unicode number characters, category N.`,
+				},
+				{
+					name:   "N",
+					source: `N      = _N`,
+				},
+				{
+					name:   "Other",
+					source: `Other  = _C // Other/C is the set of Unicode control and special characters, category C.`,
+				},
+				{
+					name:   "C",
+					source: `C      = _C`,
+				},
+				{
+					name:   "Pc",
+					source: `Pc     = _Pc // Pc is the set of Unicode characters in category Pc (Punctuation, connector).`,
+				},
+				{
+					name:   "Pd",
+					source: `Pd     = _Pd // Pd is the set of Unicode characters in category Pd (Punctuation, dash).`,
+				},
+				{
+					name:   "Pe",
+					source: `Pe     = _Pe // Pe is the set of Unicode characters in category Pe (Punctuation, close).`,
+				},
+				{
+					name:   "Pf",
+					source: `Pf     = _Pf // Pf is the set of Unicode characters in category Pf (Punctuation, final quote).`,
+				},
+				{
+					name:   "Pi",
+					source: `Pi     = _Pi // Pi is the set of Unicode characters in category Pi (Punctuation, initial quote).`,
+				},
+				{
+					name:   "Po",
+					source: `Po     = _Po // Po is the set of Unicode characters in category Po (Punctuation, other).`,
+				},
+				{
+					name:   "Ps",
+					source: `Ps     = _Ps // Ps is the set of Unicode characters in category Ps (Punctuation, open).`,
+				},
+				{
+					name:   "Punct",
+					source: `Punct  = _P  // Punct/P is the set of Unicode punctuation characters, category P.`,
+				},
+				{
+					name:   "P",
+					source: `P      = _P`,
+				},
+				{
+					name:   "Sc",
+					source: `Sc     = _Sc // Sc is the set of Unicode characters in category Sc (Symbol, currency).`,
+				},
+				{
+					name:   "Sk",
+					source: `Sk     = _Sk // Sk is the set of Unicode characters in category Sk (Symbol, modifier).`,
+				},
+				{
+					name:   "Sm",
+					source: `Sm     = _Sm // Sm is the set of Unicode characters in category Sm (Symbol, math).`,
+				},
+				{
+					name:   "So",
+					source: `So     = _So // So is the set of Unicode characters in category So (Symbol, other).`,
+				},
+				{
+					name:   "Space",
+					source: `Space  = _Z  // Space/Z is the set of Unicode space characters, category Z.`,
+				},
+				{
+					name:   "Z",
+					source: `Z      = _Z`,
+				},
+				{
+					name:   "Symbol",
+					source: `Symbol = _S // Symbol/S is the set of Unicode symbol characters, category S.`,
+				},
+				{
+					name:   "S",
+					source: `S      = _S`,
+				},
+				{
+					name:   "Title",
+					source: `Title  = _Lt // Title is the set of Unicode title case letters.`,
+				},
+				{
+					name:   "Lt",
+					source: `Lt     = _Lt // Lt is the set of Unicode characters in category Lt (Letter, titlecase).`,
+				},
+				{
+					name:   "Upper",
+					source: `Upper  = _Lu // Upper is the set of Unicode upper case letters.`,
+				},
+				{
+					name:   "Lu",
+					source: `Lu     = _Lu // Lu is the set of Unicode characters in category Lu (Letter, uppercase).`,
+				},
+				{
+					name:   "Zl",
+					source: `Zl     = _Zl // Zl is the set of Unicode characters in category Zl (Separator, line).`,
+				},
+				{
+					name:   "Zp",
+					source: `Zp     = _Zp // Zp is the set of Unicode characters in category Zp (Separator, paragraph).`,
+				},
+				{
+					name:   "Zs",
+					source: `Zs     = _Zs // Zs is the set of Unicode characters in category Zs (Separator, space).`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `These variables have type *RangeTable.
+`,
+			source: `var (
+	Adlam                  = _Adlam                  // Adlam is the set of Unicode characters in script Adlam.
+	Ahom                   = _Ahom                   // Ahom is the set of Unicode characters in script Ahom.
+	Anatolian_Hieroglyphs  = _Anatolian_Hieroglyphs  // Anatolian_Hieroglyphs is the set of Unicode characters in script Anatolian_Hieroglyphs.
+	Arabic                 = _Arabic                 // Arabic is the set of Unicode characters in script Arabic.
+	Armenian               = _Armenian               // Armenian is the set of Unicode characters in script Armenian.
+	Avestan                = _Avestan                // Avestan is the set of Unicode characters in script Avestan.
+	Balinese               = _Balinese               // Balinese is the set of Unicode characters in script Balinese.
+	Bamum                  = _Bamum                  // Bamum is the set of Unicode characters in script Bamum.
+	Bassa_Vah              = _Bassa_Vah              // Bassa_Vah is the set of Unicode characters in script Bassa_Vah.
+	Batak                  = _Batak                  // Batak is the set of Unicode characters in script Batak.
+	Bengali                = _Bengali                // Bengali is the set of Unicode characters in script Bengali.
+	Bhaiksuki              = _Bhaiksuki              // Bhaiksuki is the set of Unicode characters in script Bhaiksuki.
+	Bopomofo               = _Bopomofo               // Bopomofo is the set of Unicode characters in script Bopomofo.
+	Brahmi                 = _Brahmi                 // Brahmi is the set of Unicode characters in script Brahmi.
+	Braille                = _Braille                // Braille is the set of Unicode characters in script Braille.
+	Buginese               = _Buginese               // Buginese is the set of Unicode characters in script Buginese.
+	Buhid                  = _Buhid                  // Buhid is the set of Unicode characters in script Buhid.
+	Canadian_Aboriginal    = _Canadian_Aboriginal    // Canadian_Aboriginal is the set of Unicode characters in script Canadian_Aboriginal.
+	Carian                 = _Carian                 // Carian is the set of Unicode characters in script Carian.
+	Caucasian_Albanian     = _Caucasian_Albanian     // Caucasian_Albanian is the set of Unicode characters in script Caucasian_Albanian.
+	Chakma                 = _Chakma                 // Chakma is the set of Unicode characters in script Chakma.
+	Cham                   = _Cham                   // Cham is the set of Unicode characters in script Cham.
+	Cherokee               = _Cherokee               // Cherokee is the set of Unicode characters in script Cherokee.
+	Chorasmian             = _Chorasmian             // Chorasmian is the set of Unicode characters in script Chorasmian.
+	Common                 = _Common                 // Common is the set of Unicode characters in script Common.
+	Coptic                 = _Coptic                 // Coptic is the set of Unicode characters in script Coptic.
+	Cuneiform              = _Cuneiform              // Cuneiform is the set of Unicode characters in script Cuneiform.
+	Cypriot                = _Cypriot                // Cypriot is the set of Unicode characters in script Cypriot.
+	Cyrillic               = _Cyrillic               // Cyrillic is the set of Unicode characters in script Cyrillic.
+	Deseret                = _Deseret                // Deseret is the set of Unicode characters in script Deseret.
+	Devanagari             = _Devanagari             // Devanagari is the set of Unicode characters in script Devanagari.
+	Dives_Akuru            = _Dives_Akuru            // Dives_Akuru is the set of Unicode characters in script Dives_Akuru.
+	Dogra                  = _Dogra                  // Dogra is the set of Unicode characters in script Dogra.
+	Duployan               = _Duployan               // Duployan is the set of Unicode characters in script Duployan.
+	Egyptian_Hieroglyphs   = _Egyptian_Hieroglyphs   // Egyptian_Hieroglyphs is the set of Unicode characters in script Egyptian_Hieroglyphs.
+	Elbasan                = _Elbasan                // Elbasan is the set of Unicode characters in script Elbasan.
+	Elymaic                = _Elymaic                // Elymaic is the set of Unicode characters in script Elymaic.
+	Ethiopic               = _Ethiopic               // Ethiopic is the set of Unicode characters in script Ethiopic.
+	Georgian               = _Georgian               // Georgian is the set of Unicode characters in script Georgian.
+	Glagolitic             = _Glagolitic             // Glagolitic is the set of Unicode characters in script Glagolitic.
+	Gothic                 = _Gothic                 // Gothic is the set of Unicode characters in script Gothic.
+	Grantha                = _Grantha                // Grantha is the set of Unicode characters in script Grantha.
+	Greek                  = _Greek                  // Greek is the set of Unicode characters in script Greek.
+	Gujarati               = _Gujarati               // Gujarati is the set of Unicode characters in script Gujarati.
+	Gunjala_Gondi          = _Gunjala_Gondi          // Gunjala_Gondi is the set of Unicode characters in script Gunjala_Gondi.
+	Gurmukhi               = _Gurmukhi               // Gurmukhi is the set of Unicode characters in script Gurmukhi.
+	Han                    = _Han                    // Han is the set of Unicode characters in script Han.
+	Hangul                 = _Hangul                 // Hangul is the set of Unicode characters in script Hangul.
+	Hanifi_Rohingya        = _Hanifi_Rohingya        // Hanifi_Rohingya is the set of Unicode characters in script Hanifi_Rohingya.
+	Hanunoo                = _Hanunoo                // Hanunoo is the set of Unicode characters in script Hanunoo.
+	Hatran                 = _Hatran                 // Hatran is the set of Unicode characters in script Hatran.
+	Hebrew                 = _Hebrew                 // Hebrew is the set of Unicode characters in script Hebrew.
+	Hiragana               = _Hiragana               // Hiragana is the set of Unicode characters in script Hiragana.
+	Imperial_Aramaic       = _Imperial_Aramaic       // Imperial_Aramaic is the set of Unicode characters in script Imperial_Aramaic.
+	Inherited              = _Inherited              // Inherited is the set of Unicode characters in script Inherited.
+	Inscriptional_Pahlavi  = _Inscriptional_Pahlavi  // Inscriptional_Pahlavi is the set of Unicode characters in script Inscriptional_Pahlavi.
+	Inscriptional_Parthian = _Inscriptional_Parthian // Inscriptional_Parthian is the set of Unicode characters in script Inscriptional_Parthian.
+	Javanese               = _Javanese               // Javanese is the set of Unicode characters in script Javanese.
+	Kaithi                 = _Kaithi                 // Kaithi is the set of Unicode characters in script Kaithi.
+	Kannada                = _Kannada                // Kannada is the set of Unicode characters in script Kannada.
+	Katakana               = _Katakana               // Katakana is the set of Unicode characters in script Katakana.
+	Kayah_Li               = _Kayah_Li               // Kayah_Li is the set of Unicode characters in script Kayah_Li.
+	Kharoshthi             = _Kharoshthi             // Kharoshthi is the set of Unicode characters in script Kharoshthi.
+	Khitan_Small_Script    = _Khitan_Small_Script    // Khitan_Small_Script is the set of Unicode characters in script Khitan_Small_Script.
+	Khmer                  = _Khmer                  // Khmer is the set of Unicode characters in script Khmer.
+	Khojki                 = _Khojki                 // Khojki is the set of Unicode characters in script Khojki.
+	Khudawadi              = _Khudawadi              // Khudawadi is the set of Unicode characters in script Khudawadi.
+	Lao                    = _Lao                    // Lao is the set of Unicode characters in script Lao.
+	Latin                  = _Latin                  // Latin is the set of Unicode characters in script Latin.
+	Lepcha                 = _Lepcha                 // Lepcha is the set of Unicode characters in script Lepcha.
+	Limbu                  = _Limbu                  // Limbu is the set of Unicode characters in script Limbu.
+	Linear_A               = _Linear_A               // Linear_A is the set of Unicode characters in script Linear_A.
+	Linear_B               = _Linear_B               // Linear_B is the set of Unicode characters in script Linear_B.
+	Lisu                   = _Lisu                   // Lisu is the set of Unicode characters in script Lisu.
+	Lycian                 = _Lycian                 // Lycian is the set of Unicode characters in script Lycian.
+	Lydian                 = _Lydian                 // Lydian is the set of Unicode characters in script Lydian.
+	Mahajani               = _Mahajani               // Mahajani is the set of Unicode characters in script Mahajani.
+	Makasar                = _Makasar                // Makasar is the set of Unicode characters in script Makasar.
+	Malayalam              = _Malayalam              // Malayalam is the set of Unicode characters in script Malayalam.
+	Mandaic                = _Mandaic                // Mandaic is the set of Unicode characters in script Mandaic.
+	Manichaean             = _Manichaean             // Manichaean is the set of Unicode characters in script Manichaean.
+	Marchen                = _Marchen                // Marchen is the set of Unicode characters in script Marchen.
+	Masaram_Gondi          = _Masaram_Gondi          // Masaram_Gondi is the set of Unicode characters in script Masaram_Gondi.
+	Medefaidrin            = _Medefaidrin            // Medefaidrin is the set of Unicode characters in script Medefaidrin.
+	Meetei_Mayek           = _Meetei_Mayek           // Meetei_Mayek is the set of Unicode characters in script Meetei_Mayek.
+	Mende_Kikakui          = _Mende_Kikakui          // Mende_Kikakui is the set of Unicode characters in script Mende_Kikakui.
+	Meroitic_Cursive       = _Meroitic_Cursive       // Meroitic_Cursive is the set of Unicode characters in script Meroitic_Cursive.
+	Meroitic_Hieroglyphs   = _Meroitic_Hieroglyphs   // Meroitic_Hieroglyphs is the set of Unicode characters in script Meroitic_Hieroglyphs.
+	Miao                   = _Miao                   // Miao is the set of Unicode characters in script Miao.
+	Modi                   = _Modi                   // Modi is the set of Unicode characters in script Modi.
+	Mongolian              = _Mongolian              // Mongolian is the set of Unicode characters in script Mongolian.
+	Mro                    = _Mro                    // Mro is the set of Unicode characters in script Mro.
+	Multani                = _Multani                // Multani is the set of Unicode characters in script Multani.
+	Myanmar                = _Myanmar                // Myanmar is the set of Unicode characters in script Myanmar.
+	Nabataean              = _Nabataean              // Nabataean is the set of Unicode characters in script Nabataean.
+	Nandinagari            = _Nandinagari            // Nandinagari is the set of Unicode characters in script Nandinagari.
+	New_Tai_Lue            = _New_Tai_Lue            // New_Tai_Lue is the set of Unicode characters in script New_Tai_Lue.
+	Newa                   = _Newa                   // Newa is the set of Unicode characters in script Newa.
+	Nko                    = _Nko                    // Nko is the set of Unicode characters in script Nko.
+	Nushu                  = _Nushu                  // Nushu is the set of Unicode characters in script Nushu.
+	Nyiakeng_Puachue_Hmong = _Nyiakeng_Puachue_Hmong // Nyiakeng_Puachue_Hmong is the set of Unicode characters in script Nyiakeng_Puachue_Hmong.
+	Ogham                  = _Ogham                  // Ogham is the set of Unicode characters in script Ogham.
+	Ol_Chiki               = _Ol_Chiki               // Ol_Chiki is the set of Unicode characters in script Ol_Chiki.
+	Old_Hungarian          = _Old_Hungarian          // Old_Hungarian is the set of Unicode characters in script Old_Hungarian.
+	Old_Italic             = _Old_Italic             // Old_Italic is the set of Unicode characters in script Old_Italic.
+	Old_North_Arabian      = _Old_North_Arabian      // Old_North_Arabian is the set of Unicode characters in script Old_North_Arabian.
+	Old_Permic             = _Old_Permic             // Old_Permic is the set of Unicode characters in script Old_Permic.
+	Old_Persian            = _Old_Persian            // Old_Persian is the set of Unicode characters in script Old_Persian.
+	Old_Sogdian            = _Old_Sogdian            // Old_Sogdian is the set of Unicode characters in script Old_Sogdian.
+	Old_South_Arabian      = _Old_South_Arabian      // Old_South_Arabian is the set of Unicode characters in script Old_South_Arabian.
+	Old_Turkic             = _Old_Turkic             // Old_Turkic is the set of Unicode characters in script Old_Turkic.
+	Oriya                  = _Oriya                  // Oriya is the set of Unicode characters in script Oriya.
+	Osage                  = _Osage                  // Osage is the set of Unicode characters in script Osage.
+	Osmanya                = _Osmanya                // Osmanya is the set of Unicode characters in script Osmanya.
+	Pahawh_Hmong           = _Pahawh_Hmong           // Pahawh_Hmong is the set of Unicode characters in script Pahawh_Hmong.
+	Palmyrene              = _Palmyrene              // Palmyrene is the set of Unicode characters in script Palmyrene.
+	Pau_Cin_Hau            = _Pau_Cin_Hau            // Pau_Cin_Hau is the set of Unicode characters in script Pau_Cin_Hau.
+	Phags_Pa               = _Phags_Pa               // Phags_Pa is the set of Unicode characters in script Phags_Pa.
+	Phoenician             = _Phoenician             // Phoenician is the set of Unicode characters in script Phoenician.
+	Psalter_Pahlavi        = _Psalter_Pahlavi        // Psalter_Pahlavi is the set of Unicode characters in script Psalter_Pahlavi.
+	Rejang                 = _Rejang                 // Rejang is the set of Unicode characters in script Rejang.
+	Runic                  = _Runic                  // Runic is the set of Unicode characters in script Runic.
+	Samaritan              = _Samaritan              // Samaritan is the set of Unicode characters in script Samaritan.
+	Saurashtra             = _Saurashtra             // Saurashtra is the set of Unicode characters in script Saurashtra.
+	Sharada                = _Sharada                // Sharada is the set of Unicode characters in script Sharada.
+	Shavian                = _Shavian                // Shavian is the set of Unicode characters in script Shavian.
+	Siddham                = _Siddham                // Siddham is the set of Unicode characters in script Siddham.
+	SignWriting            = _SignWriting            // SignWriting is the set of Unicode characters in script SignWriting.
+	Sinhala                = _Sinhala                // Sinhala is the set of Unicode characters in script Sinhala.
+	Sogdian                = _Sogdian                // Sogdian is the set of Unicode characters in script Sogdian.
+	Sora_Sompeng           = _Sora_Sompeng           // Sora_Sompeng is the set of Unicode characters in script Sora_Sompeng.
+	Soyombo                = _Soyombo                // Soyombo is the set of Unicode characters in script Soyombo.
+	Sundanese              = _Sundanese              // Sundanese is the set of Unicode characters in script Sundanese.
+	Syloti_Nagri           = _Syloti_Nagri           // Syloti_Nagri is the set of Unicode characters in script Syloti_Nagri.
+	Syriac                 = _Syriac                 // Syriac is the set of Unicode characters in script Syriac.
+	Tagalog                = _Tagalog                // Tagalog is the set of Unicode characters in script Tagalog.
+	Tagbanwa               = _Tagbanwa               // Tagbanwa is the set of Unicode characters in script Tagbanwa.
+	Tai_Le                 = _Tai_Le                 // Tai_Le is the set of Unicode characters in script Tai_Le.
+	Tai_Tham               = _Tai_Tham               // Tai_Tham is the set of Unicode characters in script Tai_Tham.
+	Tai_Viet               = _Tai_Viet               // Tai_Viet is the set of Unicode characters in script Tai_Viet.
+	Takri                  = _Takri                  // Takri is the set of Unicode characters in script Takri.
+	Tamil                  = _Tamil                  // Tamil is the set of Unicode characters in script Tamil.
+	Tangut                 = _Tangut                 // Tangut is the set of Unicode characters in script Tangut.
+	Telugu                 = _Telugu                 // Telugu is the set of Unicode characters in script Telugu.
+	Thaana                 = _Thaana                 // Thaana is the set of Unicode characters in script Thaana.
+	Thai                   = _Thai                   // Thai is the set of Unicode characters in script Thai.
+	Tibetan                = _Tibetan                // Tibetan is the set of Unicode characters in script Tibetan.
+	Tifinagh               = _Tifinagh               // Tifinagh is the set of Unicode characters in script Tifinagh.
+	Tirhuta                = _Tirhuta                // Tirhuta is the set of Unicode characters in script Tirhuta.
+	Ugaritic               = _Ugaritic               // Ugaritic is the set of Unicode characters in script Ugaritic.
+	Vai                    = _Vai                    // Vai is the set of Unicode characters in script Vai.
+	Wancho                 = _Wancho                 // Wancho is the set of Unicode characters in script Wancho.
+	Warang_Citi            = _Warang_Citi            // Warang_Citi is the set of Unicode characters in script Warang_Citi.
+	Yezidi                 = _Yezidi                 // Yezidi is the set of Unicode characters in script Yezidi.
+	Yi                     = _Yi                     // Yi is the set of Unicode characters in script Yi.
+	Zanabazar_Square       = _Zanabazar_Square       // Zanabazar_Square is the set of Unicode characters in script Zanabazar_Square.
+)`,
+			variables: []testVariable{
+				{
+					name:   "Adlam",
+					source: `Adlam                  = _Adlam                  // Adlam is the set of Unicode characters in script Adlam.`,
+				},
+				{
+					name:   "Ahom",
+					source: `Ahom                   = _Ahom                   // Ahom is the set of Unicode characters in script Ahom.`,
+				},
+				{
+					name:   "Anatolian_Hieroglyphs",
+					source: `Anatolian_Hieroglyphs  = _Anatolian_Hieroglyphs  // Anatolian_Hieroglyphs is the set of Unicode characters in script Anatolian_Hieroglyphs.`,
+				},
+				{
+					name:   "Arabic",
+					source: `Arabic                 = _Arabic                 // Arabic is the set of Unicode characters in script Arabic.`,
+				},
+				{
+					name:   "Armenian",
+					source: `Armenian               = _Armenian               // Armenian is the set of Unicode characters in script Armenian.`,
+				},
+				{
+					name:   "Avestan",
+					source: `Avestan                = _Avestan                // Avestan is the set of Unicode characters in script Avestan.`,
+				},
+				{
+					name:   "Balinese",
+					source: `Balinese               = _Balinese               // Balinese is the set of Unicode characters in script Balinese.`,
+				},
+				{
+					name:   "Bamum",
+					source: `Bamum                  = _Bamum                  // Bamum is the set of Unicode characters in script Bamum.`,
+				},
+				{
+					name:   "Bassa_Vah",
+					source: `Bassa_Vah              = _Bassa_Vah              // Bassa_Vah is the set of Unicode characters in script Bassa_Vah.`,
+				},
+				{
+					name:   "Batak",
+					source: `Batak                  = _Batak                  // Batak is the set of Unicode characters in script Batak.`,
+				},
+				{
+					name:   "Bengali",
+					source: `Bengali                = _Bengali                // Bengali is the set of Unicode characters in script Bengali.`,
+				},
+				{
+					name:   "Bhaiksuki",
+					source: `Bhaiksuki              = _Bhaiksuki              // Bhaiksuki is the set of Unicode characters in script Bhaiksuki.`,
+				},
+				{
+					name:   "Bopomofo",
+					source: `Bopomofo               = _Bopomofo               // Bopomofo is the set of Unicode characters in script Bopomofo.`,
+				},
+				{
+					name:   "Brahmi",
+					source: `Brahmi                 = _Brahmi                 // Brahmi is the set of Unicode characters in script Brahmi.`,
+				},
+				{
+					name:   "Braille",
+					source: `Braille                = _Braille                // Braille is the set of Unicode characters in script Braille.`,
+				},
+				{
+					name:   "Buginese",
+					source: `Buginese               = _Buginese               // Buginese is the set of Unicode characters in script Buginese.`,
+				},
+				{
+					name:   "Buhid",
+					source: `Buhid                  = _Buhid                  // Buhid is the set of Unicode characters in script Buhid.`,
+				},
+				{
+					name:   "Canadian_Aboriginal",
+					source: `Canadian_Aboriginal    = _Canadian_Aboriginal    // Canadian_Aboriginal is the set of Unicode characters in script Canadian_Aboriginal.`,
+				},
+				{
+					name:   "Carian",
+					source: `Carian                 = _Carian                 // Carian is the set of Unicode characters in script Carian.`,
+				},
+				{
+					name:   "Caucasian_Albanian",
+					source: `Caucasian_Albanian     = _Caucasian_Albanian     // Caucasian_Albanian is the set of Unicode characters in script Caucasian_Albanian.`,
+				},
+				{
+					name:   "Chakma",
+					source: `Chakma                 = _Chakma                 // Chakma is the set of Unicode characters in script Chakma.`,
+				},
+				{
+					name:   "Cham",
+					source: `Cham                   = _Cham                   // Cham is the set of Unicode characters in script Cham.`,
+				},
+				{
+					name:   "Cherokee",
+					source: `Cherokee               = _Cherokee               // Cherokee is the set of Unicode characters in script Cherokee.`,
+				},
+				{
+					name:   "Chorasmian",
+					source: `Chorasmian             = _Chorasmian             // Chorasmian is the set of Unicode characters in script Chorasmian.`,
+				},
+				{
+					name:   "Common",
+					source: `Common                 = _Common                 // Common is the set of Unicode characters in script Common.`,
+				},
+				{
+					name:   "Coptic",
+					source: `Coptic                 = _Coptic                 // Coptic is the set of Unicode characters in script Coptic.`,
+				},
+				{
+					name:   "Cuneiform",
+					source: `Cuneiform              = _Cuneiform              // Cuneiform is the set of Unicode characters in script Cuneiform.`,
+				},
+				{
+					name:   "Cypriot",
+					source: `Cypriot                = _Cypriot                // Cypriot is the set of Unicode characters in script Cypriot.`,
+				},
+				{
+					name:   "Cyrillic",
+					source: `Cyrillic               = _Cyrillic               // Cyrillic is the set of Unicode characters in script Cyrillic.`,
+				},
+				{
+					name:   "Deseret",
+					source: `Deseret                = _Deseret                // Deseret is the set of Unicode characters in script Deseret.`,
+				},
+				{
+					name:   "Devanagari",
+					source: `Devanagari             = _Devanagari             // Devanagari is the set of Unicode characters in script Devanagari.`,
+				},
+				{
+					name:   "Dives_Akuru",
+					source: `Dives_Akuru            = _Dives_Akuru            // Dives_Akuru is the set of Unicode characters in script Dives_Akuru.`,
+				},
+				{
+					name:   "Dogra",
+					source: `Dogra                  = _Dogra                  // Dogra is the set of Unicode characters in script Dogra.`,
+				},
+				{
+					name:   "Duployan",
+					source: `Duployan               = _Duployan               // Duployan is the set of Unicode characters in script Duployan.`,
+				},
+				{
+					name:   "Egyptian_Hieroglyphs",
+					source: `Egyptian_Hieroglyphs   = _Egyptian_Hieroglyphs   // Egyptian_Hieroglyphs is the set of Unicode characters in script Egyptian_Hieroglyphs.`,
+				},
+				{
+					name:   "Elbasan",
+					source: `Elbasan                = _Elbasan                // Elbasan is the set of Unicode characters in script Elbasan.`,
+				},
+				{
+					name:   "Elymaic",
+					source: `Elymaic                = _Elymaic                // Elymaic is the set of Unicode characters in script Elymaic.`,
+				},
+				{
+					name:   "Ethiopic",
+					source: `Ethiopic               = _Ethiopic               // Ethiopic is the set of Unicode characters in script Ethiopic.`,
+				},
+				{
+					name:   "Georgian",
+					source: `Georgian               = _Georgian               // Georgian is the set of Unicode characters in script Georgian.`,
+				},
+				{
+					name:   "Glagolitic",
+					source: `Glagolitic             = _Glagolitic             // Glagolitic is the set of Unicode characters in script Glagolitic.`,
+				},
+				{
+					name:   "Gothic",
+					source: `Gothic                 = _Gothic                 // Gothic is the set of Unicode characters in script Gothic.`,
+				},
+				{
+					name:   "Grantha",
+					source: `Grantha                = _Grantha                // Grantha is the set of Unicode characters in script Grantha.`,
+				},
+				{
+					name:   "Greek",
+					source: `Greek                  = _Greek                  // Greek is the set of Unicode characters in script Greek.`,
+				},
+				{
+					name:   "Gujarati",
+					source: `Gujarati               = _Gujarati               // Gujarati is the set of Unicode characters in script Gujarati.`,
+				},
+				{
+					name:   "Gunjala_Gondi",
+					source: `Gunjala_Gondi          = _Gunjala_Gondi          // Gunjala_Gondi is the set of Unicode characters in script Gunjala_Gondi.`,
+				},
+				{
+					name:   "Gurmukhi",
+					source: `Gurmukhi               = _Gurmukhi               // Gurmukhi is the set of Unicode characters in script Gurmukhi.`,
+				},
+				{
+					name:   "Han",
+					source: `Han                    = _Han                    // Han is the set of Unicode characters in script Han.`,
+				},
+				{
+					name:   "Hangul",
+					source: `Hangul                 = _Hangul                 // Hangul is the set of Unicode characters in script Hangul.`,
+				},
+				{
+					name:   "Hanifi_Rohingya",
+					source: `Hanifi_Rohingya        = _Hanifi_Rohingya        // Hanifi_Rohingya is the set of Unicode characters in script Hanifi_Rohingya.`,
+				},
+				{
+					name:   "Hanunoo",
+					source: `Hanunoo                = _Hanunoo                // Hanunoo is the set of Unicode characters in script Hanunoo.`,
+				},
+				{
+					name:   "Hatran",
+					source: `Hatran                 = _Hatran                 // Hatran is the set of Unicode characters in script Hatran.`,
+				},
+				{
+					name:   "Hebrew",
+					source: `Hebrew                 = _Hebrew                 // Hebrew is the set of Unicode characters in script Hebrew.`,
+				},
+				{
+					name:   "Hiragana",
+					source: `Hiragana               = _Hiragana               // Hiragana is the set of Unicode characters in script Hiragana.`,
+				},
+				{
+					name:   "Imperial_Aramaic",
+					source: `Imperial_Aramaic       = _Imperial_Aramaic       // Imperial_Aramaic is the set of Unicode characters in script Imperial_Aramaic.`,
+				},
+				{
+					name:   "Inherited",
+					source: `Inherited              = _Inherited              // Inherited is the set of Unicode characters in script Inherited.`,
+				},
+				{
+					name:   "Inscriptional_Pahlavi",
+					source: `Inscriptional_Pahlavi  = _Inscriptional_Pahlavi  // Inscriptional_Pahlavi is the set of Unicode characters in script Inscriptional_Pahlavi.`,
+				},
+				{
+					name:   "Inscriptional_Parthian",
+					source: `Inscriptional_Parthian = _Inscriptional_Parthian // Inscriptional_Parthian is the set of Unicode characters in script Inscriptional_Parthian.`,
+				},
+				{
+					name:   "Javanese",
+					source: `Javanese               = _Javanese               // Javanese is the set of Unicode characters in script Javanese.`,
+				},
+				{
+					name:   "Kaithi",
+					source: `Kaithi                 = _Kaithi                 // Kaithi is the set of Unicode characters in script Kaithi.`,
+				},
+				{
+					name:   "Kannada",
+					source: `Kannada                = _Kannada                // Kannada is the set of Unicode characters in script Kannada.`,
+				},
+				{
+					name:   "Katakana",
+					source: `Katakana               = _Katakana               // Katakana is the set of Unicode characters in script Katakana.`,
+				},
+				{
+					name:   "Kayah_Li",
+					source: `Kayah_Li               = _Kayah_Li               // Kayah_Li is the set of Unicode characters in script Kayah_Li.`,
+				},
+				{
+					name:   "Kharoshthi",
+					source: `Kharoshthi             = _Kharoshthi             // Kharoshthi is the set of Unicode characters in script Kharoshthi.`,
+				},
+				{
+					name:   "Khitan_Small_Script",
+					source: `Khitan_Small_Script    = _Khitan_Small_Script    // Khitan_Small_Script is the set of Unicode characters in script Khitan_Small_Script.`,
+				},
+				{
+					name:   "Khmer",
+					source: `Khmer                  = _Khmer                  // Khmer is the set of Unicode characters in script Khmer.`,
+				},
+				{
+					name:   "Khojki",
+					source: `Khojki                 = _Khojki                 // Khojki is the set of Unicode characters in script Khojki.`,
+				},
+				{
+					name:   "Khudawadi",
+					source: `Khudawadi              = _Khudawadi              // Khudawadi is the set of Unicode characters in script Khudawadi.`,
+				},
+				{
+					name:   "Lao",
+					source: `Lao                    = _Lao                    // Lao is the set of Unicode characters in script Lao.`,
+				},
+				{
+					name:   "Latin",
+					source: `Latin                  = _Latin                  // Latin is the set of Unicode characters in script Latin.`,
+				},
+				{
+					name:   "Lepcha",
+					source: `Lepcha                 = _Lepcha                 // Lepcha is the set of Unicode characters in script Lepcha.`,
+				},
+				{
+					name:   "Limbu",
+					source: `Limbu                  = _Limbu                  // Limbu is the set of Unicode characters in script Limbu.`,
+				},
+				{
+					name:   "Linear_A",
+					source: `Linear_A               = _Linear_A               // Linear_A is the set of Unicode characters in script Linear_A.`,
+				},
+				{
+					name:   "Linear_B",
+					source: `Linear_B               = _Linear_B               // Linear_B is the set of Unicode characters in script Linear_B.`,
+				},
+				{
+					name:   "Lisu",
+					source: `Lisu                   = _Lisu                   // Lisu is the set of Unicode characters in script Lisu.`,
+				},
+				{
+					name:   "Lycian",
+					source: `Lycian                 = _Lycian                 // Lycian is the set of Unicode characters in script Lycian.`,
+				},
+				{
+					name:   "Lydian",
+					source: `Lydian                 = _Lydian                 // Lydian is the set of Unicode characters in script Lydian.`,
+				},
+				{
+					name:   "Mahajani",
+					source: `Mahajani               = _Mahajani               // Mahajani is the set of Unicode characters in script Mahajani.`,
+				},
+				{
+					name:   "Makasar",
+					source: `Makasar                = _Makasar                // Makasar is the set of Unicode characters in script Makasar.`,
+				},
+				{
+					name:   "Malayalam",
+					source: `Malayalam              = _Malayalam              // Malayalam is the set of Unicode characters in script Malayalam.`,
+				},
+				{
+					name:   "Mandaic",
+					source: `Mandaic                = _Mandaic                // Mandaic is the set of Unicode characters in script Mandaic.`,
+				},
+				{
+					name:   "Manichaean",
+					source: `Manichaean             = _Manichaean             // Manichaean is the set of Unicode characters in script Manichaean.`,
+				},
+				{
+					name:   "Marchen",
+					source: `Marchen                = _Marchen                // Marchen is the set of Unicode characters in script Marchen.`,
+				},
+				{
+					name:   "Masaram_Gondi",
+					source: `Masaram_Gondi          = _Masaram_Gondi          // Masaram_Gondi is the set of Unicode characters in script Masaram_Gondi.`,
+				},
+				{
+					name:   "Medefaidrin",
+					source: `Medefaidrin            = _Medefaidrin            // Medefaidrin is the set of Unicode characters in script Medefaidrin.`,
+				},
+				{
+					name:   "Meetei_Mayek",
+					source: `Meetei_Mayek           = _Meetei_Mayek           // Meetei_Mayek is the set of Unicode characters in script Meetei_Mayek.`,
+				},
+				{
+					name:   "Mende_Kikakui",
+					source: `Mende_Kikakui          = _Mende_Kikakui          // Mende_Kikakui is the set of Unicode characters in script Mende_Kikakui.`,
+				},
+				{
+					name:   "Meroitic_Cursive",
+					source: `Meroitic_Cursive       = _Meroitic_Cursive       // Meroitic_Cursive is the set of Unicode characters in script Meroitic_Cursive.`,
+				},
+				{
+					name:   "Meroitic_Hieroglyphs",
+					source: `Meroitic_Hieroglyphs   = _Meroitic_Hieroglyphs   // Meroitic_Hieroglyphs is the set of Unicode characters in script Meroitic_Hieroglyphs.`,
+				},
+				{
+					name:   "Miao",
+					source: `Miao                   = _Miao                   // Miao is the set of Unicode characters in script Miao.`,
+				},
+				{
+					name:   "Modi",
+					source: `Modi                   = _Modi                   // Modi is the set of Unicode characters in script Modi.`,
+				},
+				{
+					name:   "Mongolian",
+					source: `Mongolian              = _Mongolian              // Mongolian is the set of Unicode characters in script Mongolian.`,
+				},
+				{
+					name:   "Mro",
+					source: `Mro                    = _Mro                    // Mro is the set of Unicode characters in script Mro.`,
+				},
+				{
+					name:   "Multani",
+					source: `Multani                = _Multani                // Multani is the set of Unicode characters in script Multani.`,
+				},
+				{
+					name:   "Myanmar",
+					source: `Myanmar                = _Myanmar                // Myanmar is the set of Unicode characters in script Myanmar.`,
+				},
+				{
+					name:   "Nabataean",
+					source: `Nabataean              = _Nabataean              // Nabataean is the set of Unicode characters in script Nabataean.`,
+				},
+				{
+					name:   "Nandinagari",
+					source: `Nandinagari            = _Nandinagari            // Nandinagari is the set of Unicode characters in script Nandinagari.`,
+				},
+				{
+					name:   "New_Tai_Lue",
+					source: `New_Tai_Lue            = _New_Tai_Lue            // New_Tai_Lue is the set of Unicode characters in script New_Tai_Lue.`,
+				},
+				{
+					name:   "Newa",
+					source: `Newa                   = _Newa                   // Newa is the set of Unicode characters in script Newa.`,
+				},
+				{
+					name:   "Nko",
+					source: `Nko                    = _Nko                    // Nko is the set of Unicode characters in script Nko.`,
+				},
+				{
+					name:   "Nushu",
+					source: `Nushu                  = _Nushu                  // Nushu is the set of Unicode characters in script Nushu.`,
+				},
+				{
+					name:   "Nyiakeng_Puachue_Hmong",
+					source: `Nyiakeng_Puachue_Hmong = _Nyiakeng_Puachue_Hmong // Nyiakeng_Puachue_Hmong is the set of Unicode characters in script Nyiakeng_Puachue_Hmong.`,
+				},
+				{
+					name:   "Ogham",
+					source: `Ogham                  = _Ogham                  // Ogham is the set of Unicode characters in script Ogham.`,
+				},
+				{
+					name:   "Ol_Chiki",
+					source: `Ol_Chiki               = _Ol_Chiki               // Ol_Chiki is the set of Unicode characters in script Ol_Chiki.`,
+				},
+				{
+					name:   "Old_Hungarian",
+					source: `Old_Hungarian          = _Old_Hungarian          // Old_Hungarian is the set of Unicode characters in script Old_Hungarian.`,
+				},
+				{
+					name:   "Old_Italic",
+					source: `Old_Italic             = _Old_Italic             // Old_Italic is the set of Unicode characters in script Old_Italic.`,
+				},
+				{
+					name:   "Old_North_Arabian",
+					source: `Old_North_Arabian      = _Old_North_Arabian      // Old_North_Arabian is the set of Unicode characters in script Old_North_Arabian.`,
+				},
+				{
+					name:   "Old_Permic",
+					source: `Old_Permic             = _Old_Permic             // Old_Permic is the set of Unicode characters in script Old_Permic.`,
+				},
+				{
+					name:   "Old_Persian",
+					source: `Old_Persian            = _Old_Persian            // Old_Persian is the set of Unicode characters in script Old_Persian.`,
+				},
+				{
+					name:   "Old_Sogdian",
+					source: `Old_Sogdian            = _Old_Sogdian            // Old_Sogdian is the set of Unicode characters in script Old_Sogdian.`,
+				},
+				{
+					name:   "Old_South_Arabian",
+					source: `Old_South_Arabian      = _Old_South_Arabian      // Old_South_Arabian is the set of Unicode characters in script Old_South_Arabian.`,
+				},
+				{
+					name:   "Old_Turkic",
+					source: `Old_Turkic             = _Old_Turkic             // Old_Turkic is the set of Unicode characters in script Old_Turkic.`,
+				},
+				{
+					name:   "Oriya",
+					source: `Oriya                  = _Oriya                  // Oriya is the set of Unicode characters in script Oriya.`,
+				},
+				{
+					name:   "Osage",
+					source: `Osage                  = _Osage                  // Osage is the set of Unicode characters in script Osage.`,
+				},
+				{
+					name:   "Osmanya",
+					source: `Osmanya                = _Osmanya                // Osmanya is the set of Unicode characters in script Osmanya.`,
+				},
+				{
+					name:   "Pahawh_Hmong",
+					source: `Pahawh_Hmong           = _Pahawh_Hmong           // Pahawh_Hmong is the set of Unicode characters in script Pahawh_Hmong.`,
+				},
+				{
+					name:   "Palmyrene",
+					source: `Palmyrene              = _Palmyrene              // Palmyrene is the set of Unicode characters in script Palmyrene.`,
+				},
+				{
+					name:   "Pau_Cin_Hau",
+					source: `Pau_Cin_Hau            = _Pau_Cin_Hau            // Pau_Cin_Hau is the set of Unicode characters in script Pau_Cin_Hau.`,
+				},
+				{
+					name:   "Phags_Pa",
+					source: `Phags_Pa               = _Phags_Pa               // Phags_Pa is the set of Unicode characters in script Phags_Pa.`,
+				},
+				{
+					name:   "Phoenician",
+					source: `Phoenician             = _Phoenician             // Phoenician is the set of Unicode characters in script Phoenician.`,
+				},
+				{
+					name:   "Psalter_Pahlavi",
+					source: `Psalter_Pahlavi        = _Psalter_Pahlavi        // Psalter_Pahlavi is the set of Unicode characters in script Psalter_Pahlavi.`,
+				},
+				{
+					name:   "Rejang",
+					source: `Rejang                 = _Rejang                 // Rejang is the set of Unicode characters in script Rejang.`,
+				},
+				{
+					name:   "Runic",
+					source: `Runic                  = _Runic                  // Runic is the set of Unicode characters in script Runic.`,
+				},
+				{
+					name:   "Samaritan",
+					source: `Samaritan              = _Samaritan              // Samaritan is the set of Unicode characters in script Samaritan.`,
+				},
+				{
+					name:   "Saurashtra",
+					source: `Saurashtra             = _Saurashtra             // Saurashtra is the set of Unicode characters in script Saurashtra.`,
+				},
+				{
+					name:   "Sharada",
+					source: `Sharada                = _Sharada                // Sharada is the set of Unicode characters in script Sharada.`,
+				},
+				{
+					name:   "Shavian",
+					source: `Shavian                = _Shavian                // Shavian is the set of Unicode characters in script Shavian.`,
+				},
+				{
+					name:   "Siddham",
+					source: `Siddham                = _Siddham                // Siddham is the set of Unicode characters in script Siddham.`,
+				},
+				{
+					name:   "SignWriting",
+					source: `SignWriting            = _SignWriting            // SignWriting is the set of Unicode characters in script SignWriting.`,
+				},
+				{
+					name:   "Sinhala",
+					source: `Sinhala                = _Sinhala                // Sinhala is the set of Unicode characters in script Sinhala.`,
+				},
+				{
+					name:   "Sogdian",
+					source: `Sogdian                = _Sogdian                // Sogdian is the set of Unicode characters in script Sogdian.`,
+				},
+				{
+					name:   "Sora_Sompeng",
+					source: `Sora_Sompeng           = _Sora_Sompeng           // Sora_Sompeng is the set of Unicode characters in script Sora_Sompeng.`,
+				},
+				{
+					name:   "Soyombo",
+					source: `Soyombo                = _Soyombo                // Soyombo is the set of Unicode characters in script Soyombo.`,
+				},
+				{
+					name:   "Sundanese",
+					source: `Sundanese              = _Sundanese              // Sundanese is the set of Unicode characters in script Sundanese.`,
+				},
+				{
+					name:   "Syloti_Nagri",
+					source: `Syloti_Nagri           = _Syloti_Nagri           // Syloti_Nagri is the set of Unicode characters in script Syloti_Nagri.`,
+				},
+				{
+					name:   "Syriac",
+					source: `Syriac                 = _Syriac                 // Syriac is the set of Unicode characters in script Syriac.`,
+				},
+				{
+					name:   "Tagalog",
+					source: `Tagalog                = _Tagalog                // Tagalog is the set of Unicode characters in script Tagalog.`,
+				},
+				{
+					name:   "Tagbanwa",
+					source: `Tagbanwa               = _Tagbanwa               // Tagbanwa is the set of Unicode characters in script Tagbanwa.`,
+				},
+				{
+					name:   "Tai_Le",
+					source: `Tai_Le                 = _Tai_Le                 // Tai_Le is the set of Unicode characters in script Tai_Le.`,
+				},
+				{
+					name:   "Tai_Tham",
+					source: `Tai_Tham               = _Tai_Tham               // Tai_Tham is the set of Unicode characters in script Tai_Tham.`,
+				},
+				{
+					name:   "Tai_Viet",
+					source: `Tai_Viet               = _Tai_Viet               // Tai_Viet is the set of Unicode characters in script Tai_Viet.`,
+				},
+				{
+					name:   "Takri",
+					source: `Takri                  = _Takri                  // Takri is the set of Unicode characters in script Takri.`,
+				},
+				{
+					name:   "Tamil",
+					source: `Tamil                  = _Tamil                  // Tamil is the set of Unicode characters in script Tamil.`,
+				},
+				{
+					name:   "Tangut",
+					source: `Tangut                 = _Tangut                 // Tangut is the set of Unicode characters in script Tangut.`,
+				},
+				{
+					name:   "Telugu",
+					source: `Telugu                 = _Telugu                 // Telugu is the set of Unicode characters in script Telugu.`,
+				},
+				{
+					name:   "Thaana",
+					source: `Thaana                 = _Thaana                 // Thaana is the set of Unicode characters in script Thaana.`,
+				},
+				{
+					name:   "Thai",
+					source: `Thai                   = _Thai                   // Thai is the set of Unicode characters in script Thai.`,
+				},
+				{
+					name:   "Tibetan",
+					source: `Tibetan                = _Tibetan                // Tibetan is the set of Unicode characters in script Tibetan.`,
+				},
+				{
+					name:   "Tifinagh",
+					source: `Tifinagh               = _Tifinagh               // Tifinagh is the set of Unicode characters in script Tifinagh.`,
+				},
+				{
+					name:   "Tirhuta",
+					source: `Tirhuta                = _Tirhuta                // Tirhuta is the set of Unicode characters in script Tirhuta.`,
+				},
+				{
+					name:   "Ugaritic",
+					source: `Ugaritic               = _Ugaritic               // Ugaritic is the set of Unicode characters in script Ugaritic.`,
+				},
+				{
+					name:   "Vai",
+					source: `Vai                    = _Vai                    // Vai is the set of Unicode characters in script Vai.`,
+				},
+				{
+					name:   "Wancho",
+					source: `Wancho                 = _Wancho                 // Wancho is the set of Unicode characters in script Wancho.`,
+				},
+				{
+					name:   "Warang_Citi",
+					source: `Warang_Citi            = _Warang_Citi            // Warang_Citi is the set of Unicode characters in script Warang_Citi.`,
+				},
+				{
+					name:   "Yezidi",
+					source: `Yezidi                 = _Yezidi                 // Yezidi is the set of Unicode characters in script Yezidi.`,
+				},
+				{
+					name:   "Yi",
+					source: `Yi                     = _Yi                     // Yi is the set of Unicode characters in script Yi.`,
+				},
+				{
+					name:   "Zanabazar_Square",
+					source: `Zanabazar_Square       = _Zanabazar_Square       // Zanabazar_Square is the set of Unicode characters in script Zanabazar_Square.`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `These variables have type *RangeTable.
+`,
+			source: `var (
+	ASCII_Hex_Digit                    = _ASCII_Hex_Digit                    // ASCII_Hex_Digit is the set of Unicode characters with property ASCII_Hex_Digit.
+	Bidi_Control                       = _Bidi_Control                       // Bidi_Control is the set of Unicode characters with property Bidi_Control.
+	Dash                               = _Dash                               // Dash is the set of Unicode characters with property Dash.
+	Deprecated                         = _Deprecated                         // Deprecated is the set of Unicode characters with property Deprecated.
+	Diacritic                          = _Diacritic                          // Diacritic is the set of Unicode characters with property Diacritic.
+	Extender                           = _Extender                           // Extender is the set of Unicode characters with property Extender.
+	Hex_Digit                          = _Hex_Digit                          // Hex_Digit is the set of Unicode characters with property Hex_Digit.
+	Hyphen                             = _Hyphen                             // Hyphen is the set of Unicode characters with property Hyphen.
+	IDS_Binary_Operator                = _IDS_Binary_Operator                // IDS_Binary_Operator is the set of Unicode characters with property IDS_Binary_Operator.
+	IDS_Trinary_Operator               = _IDS_Trinary_Operator               // IDS_Trinary_Operator is the set of Unicode characters with property IDS_Trinary_Operator.
+	Ideographic                        = _Ideographic                        // Ideographic is the set of Unicode characters with property Ideographic.
+	Join_Control                       = _Join_Control                       // Join_Control is the set of Unicode characters with property Join_Control.
+	Logical_Order_Exception            = _Logical_Order_Exception            // Logical_Order_Exception is the set of Unicode characters with property Logical_Order_Exception.
+	Noncharacter_Code_Point            = _Noncharacter_Code_Point            // Noncharacter_Code_Point is the set of Unicode characters with property Noncharacter_Code_Point.
+	Other_Alphabetic                   = _Other_Alphabetic                   // Other_Alphabetic is the set of Unicode characters with property Other_Alphabetic.
+	Other_Default_Ignorable_Code_Point = _Other_Default_Ignorable_Code_Point // Other_Default_Ignorable_Code_Point is the set of Unicode characters with property Other_Default_Ignorable_Code_Point.
+	Other_Grapheme_Extend              = _Other_Grapheme_Extend              // Other_Grapheme_Extend is the set of Unicode characters with property Other_Grapheme_Extend.
+	Other_ID_Continue                  = _Other_ID_Continue                  // Other_ID_Continue is the set of Unicode characters with property Other_ID_Continue.
+	Other_ID_Start                     = _Other_ID_Start                     // Other_ID_Start is the set of Unicode characters with property Other_ID_Start.
+	Other_Lowercase                    = _Other_Lowercase                    // Other_Lowercase is the set of Unicode characters with property Other_Lowercase.
+	Other_Math                         = _Other_Math                         // Other_Math is the set of Unicode characters with property Other_Math.
+	Other_Uppercase                    = _Other_Uppercase                    // Other_Uppercase is the set of Unicode characters with property Other_Uppercase.
+	Pattern_Syntax                     = _Pattern_Syntax                     // Pattern_Syntax is the set of Unicode characters with property Pattern_Syntax.
+	Pattern_White_Space                = _Pattern_White_Space                // Pattern_White_Space is the set of Unicode characters with property Pattern_White_Space.
+	Prepended_Concatenation_Mark       = _Prepended_Concatenation_Mark       // Prepended_Concatenation_Mark is the set of Unicode characters with property Prepended_Concatenation_Mark.
+	Quotation_Mark                     = _Quotation_Mark                     // Quotation_Mark is the set of Unicode characters with property Quotation_Mark.
+	Radical                            = _Radical                            // Radical is the set of Unicode characters with property Radical.
+	Regional_Indicator                 = _Regional_Indicator                 // Regional_Indicator is the set of Unicode characters with property Regional_Indicator.
+	STerm                              = _Sentence_Terminal                  // STerm is an alias for Sentence_Terminal.
+	Sentence_Terminal                  = _Sentence_Terminal                  // Sentence_Terminal is the set of Unicode characters with property Sentence_Terminal.
+	Soft_Dotted                        = _Soft_Dotted                        // Soft_Dotted is the set of Unicode characters with property Soft_Dotted.
+	Terminal_Punctuation               = _Terminal_Punctuation               // Terminal_Punctuation is the set of Unicode characters with property Terminal_Punctuation.
+	Unified_Ideograph                  = _Unified_Ideograph                  // Unified_Ideograph is the set of Unicode characters with property Unified_Ideograph.
+	Variation_Selector                 = _Variation_Selector                 // Variation_Selector is the set of Unicode characters with property Variation_Selector.
+	White_Space                        = _White_Space                        // White_Space is the set of Unicode characters with property White_Space.
+)`,
+			variables: []testVariable{
+				{
+					name:   "ASCII_Hex_Digit",
+					source: `ASCII_Hex_Digit                    = _ASCII_Hex_Digit                    // ASCII_Hex_Digit is the set of Unicode characters with property ASCII_Hex_Digit.`,
+				},
+				{
+					name:   "Bidi_Control",
+					source: `Bidi_Control                       = _Bidi_Control                       // Bidi_Control is the set of Unicode characters with property Bidi_Control.`,
+				},
+				{
+					name:   "Dash",
+					source: `Dash                               = _Dash                               // Dash is the set of Unicode characters with property Dash.`,
+				},
+				{
+					name:   "Deprecated",
+					source: `Deprecated                         = _Deprecated                         // Deprecated is the set of Unicode characters with property Deprecated.`,
+				},
+				{
+					name:   "Diacritic",
+					source: `Diacritic                          = _Diacritic                          // Diacritic is the set of Unicode characters with property Diacritic.`,
+				},
+				{
+					name:   "Extender",
+					source: `Extender                           = _Extender                           // Extender is the set of Unicode characters with property Extender.`,
+				},
+				{
+					name:   "Hex_Digit",
+					source: `Hex_Digit                          = _Hex_Digit                          // Hex_Digit is the set of Unicode characters with property Hex_Digit.`,
+				},
+				{
+					name:   "Hyphen",
+					source: `Hyphen                             = _Hyphen                             // Hyphen is the set of Unicode characters with property Hyphen.`,
+				},
+				{
+					name:   "IDS_Binary_Operator",
+					source: `IDS_Binary_Operator                = _IDS_Binary_Operator                // IDS_Binary_Operator is the set of Unicode characters with property IDS_Binary_Operator.`,
+				},
+				{
+					name:   "IDS_Trinary_Operator",
+					source: `IDS_Trinary_Operator               = _IDS_Trinary_Operator               // IDS_Trinary_Operator is the set of Unicode characters with property IDS_Trinary_Operator.`,
+				},
+				{
+					name:   "Ideographic",
+					source: `Ideographic                        = _Ideographic                        // Ideographic is the set of Unicode characters with property Ideographic.`,
+				},
+				{
+					name:   "Join_Control",
+					source: `Join_Control                       = _Join_Control                       // Join_Control is the set of Unicode characters with property Join_Control.`,
+				},
+				{
+					name:   "Logical_Order_Exception",
+					source: `Logical_Order_Exception            = _Logical_Order_Exception            // Logical_Order_Exception is the set of Unicode characters with property Logical_Order_Exception.`,
+				},
+				{
+					name:   "Noncharacter_Code_Point",
+					source: `Noncharacter_Code_Point            = _Noncharacter_Code_Point            // Noncharacter_Code_Point is the set of Unicode characters with property Noncharacter_Code_Point.`,
+				},
+				{
+					name:   "Other_Alphabetic",
+					source: `Other_Alphabetic                   = _Other_Alphabetic                   // Other_Alphabetic is the set of Unicode characters with property Other_Alphabetic.`,
+				},
+				{
+					name:   "Other_Default_Ignorable_Code_Point",
+					source: `Other_Default_Ignorable_Code_Point = _Other_Default_Ignorable_Code_Point // Other_Default_Ignorable_Code_Point is the set of Unicode characters with property Other_Default_Ignorable_Code_Point.`,
+				},
+				{
+					name:   "Other_Grapheme_Extend",
+					source: `Other_Grapheme_Extend              = _Other_Grapheme_Extend              // Other_Grapheme_Extend is the set of Unicode characters with property Other_Grapheme_Extend.`,
+				},
+				{
+					name:   "Other_ID_Continue",
+					source: `Other_ID_Continue                  = _Other_ID_Continue                  // Other_ID_Continue is the set of Unicode characters with property Other_ID_Continue.`,
+				},
+				{
+					name:   "Other_ID_Start",
+					source: `Other_ID_Start                     = _Other_ID_Start                     // Other_ID_Start is the set of Unicode characters with property Other_ID_Start.`,
+				},
+				{
+					name:   "Other_Lowercase",
+					source: `Other_Lowercase                    = _Other_Lowercase                    // Other_Lowercase is the set of Unicode characters with property Other_Lowercase.`,
+				},
+				{
+					name:   "Other_Math",
+					source: `Other_Math                         = _Other_Math                         // Other_Math is the set of Unicode characters with property Other_Math.`,
+				},
+				{
+					name:   "Other_Uppercase",
+					source: `Other_Uppercase                    = _Other_Uppercase                    // Other_Uppercase is the set of Unicode characters with property Other_Uppercase.`,
+				},
+				{
+					name:   "Pattern_Syntax",
+					source: `Pattern_Syntax                     = _Pattern_Syntax                     // Pattern_Syntax is the set of Unicode characters with property Pattern_Syntax.`,
+				},
+				{
+					name:   "Pattern_White_Space",
+					source: `Pattern_White_Space                = _Pattern_White_Space                // Pattern_White_Space is the set of Unicode characters with property Pattern_White_Space.`,
+				},
+				{
+					name:   "Prepended_Concatenation_Mark",
+					source: `Prepended_Concatenation_Mark       = _Prepended_Concatenation_Mark       // Prepended_Concatenation_Mark is the set of Unicode characters with property Prepended_Concatenation_Mark.`,
+				},
+				{
+					name:   "Quotation_Mark",
+					source: `Quotation_Mark                     = _Quotation_Mark                     // Quotation_Mark is the set of Unicode characters with property Quotation_Mark.`,
+				},
+				{
+					name:   "Radical",
+					source: `Radical                            = _Radical                            // Radical is the set of Unicode characters with property Radical.`,
+				},
+				{
+					name:   "Regional_Indicator",
+					source: `Regional_Indicator                 = _Regional_Indicator                 // Regional_Indicator is the set of Unicode characters with property Regional_Indicator.`,
+				},
+				{
+					name:   "STerm",
+					source: `STerm                              = _Sentence_Terminal                  // STerm is an alias for Sentence_Terminal.`,
+				},
+				{
+					name:   "Sentence_Terminal",
+					source: `Sentence_Terminal                  = _Sentence_Terminal                  // Sentence_Terminal is the set of Unicode characters with property Sentence_Terminal.`,
+				},
+				{
+					name:   "Soft_Dotted",
+					source: `Soft_Dotted                        = _Soft_Dotted                        // Soft_Dotted is the set of Unicode characters with property Soft_Dotted.`,
+				},
+				{
+					name:   "Terminal_Punctuation",
+					source: `Terminal_Punctuation               = _Terminal_Punctuation               // Terminal_Punctuation is the set of Unicode characters with property Terminal_Punctuation.`,
+				},
+				{
+					name:   "Unified_Ideograph",
+					source: `Unified_Ideograph                  = _Unified_Ideograph                  // Unified_Ideograph is the set of Unicode characters with property Unified_Ideograph.`,
+				},
+				{
+					name:   "Variation_Selector",
+					source: `Variation_Selector                 = _Variation_Selector                 // Variation_Selector is the set of Unicode characters with property Variation_Selector.`,
+				},
+				{
+					name:   "White_Space",
+					source: `White_Space                        = _White_Space                        // White_Space is the set of Unicode characters with property White_Space.`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `CaseRanges is the table describing case mappings for all letters with non-self mappings.
+`,
+			source: `var CaseRanges = _CaseRanges`,
+			variables: []testVariable{
+				{
+					name:   "CaseRanges",
+					source: `var CaseRanges = _CaseRanges`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `Categories is the set of Unicode category tables.
+`,
+			source: `var Categories = map[string]*RangeTable{
+	"C":  C,
+	"Cc": Cc,
+	"Cf": Cf,
+	"Co": Co,
+	"Cs": Cs,
+	"L":  L,
+	"Ll": Ll,
+	"Lm": Lm,
+	"Lo": Lo,
+	"Lt": Lt,
+	"Lu": Lu,
+	"M":  M,
+	"Mc": Mc,
+	"Me": Me,
+	"Mn": Mn,
+	"N":  N,
+	"Nd": Nd,
+	"Nl": Nl,
+	"No": No,
+	"P":  P,
+	"Pc": Pc,
+	"Pd": Pd,
+	"Pe": Pe,
+	"Pf": Pf,
+	"Pi": Pi,
+	"Po": Po,
+	"Ps": Ps,
+	"S":  S,
+	"Sc": Sc,
+	"Sk": Sk,
+	"Sm": Sm,
+	"So": So,
+	"Z":  Z,
+	"Zl": Zl,
+	"Zp": Zp,
+	"Zs": Zs,
+}`,
+			variables: []testVariable{
+				{
+					name: "Categories",
+					source: `var Categories = map[string]*RangeTable{
+	"C":  C,
+	"Cc": Cc,
+	"Cf": Cf,
+	"Co": Co,
+	"Cs": Cs,
+	"L":  L,
+	"Ll": Ll,
+	"Lm": Lm,
+	"Lo": Lo,
+	"Lt": Lt,
+	"Lu": Lu,
+	"M":  M,
+	"Mc": Mc,
+	"Me": Me,
+	"Mn": Mn,
+	"N":  N,
+	"Nd": Nd,
+	"Nl": Nl,
+	"No": No,
+	"P":  P,
+	"Pc": Pc,
+	"Pd": Pd,
+	"Pe": Pe,
+	"Pf": Pf,
+	"Pi": Pi,
+	"Po": Po,
+	"Ps": Ps,
+	"S":  S,
+	"Sc": Sc,
+	"Sk": Sk,
+	"Sm": Sm,
+	"So": So,
+	"Z":  Z,
+	"Zl": Zl,
+	"Zp": Zp,
+	"Zs": Zs,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `FoldCategory maps a category name to a table of code points outside the category that are equivalent under simple case folding to code points inside the category. If there is no entry for a category name, there are no such points.
+`,
+			source: `var FoldCategory = map[string]*RangeTable{
+	"L":  foldL,
+	"Ll": foldLl,
+	"Lt": foldLt,
+	"Lu": foldLu,
+	"M":  foldM,
+	"Mn": foldMn,
+}`,
+			variables: []testVariable{
+				{
+					name: "FoldCategory",
+					source: `var FoldCategory = map[string]*RangeTable{
+	"L":  foldL,
+	"Ll": foldLl,
+	"Lt": foldLt,
+	"Lu": foldLu,
+	"M":  foldM,
+	"Mn": foldMn,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `FoldScript maps a script name to a table of code points outside the script that are equivalent under simple case folding to code points inside the script. If there is no entry for a script name, there are no such points.
+`,
+			source: `var FoldScript = map[string]*RangeTable{
+	"Common":    foldCommon,
+	"Greek":     foldGreek,
+	"Inherited": foldInherited,
+}`,
+			variables: []testVariable{
+				{
+					name: "FoldScript",
+					source: `var FoldScript = map[string]*RangeTable{
+	"Common":    foldCommon,
+	"Greek":     foldGreek,
+	"Inherited": foldInherited,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `GraphicRanges defines the set of graphic characters according to Unicode.
+`,
+			source: `var GraphicRanges = []*RangeTable{
+	L, M, N, P, S, Zs,
+}`,
+			variables: []testVariable{
+				{
+					name: "GraphicRanges",
+					source: `var GraphicRanges = []*RangeTable{
+	L, M, N, P, S, Zs,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `PrintRanges defines the set of printable characters according to Go. ASCII space, U+0020, is handled separately.
+`,
+			source: `var PrintRanges = []*RangeTable{
+	L, M, N, P, S,
+}`,
+			variables: []testVariable{
+				{
+					name: "PrintRanges",
+					source: `var PrintRanges = []*RangeTable{
+	L, M, N, P, S,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `Properties is the set of Unicode property tables.
+`,
+			source: `var Properties = map[string]*RangeTable{
+	"ASCII_Hex_Digit":                    ASCII_Hex_Digit,
+	"Bidi_Control":                       Bidi_Control,
+	"Dash":                               Dash,
+	"Deprecated":                         Deprecated,
+	"Diacritic":                          Diacritic,
+	"Extender":                           Extender,
+	"Hex_Digit":                          Hex_Digit,
+	"Hyphen":                             Hyphen,
+	"IDS_Binary_Operator":                IDS_Binary_Operator,
+	"IDS_Trinary_Operator":               IDS_Trinary_Operator,
+	"Ideographic":                        Ideographic,
+	"Join_Control":                       Join_Control,
+	"Logical_Order_Exception":            Logical_Order_Exception,
+	"Noncharacter_Code_Point":            Noncharacter_Code_Point,
+	"Other_Alphabetic":                   Other_Alphabetic,
+	"Other_Default_Ignorable_Code_Point": Other_Default_Ignorable_Code_Point,
+	"Other_Grapheme_Extend":              Other_Grapheme_Extend,
+	"Other_ID_Continue":                  Other_ID_Continue,
+	"Other_ID_Start":                     Other_ID_Start,
+	"Other_Lowercase":                    Other_Lowercase,
+	"Other_Math":                         Other_Math,
+	"Other_Uppercase":                    Other_Uppercase,
+	"Pattern_Syntax":                     Pattern_Syntax,
+	"Pattern_White_Space":                Pattern_White_Space,
+	"Prepended_Concatenation_Mark":       Prepended_Concatenation_Mark,
+	"Quotation_Mark":                     Quotation_Mark,
+	"Radical":                            Radical,
+	"Regional_Indicator":                 Regional_Indicator,
+	"Sentence_Terminal":                  Sentence_Terminal,
+	"STerm":                              Sentence_Terminal,
+	"Soft_Dotted":                        Soft_Dotted,
+	"Terminal_Punctuation":               Terminal_Punctuation,
+	"Unified_Ideograph":                  Unified_Ideograph,
+	"Variation_Selector":                 Variation_Selector,
+	"White_Space":                        White_Space,
+}`,
+			variables: []testVariable{
+				{
+					name: "Properties",
+					source: `var Properties = map[string]*RangeTable{
+	"ASCII_Hex_Digit":                    ASCII_Hex_Digit,
+	"Bidi_Control":                       Bidi_Control,
+	"Dash":                               Dash,
+	"Deprecated":                         Deprecated,
+	"Diacritic":                          Diacritic,
+	"Extender":                           Extender,
+	"Hex_Digit":                          Hex_Digit,
+	"Hyphen":                             Hyphen,
+	"IDS_Binary_Operator":                IDS_Binary_Operator,
+	"IDS_Trinary_Operator":               IDS_Trinary_Operator,
+	"Ideographic":                        Ideographic,
+	"Join_Control":                       Join_Control,
+	"Logical_Order_Exception":            Logical_Order_Exception,
+	"Noncharacter_Code_Point":            Noncharacter_Code_Point,
+	"Other_Alphabetic":                   Other_Alphabetic,
+	"Other_Default_Ignorable_Code_Point": Other_Default_Ignorable_Code_Point,
+	"Other_Grapheme_Extend":              Other_Grapheme_Extend,
+	"Other_ID_Continue":                  Other_ID_Continue,
+	"Other_ID_Start":                     Other_ID_Start,
+	"Other_Lowercase":                    Other_Lowercase,
+	"Other_Math":                         Other_Math,
+	"Other_Uppercase":                    Other_Uppercase,
+	"Pattern_Syntax":                     Pattern_Syntax,
+	"Pattern_White_Space":                Pattern_White_Space,
+	"Prepended_Concatenation_Mark":       Prepended_Concatenation_Mark,
+	"Quotation_Mark":                     Quotation_Mark,
+	"Radical":                            Radical,
+	"Regional_Indicator":                 Regional_Indicator,
+	"Sentence_Terminal":                  Sentence_Terminal,
+	"STerm":                              Sentence_Terminal,
+	"Soft_Dotted":                        Soft_Dotted,
+	"Terminal_Punctuation":               Terminal_Punctuation,
+	"Unified_Ideograph":                  Unified_Ideograph,
+	"Variation_Selector":                 Variation_Selector,
+	"White_Space":                        White_Space,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: `Scripts is the set of Unicode script tables.
+`,
+			source: `var Scripts = map[string]*RangeTable{
+	"Adlam":                  Adlam,
+	"Ahom":                   Ahom,
+	"Anatolian_Hieroglyphs":  Anatolian_Hieroglyphs,
+	"Arabic":                 Arabic,
+	"Armenian":               Armenian,
+	"Avestan":                Avestan,
+	"Balinese":               Balinese,
+	"Bamum":                  Bamum,
+	"Bassa_Vah":              Bassa_Vah,
+	"Batak":                  Batak,
+	"Bengali":                Bengali,
+	"Bhaiksuki":              Bhaiksuki,
+	"Bopomofo":               Bopomofo,
+	"Brahmi":                 Brahmi,
+	"Braille":                Braille,
+	"Buginese":               Buginese,
+	"Buhid":                  Buhid,
+	"Canadian_Aboriginal":    Canadian_Aboriginal,
+	"Carian":                 Carian,
+	"Caucasian_Albanian":     Caucasian_Albanian,
+	"Chakma":                 Chakma,
+	"Cham":                   Cham,
+	"Cherokee":               Cherokee,
+	"Chorasmian":             Chorasmian,
+	"Common":                 Common,
+	"Coptic":                 Coptic,
+	"Cuneiform":              Cuneiform,
+	"Cypriot":                Cypriot,
+	"Cyrillic":               Cyrillic,
+	"Deseret":                Deseret,
+	"Devanagari":             Devanagari,
+	"Dives_Akuru":            Dives_Akuru,
+	"Dogra":                  Dogra,
+	"Duployan":               Duployan,
+	"Egyptian_Hieroglyphs":   Egyptian_Hieroglyphs,
+	"Elbasan":                Elbasan,
+	"Elymaic":                Elymaic,
+	"Ethiopic":               Ethiopic,
+	"Georgian":               Georgian,
+	"Glagolitic":             Glagolitic,
+	"Gothic":                 Gothic,
+	"Grantha":                Grantha,
+	"Greek":                  Greek,
+	"Gujarati":               Gujarati,
+	"Gunjala_Gondi":          Gunjala_Gondi,
+	"Gurmukhi":               Gurmukhi,
+	"Han":                    Han,
+	"Hangul":                 Hangul,
+	"Hanifi_Rohingya":        Hanifi_Rohingya,
+	"Hanunoo":                Hanunoo,
+	"Hatran":                 Hatran,
+	"Hebrew":                 Hebrew,
+	"Hiragana":               Hiragana,
+	"Imperial_Aramaic":       Imperial_Aramaic,
+	"Inherited":              Inherited,
+	"Inscriptional_Pahlavi":  Inscriptional_Pahlavi,
+	"Inscriptional_Parthian": Inscriptional_Parthian,
+	"Javanese":               Javanese,
+	"Kaithi":                 Kaithi,
+	"Kannada":                Kannada,
+	"Katakana":               Katakana,
+	"Kayah_Li":               Kayah_Li,
+	"Kharoshthi":             Kharoshthi,
+	"Khitan_Small_Script":    Khitan_Small_Script,
+	"Khmer":                  Khmer,
+	"Khojki":                 Khojki,
+	"Khudawadi":              Khudawadi,
+	"Lao":                    Lao,
+	"Latin":                  Latin,
+	"Lepcha":                 Lepcha,
+	"Limbu":                  Limbu,
+	"Linear_A":               Linear_A,
+	"Linear_B":               Linear_B,
+	"Lisu":                   Lisu,
+	"Lycian":                 Lycian,
+	"Lydian":                 Lydian,
+	"Mahajani":               Mahajani,
+	"Makasar":                Makasar,
+	"Malayalam":              Malayalam,
+	"Mandaic":                Mandaic,
+	"Manichaean":             Manichaean,
+	"Marchen":                Marchen,
+	"Masaram_Gondi":          Masaram_Gondi,
+	"Medefaidrin":            Medefaidrin,
+	"Meetei_Mayek":           Meetei_Mayek,
+	"Mende_Kikakui":          Mende_Kikakui,
+	"Meroitic_Cursive":       Meroitic_Cursive,
+	"Meroitic_Hieroglyphs":   Meroitic_Hieroglyphs,
+	"Miao":                   Miao,
+	"Modi":                   Modi,
+	"Mongolian":              Mongolian,
+	"Mro":                    Mro,
+	"Multani":                Multani,
+	"Myanmar":                Myanmar,
+	"Nabataean":              Nabataean,
+	"Nandinagari":            Nandinagari,
+	"New_Tai_Lue":            New_Tai_Lue,
+	"Newa":                   Newa,
+	"Nko":                    Nko,
+	"Nushu":                  Nushu,
+	"Nyiakeng_Puachue_Hmong": Nyiakeng_Puachue_Hmong,
+	"Ogham":                  Ogham,
+	"Ol_Chiki":               Ol_Chiki,
+	"Old_Hungarian":          Old_Hungarian,
+	"Old_Italic":             Old_Italic,
+	"Old_North_Arabian":      Old_North_Arabian,
+	"Old_Permic":             Old_Permic,
+	"Old_Persian":            Old_Persian,
+	"Old_Sogdian":            Old_Sogdian,
+	"Old_South_Arabian":      Old_South_Arabian,
+	"Old_Turkic":             Old_Turkic,
+	"Oriya":                  Oriya,
+	"Osage":                  Osage,
+	"Osmanya":                Osmanya,
+	"Pahawh_Hmong":           Pahawh_Hmong,
+	"Palmyrene":              Palmyrene,
+	"Pau_Cin_Hau":            Pau_Cin_Hau,
+	"Phags_Pa":               Phags_Pa,
+	"Phoenician":             Phoenician,
+	"Psalter_Pahlavi":        Psalter_Pahlavi,
+	"Rejang":                 Rejang,
+	"Runic":                  Runic,
+	"Samaritan":              Samaritan,
+	"Saurashtra":             Saurashtra,
+	"Sharada":                Sharada,
+	"Shavian":                Shavian,
+	"Siddham":                Siddham,
+	"SignWriting":            SignWriting,
+	"Sinhala":                Sinhala,
+	"Sogdian":                Sogdian,
+	"Sora_Sompeng":           Sora_Sompeng,
+	"Soyombo":                Soyombo,
+	"Sundanese":              Sundanese,
+	"Syloti_Nagri":           Syloti_Nagri,
+	"Syriac":                 Syriac,
+	"Tagalog":                Tagalog,
+	"Tagbanwa":               Tagbanwa,
+	"Tai_Le":                 Tai_Le,
+	"Tai_Tham":               Tai_Tham,
+	"Tai_Viet":               Tai_Viet,
+	"Takri":                  Takri,
+	"Tamil":                  Tamil,
+	"Tangut":                 Tangut,
+	"Telugu":                 Telugu,
+	"Thaana":                 Thaana,
+	"Thai":                   Thai,
+	"Tibetan":                Tibetan,
+	"Tifinagh":               Tifinagh,
+	"Tirhuta":                Tirhuta,
+	"Ugaritic":               Ugaritic,
+	"Vai":                    Vai,
+	"Wancho":                 Wancho,
+	"Warang_Citi":            Warang_Citi,
+	"Yezidi":                 Yezidi,
+	"Yi":                     Yi,
+	"Zanabazar_Square":       Zanabazar_Square,
+}`,
+			variables: []testVariable{
+				{
+					name: "Scripts",
+					source: `var Scripts = map[string]*RangeTable{
+	"Adlam":                  Adlam,
+	"Ahom":                   Ahom,
+	"Anatolian_Hieroglyphs":  Anatolian_Hieroglyphs,
+	"Arabic":                 Arabic,
+	"Armenian":               Armenian,
+	"Avestan":                Avestan,
+	"Balinese":               Balinese,
+	"Bamum":                  Bamum,
+	"Bassa_Vah":              Bassa_Vah,
+	"Batak":                  Batak,
+	"Bengali":                Bengali,
+	"Bhaiksuki":              Bhaiksuki,
+	"Bopomofo":               Bopomofo,
+	"Brahmi":                 Brahmi,
+	"Braille":                Braille,
+	"Buginese":               Buginese,
+	"Buhid":                  Buhid,
+	"Canadian_Aboriginal":    Canadian_Aboriginal,
+	"Carian":                 Carian,
+	"Caucasian_Albanian":     Caucasian_Albanian,
+	"Chakma":                 Chakma,
+	"Cham":                   Cham,
+	"Cherokee":               Cherokee,
+	"Chorasmian":             Chorasmian,
+	"Common":                 Common,
+	"Coptic":                 Coptic,
+	"Cuneiform":              Cuneiform,
+	"Cypriot":                Cypriot,
+	"Cyrillic":               Cyrillic,
+	"Deseret":                Deseret,
+	"Devanagari":             Devanagari,
+	"Dives_Akuru":            Dives_Akuru,
+	"Dogra":                  Dogra,
+	"Duployan":               Duployan,
+	"Egyptian_Hieroglyphs":   Egyptian_Hieroglyphs,
+	"Elbasan":                Elbasan,
+	"Elymaic":                Elymaic,
+	"Ethiopic":               Ethiopic,
+	"Georgian":               Georgian,
+	"Glagolitic":             Glagolitic,
+	"Gothic":                 Gothic,
+	"Grantha":                Grantha,
+	"Greek":                  Greek,
+	"Gujarati":               Gujarati,
+	"Gunjala_Gondi":          Gunjala_Gondi,
+	"Gurmukhi":               Gurmukhi,
+	"Han":                    Han,
+	"Hangul":                 Hangul,
+	"Hanifi_Rohingya":        Hanifi_Rohingya,
+	"Hanunoo":                Hanunoo,
+	"Hatran":                 Hatran,
+	"Hebrew":                 Hebrew,
+	"Hiragana":               Hiragana,
+	"Imperial_Aramaic":       Imperial_Aramaic,
+	"Inherited":              Inherited,
+	"Inscriptional_Pahlavi":  Inscriptional_Pahlavi,
+	"Inscriptional_Parthian": Inscriptional_Parthian,
+	"Javanese":               Javanese,
+	"Kaithi":                 Kaithi,
+	"Kannada":                Kannada,
+	"Katakana":               Katakana,
+	"Kayah_Li":               Kayah_Li,
+	"Kharoshthi":             Kharoshthi,
+	"Khitan_Small_Script":    Khitan_Small_Script,
+	"Khmer":                  Khmer,
+	"Khojki":                 Khojki,
+	"Khudawadi":              Khudawadi,
+	"Lao":                    Lao,
+	"Latin":                  Latin,
+	"Lepcha":                 Lepcha,
+	"Limbu":                  Limbu,
+	"Linear_A":               Linear_A,
+	"Linear_B":               Linear_B,
+	"Lisu":                   Lisu,
+	"Lycian":                 Lycian,
+	"Lydian":                 Lydian,
+	"Mahajani":               Mahajani,
+	"Makasar":                Makasar,
+	"Malayalam":              Malayalam,
+	"Mandaic":                Mandaic,
+	"Manichaean":             Manichaean,
+	"Marchen":                Marchen,
+	"Masaram_Gondi":          Masaram_Gondi,
+	"Medefaidrin":            Medefaidrin,
+	"Meetei_Mayek":           Meetei_Mayek,
+	"Mende_Kikakui":          Mende_Kikakui,
+	"Meroitic_Cursive":       Meroitic_Cursive,
+	"Meroitic_Hieroglyphs":   Meroitic_Hieroglyphs,
+	"Miao":                   Miao,
+	"Modi":                   Modi,
+	"Mongolian":              Mongolian,
+	"Mro":                    Mro,
+	"Multani":                Multani,
+	"Myanmar":                Myanmar,
+	"Nabataean":              Nabataean,
+	"Nandinagari":            Nandinagari,
+	"New_Tai_Lue":            New_Tai_Lue,
+	"Newa":                   Newa,
+	"Nko":                    Nko,
+	"Nushu":                  Nushu,
+	"Nyiakeng_Puachue_Hmong": Nyiakeng_Puachue_Hmong,
+	"Ogham":                  Ogham,
+	"Ol_Chiki":               Ol_Chiki,
+	"Old_Hungarian":          Old_Hungarian,
+	"Old_Italic":             Old_Italic,
+	"Old_North_Arabian":      Old_North_Arabian,
+	"Old_Permic":             Old_Permic,
+	"Old_Persian":            Old_Persian,
+	"Old_Sogdian":            Old_Sogdian,
+	"Old_South_Arabian":      Old_South_Arabian,
+	"Old_Turkic":             Old_Turkic,
+	"Oriya":                  Oriya,
+	"Osage":                  Osage,
+	"Osmanya":                Osmanya,
+	"Pahawh_Hmong":           Pahawh_Hmong,
+	"Palmyrene":              Palmyrene,
+	"Pau_Cin_Hau":            Pau_Cin_Hau,
+	"Phags_Pa":               Phags_Pa,
+	"Phoenician":             Phoenician,
+	"Psalter_Pahlavi":        Psalter_Pahlavi,
+	"Rejang":                 Rejang,
+	"Runic":                  Runic,
+	"Samaritan":              Samaritan,
+	"Saurashtra":             Saurashtra,
+	"Sharada":                Sharada,
+	"Shavian":                Shavian,
+	"Siddham":                Siddham,
+	"SignWriting":            SignWriting,
+	"Sinhala":                Sinhala,
+	"Sogdian":                Sogdian,
+	"Sora_Sompeng":           Sora_Sompeng,
+	"Soyombo":                Soyombo,
+	"Sundanese":              Sundanese,
+	"Syloti_Nagri":           Syloti_Nagri,
+	"Syriac":                 Syriac,
+	"Tagalog":                Tagalog,
+	"Tagbanwa":               Tagbanwa,
+	"Tai_Le":                 Tai_Le,
+	"Tai_Tham":               Tai_Tham,
+	"Tai_Viet":               Tai_Viet,
+	"Takri":                  Takri,
+	"Tamil":                  Tamil,
+	"Tangut":                 Tangut,
+	"Telugu":                 Telugu,
+	"Thaana":                 Thaana,
+	"Thai":                   Thai,
+	"Tibetan":                Tibetan,
+	"Tifinagh":               Tifinagh,
+	"Tirhuta":                Tirhuta,
+	"Ugaritic":               Ugaritic,
+	"Vai":                    Vai,
+	"Wancho":                 Wancho,
+	"Warang_Citi":            Warang_Citi,
+	"Yezidi":                 Yezidi,
+	"Yi":                     Yi,
+	"Zanabazar_Square":       Zanabazar_Square,
+}`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "SpecialCase",
+			comments: ``, // no comments for this block of variables
+			source:   `var AzeriCase SpecialCase = _TurkishCase`,
+			variables: []testVariable{
+				{
+					name:   "AzeriCase",
+					source: `AzeriCase SpecialCase = _TurkishCase`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "SpecialCase",
+			comments: ``, // no comments for this block of variables
+			source:   `var TurkishCase SpecialCase = _TurkishCase`,
+			variables: []testVariable{
+				{
+					name:   "TurkishCase",
+					source: `TurkishCase SpecialCase = _TurkishCase`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+	},
 	functions: []testFunction{
 		{
 			name: "In",
@@ -2040,7 +3932,7 @@ For example:
 		{
 			name:     "CaseRange",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `CaseRange represents a range of Unicode code points for simple (one code point to one code point) case conversion. The range runs from Lo to Hi inclusive, with a fixed stride of 1. Deltas are the number to add to the code point to reach the code point for a different case for that character. They may be negative. If zero, it means the character is in the corresponding case. There is a special case representing sequences of alternating corresponding Upper and Lower pairs. It appears with a fixed Delta of
 
 	{UpperLower, UpperLower, UpperLower}
@@ -2053,7 +3945,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "Range16",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Range16 represents of a range of 16-bit Unicode code points. The range runs from Lo to Hi inclusive and has the specified stride.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2062,7 +3954,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "Range32",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Range32 represents of a range of Unicode code points and is used when one or more of the values will not fit in 16 bits. The range runs from Lo to Hi inclusive and has the specified stride. Lo and Hi must always be >= 1<<16.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2071,7 +3963,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "RangeTable",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `RangeTable defines a set of Unicode code points by listing the ranges of code points within the set. The ranges are listed in two slices to save space: a slice of 16-bit ranges and a slice of 32-bit ranges. The two slices must be in sorted order and non-overlapping. Also, R32 should contain only values >= 0x10000 (1<<16).
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2080,7 +3972,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "SpecialCase",
 			typeName: "[]CaseRange",
-			source:   "",
+			source:   ``,
 			comments: `SpecialCase represents language-specific case mappings such as Turkish. Methods of SpecialCase customize (by overriding) the standard mappings.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2283,8 +4175,41 @@ The net/rpc package is frozen and is not accepting new features.
 			},
 		},
 	},
-	variables:      []string{},            // TODO
-	errors:         []string{},            // TODO
+	variableBlocks: []testVariableBlock{
+		{
+			typeName: "",
+			comments: `DefaultServer is the default instance of *Server.
+`,
+			source: `var DefaultServer = NewServer()`,
+			variables: []testVariable{
+				{
+					name: "DefaultServer",
+					source: `DefaultServer = NewServer()
+`,
+				},
+			},
+			errors: []testError{}, // no errors in this block of variables
+		},
+		{
+			typeName: "",
+			comments: ``, // no comments for this block of variables
+			source:   `var ErrShutdown = errors.New("connection is shut down")`,
+			variables: []testVariable{
+				{
+					name: "ErrShutdown",
+					source: `ErrShutdown = errors.New("connection is shut down")
+`,
+				},
+			},
+			errors: []testError{
+				{
+					name: "ErrShutdown",
+					source: `ErrShutdown = errors.New("connection is shut down")
+`,
+				},
+			},
+		},
+	},
 	functions: []testFunction{
 		{
 			name: "Accept",
@@ -2389,7 +4314,7 @@ The net/rpc package is frozen and is not accepting new features.
 		{
 			name:     "Call",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Call represents an active RPC.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2398,7 +4323,7 @@ The net/rpc package is frozen and is not accepting new features.
 		{
 			name:     "Client",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Client represents an RPC Client. There may be multiple outstanding Calls associated with a single Client, and a Client may be used by multiple goroutines simultaneously.
 `,
 			functions: []testFunction{
@@ -2596,7 +4521,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "ClientCodec",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `A ClientCodec implements writing of RPC requests and reading of RPC responses for the client side of an RPC session. The client calls WriteRequest to write a request to the connection and calls ReadResponseHeader and ReadResponseBody in pairs to read responses. The client calls Close when finished with the connection. ReadResponseBody may be called with a nil argument to force the body of the response to be read and then discarded. See NewClient's comment for information about concurrent access.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2605,7 +4530,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Request",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Request is a header written before every RPC call. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2614,7 +4539,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Response",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Response is a header written before every RPC return. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2623,7 +4548,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Server",
 			typeName: "struct",
-			source:   "",
+			source:   ``,
 			comments: `Server represents an RPC Server.
 `,
 			functions: []testFunction{
@@ -2792,7 +4717,7 @@ It returns an error if the receiver is not an exported type or has no suitable m
 		{
 			name:     "ServerCodec",
 			typeName: "interface",
-			source:   "",
+			source:   ``,
 			comments: `A ServerCodec implements reading of RPC requests and writing of RPC responses for the server side of an RPC session. The server calls ReadRequestHeader and ReadRequestBody in pairs to read requests from the connection, and it calls WriteResponse to write a response back. The server calls Close when finished with the connection. ReadRequestBody may be called with a nil argument to force the body of the request to be read and discarded. See NewClient's comment for information about concurrent access.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -2801,7 +4726,7 @@ It returns an error if the receiver is not an exported type or has no suitable m
 		{
 			name:     "ServerError",
 			typeName: "string",
-			source:   "",
+			source:   ``,
 			comments: `ServerError represents an error that has been returned from the remote side of the RPC connection.
 `,
 			functions: []testFunction{}, // no functions for this type

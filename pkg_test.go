@@ -4,7 +4,8 @@
 // having types without methods. These are the test packages used:
 //   errors - Has only functions.
 //   fmt - Has only functions and interfaces. Has backticks in one doc string.
-//   hash - Has only types without methods. Makes sure sub-packages are not included.
+//   hash - Has only types without methods. Makes sure sub-packages are not included. Has exported
+//   and unexported variables in the same block of variables.
 //   archive/tar - Has only types with methods, and some global variables/errors.
 //   unicode - Has lots of constants and global variables and no imported packages. Has unexported
 //   constants.
@@ -116,6 +117,13 @@ func TestPackages(t *testing.T) {
 			continue
 		}
 
+		// Check that pkg found the correct blocks of exported variables and errors in the source files.
+		if err := cmpVariableBlockLists(testPkg.variableBlocks, p.VariableBlocks()); err != nil {
+			t.Errorf("%s: variable blocks: %s", testPkg.name, err.Error())
+
+			continue
+		}
+
 		// Check that pkg found the correct functions in the source files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpFunctionLists(testPkg.functions, p.Functions()); err != nil {
@@ -186,6 +194,64 @@ func cmpConstantBlockLists(wantConstantBlocks []testConstantBlock, haveConstantB
 			// Check that the constant's name is correct.
 			if wantConstant.name != haveConstant.Name() {
 				return fmt.Errorf("block %v: constant name mismatch (want %s, have %s)", i, wantConstant.name, haveConstant.Name())
+			}
+		}
+	}
+
+	return nil
+}
+
+// cmpVariableBlockLists checks that two lists of blocks of variables and errors have the exact same elements.
+func cmpVariableBlockLists(wantVariableBlocks []testVariableBlock, haveVariableBlocks []pkg.VariableBlock) error {
+	if len(wantVariableBlocks) != len(haveVariableBlocks) {
+		return fmt.Errorf("incorrect number of variable blocks (want %v, have %v)", len(wantVariableBlocks), len(haveVariableBlocks))
+	}
+
+	for i, wantVariableBlock := range wantVariableBlocks {
+		haveVariableBlock := haveVariableBlocks[i]
+
+		// Check that the block's type is correct.
+		if wantVariableBlock.typeName != haveVariableBlock.Type() {
+			return fmt.Errorf("block %v: type mismatch (want %s, have %s)", i, wantVariableBlock.typeName, haveVariableBlock.Type())
+		}
+
+		// Check that the block's comments are correct.
+		if wantVariableBlock.comments != haveVariableBlock.Comments(99999) {
+			return fmt.Errorf("block %v: comments mismatch", i)
+		}
+
+		// Check that the block's source is correct.
+		if wantVariableBlock.source != haveVariableBlock.Source() {
+			return fmt.Errorf("block %v: source mismatch", i)
+		}
+
+		// Check that all variables within this block are correct.
+		wantVariables := wantVariableBlock.variables
+		haveVariables := haveVariableBlock.Variables()
+		if len(wantVariables) != len(haveVariables) {
+			return fmt.Errorf("block %v: incorrect number of variables (want %v, have %v)", i, len(wantVariables), len(haveVariables))
+		}
+		for i, wantVariable := range wantVariables {
+			haveVariable := haveVariables[i]
+
+			// Check that the variable's name is correct.
+			if wantVariable.name != haveVariable.Name() {
+				return fmt.Errorf("block %v: variable name mismatch (want %s, have %s)", i, wantVariable.name, haveVariable.Name())
+			}
+		}
+
+		// Check that all errors within this block are correct.
+		wantErrors := wantVariableBlock.errors
+		haveErrors := haveVariableBlock.Errors()
+		if len(wantErrors) != len(haveErrors) {
+			return fmt.Errorf("block %v: incorrect number of errors (want %v, have %v)", i, len(wantErrors), len(haveErrors))
+		}
+		for i, wantError := range wantErrors {
+			haveError := haveErrors[i]
+
+			// Check that the error's name is correct.
+			if wantError.name != haveError.Name() {
+				return fmt.Errorf("block %v: error name mismatch (want %s, have %s)", i, wantError.name, haveError.Name())
 			}
 		}
 	}
