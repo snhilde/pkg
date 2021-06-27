@@ -4,7 +4,7 @@ package pkg
 import (
 	"bytes"
 	"go/doc"
-	"io"
+	"strings"
 )
 
 // Method holds information about a type's method.
@@ -43,7 +43,7 @@ func newMethod(f *doc.Func, r *bytes.Reader) Method {
 	return Method{
 		name:        f.Name,
 		comments:    f.Doc,
-		receiver:    string(receiver),
+		receiver:    receiver,
 		pointerRcvr: pointerRcvr,
 		inputs:      in,
 		outputs:     out,
@@ -52,19 +52,16 @@ func newMethod(f *doc.Func, r *bytes.Reader) Method {
 
 // extractReceiver parses the source of this method and extracts its receiver, also returning
 // whether or not the receiver is a pointer.
-func extractReceiver(f *doc.Func, r *bytes.Reader) ([]byte, bool) {
+func extractReceiver(f *doc.Func, r *bytes.Reader) (string, bool) {
 	// Read out the source declaration.
 	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
 	source := extractSource(r, start, end)
-	b, err := io.ReadAll(source)
-	if err != nil {
-		return nil, false
-	}
 
 	// Remove the func keyword and opening parenthesis from the beginning.
-	b = bytes.TrimPrefix(b, []byte("func ("))
+	source = strings.TrimPrefix(source, "func (")
 
 	// Remove everything after (and including) the closing parenthesis.
+	b := []byte(source)
 	i := bytes.IndexByte(b, ')')
 	b = bytes.TrimSpace(b[:i])
 
@@ -72,7 +69,7 @@ func extractReceiver(f *doc.Func, r *bytes.Reader) ([]byte, bool) {
 	i = bytes.IndexByte(b, ' ')
 	isPointer := b[i+1] == '*'
 
-	return b, isPointer
+	return string(b), isPointer
 }
 
 // Name returns the method's name.
