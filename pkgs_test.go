@@ -949,7 +949,9 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Formatter",
 			typeName: "interface",
-			source:   ``,
+			source:   `type Formatter interface {
+	Format(f State, verb rune)
+}`,
 			comments: `Formatter is implemented by any value that has a Format method. The implementation controls how State and rune are interpreted, and may call Sprint(f) or Fprint(f) etc. to generate its output.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -958,7 +960,9 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "GoStringer",
 			typeName: "interface",
-			source:   ``,
+			source:   `type GoStringer interface {
+	GoString() string
+}`,
 			comments: `GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value. The GoString method is used to print values passed as an operand to a %#v format.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -967,7 +971,35 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "ScanState",
 			typeName: "interface",
-			source:   ``,
+			source:   `type ScanState interface {
+	// ReadRune reads the next rune (Unicode code point) from the input.
+	// If invoked during Scanln, Fscanln, or Sscanln, ReadRune() will
+	// return EOF after returning the first '\n' or when reading beyond
+	// the specified width.
+	ReadRune() (r rune, size int, err error)
+	// UnreadRune causes the next call to ReadRune to return the same rune.
+	UnreadRune() error
+	// SkipSpace skips space in the input. Newlines are treated appropriately
+	// for the operation being performed; see the package documentation
+	// for more information.
+	SkipSpace()
+	// Token skips space in the input if skipSpace is true, then returns the
+	// run of Unicode code points c satisfying f(c).  If f is nil,
+	// !unicode.IsSpace(c) is used; that is, the token will hold non-space
+	// characters. Newlines are treated appropriately for the operation being
+	// performed; see the package documentation for more information.
+	// The returned slice points to shared data that may be overwritten
+	// by the next call to Token, a call to a Scan function using the ScanState
+	// as input, or when the calling Scan method returns.
+	Token(skipSpace bool, f func(rune) bool) (token []byte, err error)
+	// Width returns the value of the width option and whether it has been set.
+	// The unit is Unicode code points.
+	Width() (wid int, ok bool)
+	// Because ReadRune is implemented by the interface, Read should never be
+	// called by the scanning routines and a valid implementation of
+	// ScanState may choose always to return an error from Read.
+	Read(buf []byte) (n int, err error)
+}`,
 			comments: `ScanState represents the scanner state passed to custom scanners. Scanners may do rune-at-a-time scanning or ask the ScanState to discover the next space-delimited token.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -976,7 +1008,9 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Scanner",
 			typeName: "interface",
-			source:   ``,
+			source:   `type Scanner interface {
+	Scan(state ScanState, verb rune) error
+}`,
 			comments: `Scanner is implemented by any value that has a Scan method, which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful. The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -985,7 +1019,17 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "State",
 			typeName: "interface",
-			source:   ``,
+			source:   `type State interface {
+	// Write is the function to call to emit formatted output to be printed.
+	Write(b []byte) (n int, err error)
+	// Width returns the value of the width option and whether it has been set.
+	Width() (wid int, ok bool)
+	// Precision returns the value of the precision option and whether it has been set.
+	Precision() (prec int, ok bool)
+
+	// Flag reports whether the flag c, a character, has been set.
+	Flag(c int) bool
+}`,
 			comments: `State represents the printer state passed to custom formatters. It provides access to the io.Writer interface plus information about the flags and options for the operand's format specifier.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -994,7 +1038,9 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Stringer",
 			typeName: "interface",
-			source:   ``,
+			source:   `type Stringer interface {
+	String() string
+}`,
 			comments: `Stringer is implemented by any value that has a String method, which defines the “native” format for that value. The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -1029,7 +1075,27 @@ var pkgHash = testPackage{
 		{
 			name:     "Hash",
 			typeName: "interface",
-			source:   ``,
+			source:   `type Hash interface {
+	// Write (via the embedded io.Writer interface) adds more data to the running hash.
+	// It never returns an error.
+	io.Writer
+
+	// Sum appends the current hash to b and returns the resulting slice.
+	// It does not change the underlying hash state.
+	Sum(b []byte) []byte
+
+	// Reset resets the Hash to its initial state.
+	Reset()
+
+	// Size returns the number of bytes Sum will return.
+	Size() int
+
+	// BlockSize returns the hash's underlying block size.
+	// The Write method must be able to accept any amount
+	// of data, but it may operate more efficiently if all writes
+	// are a multiple of the block size.
+	BlockSize() int
+}`,
 			comments: `Hash is the common interface implemented by all hash functions.
 
 Hash implementations in the standard library (e.g. hash/crc32 and crypto/sha256) implement the encoding.BinaryMarshaler and encoding.BinaryUnmarshaler interfaces. Marshaling a hash implementation allows its internal state to be saved and used for additional processing later, without having to re-write the data previously written to the hash. The hash state may contain portions of the input in its original form, which users are expected to handle for any possible security implications.
@@ -1042,7 +1108,10 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 		{
 			name:     "Hash32",
 			typeName: "interface",
-			source:   ``,
+			source:   `type Hash32 interface {
+	Hash
+	Sum32() uint32
+}`,
 			comments: `Hash32 is the common interface implemented by all 32-bit hash functions.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -1051,7 +1120,10 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 		{
 			name:     "Hash64",
 			typeName: "interface",
-			source:   ``,
+			source:   `type Hash64 interface {
+	Hash
+	Sum64() uint64
+}`,
 			comments: `Hash64 is the common interface implemented by all 64-bit hash functions.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -1314,7 +1386,7 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 		{
 			name:     "Format",
 			typeName: "int",
-			source:   ``,
+			source:   `type Format int`,
 			comments: `Format represents the tar archive format.
 
 The original tar format was introduced in Unix V7. Since then, there have been multiple competing formats attempting to standardize or extend the V7 format to overcome its limitations. The most common formats are the USTAR, PAX, and GNU formats, each with their own advantages and limitations.
@@ -1364,7 +1436,70 @@ The Writer currently provides no support for sparse files.
 		{
 			name:     "Header",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Header struct {
+	// Typeflag is the type of header entry.
+	// The zero value is automatically promoted to either TypeReg or TypeDir
+	// depending on the presence of a trailing slash in Name.
+	Typeflag byte
+
+	Name     string // Name of file entry
+	Linkname string // Target name of link (valid for TypeLink or TypeSymlink)
+
+	Size  int64  // Logical file size in bytes
+	Mode  int64  // Permission and mode bits
+	Uid   int    // User ID of owner
+	Gid   int    // Group ID of owner
+	Uname string // User name of owner
+	Gname string // Group name of owner
+
+	// If the Format is unspecified, then Writer.WriteHeader rounds ModTime
+	// to the nearest second and ignores the AccessTime and ChangeTime fields.
+	//
+	// To use AccessTime or ChangeTime, specify the Format as PAX or GNU.
+	// To use sub-second resolution, specify the Format as PAX.
+	ModTime    time.Time // Modification time
+	AccessTime time.Time // Access time (requires either PAX or GNU support)
+	ChangeTime time.Time // Change time (requires either PAX or GNU support)
+
+	Devmajor int64 // Major device number (valid for TypeChar or TypeBlock)
+	Devminor int64 // Minor device number (valid for TypeChar or TypeBlock)
+
+	// Xattrs stores extended attributes as PAX records under the
+	// "SCHILY.xattr." namespace.
+	//
+	// The following are semantically equivalent:
+	//  h.Xattrs[key] = value
+	//  h.PAXRecords["SCHILY.xattr."+key] = value
+	//
+	// When Writer.WriteHeader is called, the contents of Xattrs will take
+	// precedence over those in PAXRecords.
+	//
+	// Deprecated: Use PAXRecords instead.
+	Xattrs map[string]string
+
+	// PAXRecords is a map of PAX extended header records.
+	//
+	// User-defined records should have keys of the following form:
+	//	VENDOR.keyword
+	// Where VENDOR is some namespace in all uppercase, and keyword may
+	// not contain the '=' character (e.g., "GOLANG.pkg.version").
+	// The key and value should be non-empty UTF-8 strings.
+	//
+	// When Writer.WriteHeader is called, PAX records derived from the
+	// other fields in Header take precedence over PAXRecords.
+	PAXRecords map[string]string
+
+	// Format specifies the format of the tar header.
+	//
+	// This is set by Reader.Next as a best-effort guess at the format.
+	// Since the Reader liberally reads some non-compliant files,
+	// it is possible for this to be FormatUnknown.
+	//
+	// If the format is unspecified when Writer.WriteHeader is called,
+	// then it uses the first format (in the order of USTAR, PAX, GNU)
+	// capable of encoding this Header (see Format).
+	Format Format
+}`,
 			comments: `A Header represents a single header in a tar archive. Some fields may not be populated.
 
 For forward compatibility, users that retrieve a Header from Reader.Next, mutate it in some ways, and then pass it back to Writer.WriteHeader should do so by creating a new Header and copying the fields that they are interested in preserving.
@@ -1418,7 +1553,8 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 		{
 			name:     "Reader",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Reader struct {
+}`,
 			comments: `Reader provides sequential access to the contents of a tar archive. Reader.Next advances to the next file in the archive (including the first), and then Reader can be treated as an io.Reader to access the file's data.
 `,
 			functions: []testFunction{
@@ -1493,7 +1629,8 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 		{
 			name:     "Writer",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Writer struct {
+}`,
 			comments: `Writer provides sequential writing of a tar archive. Write.WriteHeader begins a new file with the provided Header, and then Writer can be treated as an io.Writer to supply that file's data.
 `,
 			functions: []testFunction{
@@ -3932,7 +4069,11 @@ For example:
 		{
 			name:     "CaseRange",
 			typeName: "struct",
-			source:   ``,
+			source:   `type CaseRange struct {
+	Lo    uint32
+	Hi    uint32
+	Delta d
+}`,
 			comments: `CaseRange represents a range of Unicode code points for simple (one code point to one code point) case conversion. The range runs from Lo to Hi inclusive, with a fixed stride of 1. Deltas are the number to add to the code point to reach the code point for a different case for that character. They may be negative. If zero, it means the character is in the corresponding case. There is a special case representing sequences of alternating corresponding Upper and Lower pairs. It appears with a fixed Delta of
 
 	{UpperLower, UpperLower, UpperLower}
@@ -3945,7 +4086,11 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "Range16",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Range16 struct {
+	Lo     uint16
+	Hi     uint16
+	Stride uint16
+}`,
 			comments: `Range16 represents of a range of 16-bit Unicode code points. The range runs from Lo to Hi inclusive and has the specified stride.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -3954,7 +4099,11 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "Range32",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Range32 struct {
+	Lo     uint32
+	Hi     uint32
+	Stride uint32
+}`,
 			comments: `Range32 represents of a range of Unicode code points and is used when one or more of the values will not fit in 16 bits. The range runs from Lo to Hi inclusive and has the specified stride. Lo and Hi must always be >= 1<<16.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -3963,7 +4112,11 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "RangeTable",
 			typeName: "struct",
-			source:   ``,
+			source:   `type RangeTable struct {
+	R16         []Range16
+	R32         []Range32
+	LatinOffset int // number of entries in R16 with Hi <= MaxLatin1
+}`,
 			comments: `RangeTable defines a set of Unicode code points by listing the ranges of code points within the set. The ranges are listed in two slices to save space: a slice of 16-bit ranges and a slice of 32-bit ranges. The two slices must be in sorted order and non-overlapping. Also, R32 should contain only values >= 0x10000 (1<<16).
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -3972,7 +4125,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "SpecialCase",
 			typeName: "[]CaseRange",
-			source:   ``,
+			source:   `type SpecialCase []CaseRange`,
 			comments: `SpecialCase represents language-specific case mappings such as Turkish. Methods of SpecialCase customize (by overriding) the standard mappings.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -4314,7 +4467,13 @@ The net/rpc package is frozen and is not accepting new features.
 		{
 			name:     "Call",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Call struct {
+	ServiceMethod string      // The name of the service and method to call.
+	Args          interface{} // The argument to the function (*struct).
+	Reply         interface{} // The reply from the function (*struct).
+	Error         error       // After completion, the error status.
+	Done          chan *Call  // Receives *Call when Go is complete.
+}`,
 			comments: `Call represents an active RPC.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -4323,7 +4482,8 @@ The net/rpc package is frozen and is not accepting new features.
 		{
 			name:     "Client",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Client struct {
+}`,
 			comments: `Client represents an RPC Client. There may be multiple outstanding Calls associated with a single Client, and a Client may be used by multiple goroutines simultaneously.
 `,
 			functions: []testFunction{
@@ -4521,7 +4681,13 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "ClientCodec",
 			typeName: "interface",
-			source:   ``,
+			source:   `type ClientCodec interface {
+	WriteRequest(*Request, interface{}) error
+	ReadResponseHeader(*Response) error
+	ReadResponseBody(interface{}) error
+
+	Close() error
+}`,
 			comments: `A ClientCodec implements writing of RPC requests and reading of RPC responses for the client side of an RPC session. The client calls WriteRequest to write a request to the connection and calls ReadResponseHeader and ReadResponseBody in pairs to read responses. The client calls Close when finished with the connection. ReadResponseBody may be called with a nil argument to force the body of the response to be read and then discarded. See NewClient's comment for information about concurrent access.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -4530,7 +4696,10 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Request",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Request struct {
+	ServiceMethod string   // format: "Service.Method"
+	Seq           uint64   // sequence number chosen by client
+}`,
 			comments: `Request is a header written before every RPC call. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -4539,7 +4708,11 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Response",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Response struct {
+	ServiceMethod string    // echoes that of the Request
+	Seq           uint64    // echoes that of the request
+	Error         string    // error, if any.
+}`,
 			comments: `Response is a header written before every RPC return. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -4548,7 +4721,8 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Server",
 			typeName: "struct",
-			source:   ``,
+			source:   `type Server struct {
+}`,
 			comments: `Server represents an RPC Server.
 `,
 			functions: []testFunction{
@@ -4717,7 +4891,14 @@ It returns an error if the receiver is not an exported type or has no suitable m
 		{
 			name:     "ServerCodec",
 			typeName: "interface",
-			source:   ``,
+			source:   `type ServerCodec interface {
+	ReadRequestHeader(*Request) error
+	ReadRequestBody(interface{}) error
+	WriteResponse(*Response, interface{}) error
+
+	// Close can be called multiple times and must be idempotent.
+	Close() error
+}`,
 			comments: `A ServerCodec implements reading of RPC requests and writing of RPC responses for the server side of an RPC session. The server calls ReadRequestHeader and ReadRequestBody in pairs to read requests from the connection, and it calls WriteResponse to write a response back. The server calls Close when finished with the connection. ReadRequestBody may be called with a nil argument to force the body of the request to be read and discarded. See NewClient's comment for information about concurrent access.
 `,
 			functions: []testFunction{}, // no functions for this type
@@ -4726,7 +4907,7 @@ It returns an error if the receiver is not an exported type or has no suitable m
 		{
 			name:     "ServerError",
 			typeName: "string",
-			source:   ``,
+			source:   `type ServerError string`,
 			comments: `ServerError represents an error that has been returned from the remote side of the RPC connection.
 `,
 			functions: []testFunction{}, // no functions for this type
