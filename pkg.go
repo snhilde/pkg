@@ -99,7 +99,7 @@ func New(importPath string) (Package, error) {
 
 // newPackage puts together the internal structure for a Package object.
 func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
-	// Begin with structuring up our object.
+	// Begin with structuring up our object with what we have so far.
 	p := Package{
 		name:       docPackage.Name,
 		importPath: docPackage.ImportPath,
@@ -108,15 +108,15 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 
 	// Put together the list of source files, both for this system's build and those ignored for
 	// this system's build.
-	for _, s := range [][]string{buildPackage.GoFiles, buildPackage.IgnoredGoFiles} {
-		p.files = append(p.files, s...)
+	for _, ss := range [][]string{buildPackage.GoFiles, buildPackage.IgnoredGoFiles} {
+		p.files = append(p.files, ss...)
 	}
 	sort.Strings(p.files)
 
 	// Put together the list of test files, both for this package and any other external test
 	// package in this package's directory.
-	for _, s := range [][]string{buildPackage.TestGoFiles, buildPackage.XTestGoFiles} {
-		p.testFiles = append(p.testFiles, s...)
+	for _, ss := range [][]string{buildPackage.TestGoFiles, buildPackage.XTestGoFiles} {
+		p.testFiles = append(p.testFiles, ss...)
 	}
 	sort.Strings(p.testFiles)
 
@@ -191,7 +191,7 @@ func buildSource(bp *build.Package) (*bytes.Reader, error) {
 	// order, joined with newlines. We must use the same approach to make sure that the position
 	// indexes line up later.
 	files := make([]string, 0)
-	for _, s := range [][]string{
+	for _, ss := range [][]string{
 		// TODO: what other files need to be added here?
 		bp.GoFiles,
 		bp.CgoFiles,
@@ -199,7 +199,7 @@ func buildSource(bp *build.Package) (*bytes.Reader, error) {
 		bp.TestGoFiles,
 		bp.XTestGoFiles,
 	} {
-		files = append(files, s...)
+		files = append(files, ss...)
 	}
 	sort.Strings(files)
 
