@@ -5,10 +5,11 @@
 //   errors - Has only functions.
 //   fmt - Has only functions and interfaces. Has backticks in one doc string.
 //   hash - Has only types without methods. Makes sure sub-packages are not included. Has exported
-//   and unexported variables in the same block of variables.
-//   archive/tar - Has only types with methods, and some global variables/errors.
+//          and unexported variables in the same block of variables.
+//   archive/tar - Has only types with methods, and some global variables/errors. Has types with
+//                 mixed exported and unexported fields.
 //   unicode - Has lots of constants and global variables and no imported packages. Has unexported
-//   constants.
+//             constants.
 //   net/rpc - Has everything, including a sub-package (net/rpc/jsonrpc), indented package overview
 //             comments, and global constants, errors, and variables.
 // TODO: need to also test packages with these features:
@@ -71,7 +72,7 @@ func TestPackages(t *testing.T) {
 		want = testPkg.comments
 		have = p.Comments(99999)
 		if want != have {
-			t.Errorf("%s: incorrect package comments", testPkg.name)
+			t.Errorf("%s: incorrect package comments", testPkg.importPath)
 			t.Log("\twant:\n", want)
 			t.Log("\thave:\n", have)
 
@@ -81,7 +82,7 @@ func TestPackages(t *testing.T) {
 		// Check that pkg found the correct source files in the package's directory and that
 		// everything is returned in order with no duplicates.
 		if err := cmpStringLists(testPkg.files, p.Files()); err != nil {
-			t.Errorf("%s: source files: %s", testPkg.name, err.Error())
+			t.Errorf("%s: source files: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
@@ -89,7 +90,7 @@ func TestPackages(t *testing.T) {
 		// Check that pkg found the correct test files in the package's directory and that
 		// everything is returned in order with no duplicates.
 		if err := cmpStringLists(testPkg.testFiles, p.TestFiles()); err != nil {
-			t.Errorf("%s: test files: %s", testPkg.name, err.Error())
+			t.Errorf("%s: test files: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
@@ -97,7 +98,7 @@ func TestPackages(t *testing.T) {
 		// Check that pkg found the correct imports in the source files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpStringLists(testPkg.imports, p.Imports()); err != nil {
-			t.Errorf("%s: source imports: %s", testPkg.name, err.Error())
+			t.Errorf("%s: source imports: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
@@ -105,21 +106,21 @@ func TestPackages(t *testing.T) {
 		// Check that pkg found the correct imports in the test files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpStringLists(testPkg.testImports, p.TestImports()); err != nil {
-			t.Errorf("%s: test imports: %s", testPkg.name, err.Error())
+			t.Errorf("%s: test imports: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
 
 		// Check that pkg found the correct blocks of exported constants in the source files.
 		if err := cmpConstantBlockLists(testPkg.constantBlocks, p.ConstantBlocks()); err != nil {
-			t.Errorf("%s: constant blocks: %s", testPkg.name, err.Error())
+			t.Errorf("%s: constant blocks: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
 
 		// Check that pkg found the correct blocks of exported variables and errors in the source files.
 		if err := cmpVariableBlockLists(testPkg.variableBlocks, p.VariableBlocks()); err != nil {
-			t.Errorf("%s: variable blocks: %s", testPkg.name, err.Error())
+			t.Errorf("%s: variable blocks: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
@@ -127,7 +128,7 @@ func TestPackages(t *testing.T) {
 		// Check that pkg found the correct functions in the source files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpFunctionLists(testPkg.functions, p.Functions()); err != nil {
-			t.Errorf("%s: functions: %s", testPkg.name, err.Error())
+			t.Errorf("%s: functions: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
@@ -135,7 +136,7 @@ func TestPackages(t *testing.T) {
 		// Check that pkg found the correct types in the source files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpTypeLists(testPkg.types, p.Types()); err != nil {
-			t.Errorf("%s: types: %s", testPkg.name, err.Error())
+			t.Errorf("%s: types: %s", testPkg.importPath, err.Error())
 
 			continue
 		}
@@ -353,7 +354,11 @@ func cmpTypeLists(wantTypes []testType, haveTypes []pkg.Type) error {
 		}
 
 		// Check that the type's source is correct.
-		// TODO
+		if wantType.source != haveType.Source() {
+			fmt.Println(wantType.source)
+			fmt.Println(haveType.Source())
+			return fmt.Errorf("%s: source mismatch", haveType.Name())
+		}
 
 		// Check that the type's functions are correct.
 		if err := cmpFunctionLists(wantType.functions, haveType.Functions()); err != nil {
