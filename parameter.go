@@ -4,7 +4,6 @@ package pkg
 import (
 	"bytes"
 	"go/ast"
-	"io"
 )
 
 // Parameter represents a parameter to a function, either as input (argument) or output (result).
@@ -29,13 +28,12 @@ func extractParameters(ft *ast.FuncType, r *bytes.Reader) ([]Parameter, []Parame
 			// Read out the type for this group.
 			start, end := p.Type.Pos()-1, p.Type.End()-1
 			ts := extractSource(r, start, end)
-			tb, _ := io.ReadAll(ts)
 
 			// Get the names of all grouped parameters of this type, and add the members to the list.
 			for _, name := range p.Names {
 				in = append(in, Parameter{
 					name:     name.Name,
-					typeName: string(tb),
+					typeName: ts,
 				})
 			}
 		}
@@ -48,20 +46,19 @@ func extractParameters(ft *ast.FuncType, r *bytes.Reader) ([]Parameter, []Parame
 			// Read out the type for this group.
 			start, end := p.Type.Pos()-1, p.Type.End()-1
 			ts := extractSource(r, start, end)
-			tb, _ := io.ReadAll(ts)
 
 			if p.Names == nil {
 				// Unnamed return parameter.
 				out = append(out, Parameter{
 					name:     "",
-					typeName: string(tb),
+					typeName: ts,
 				})
 			} else {
 				// Get the names of all grouped parameters of this type and add the members to the list.
 				for _, name := range p.Names {
 					out = append(out, Parameter{
 						name:     name.Name,
-						typeName: string(tb),
+						typeName: ts,
 					})
 				}
 			}
