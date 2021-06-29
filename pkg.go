@@ -7,6 +7,7 @@ import (
 	"go/ast"
 	"go/build"
 	"go/doc"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"os"
@@ -57,34 +58,38 @@ type Package struct {
 	types []Type
 }
 
+// pkgFile represents a source file within a package.
+type pkgFile struct {
+	absPath string
+	source  []byte
+}
+
 // New parses the package at importPath and creates a new Package object with its information.
 func New(importPath string) (Package, error) {
 	// Generate the go/build Package for the import path.
 	buildPackage, err := build.Import(importPath, "", 0)
 	if err != nil {
-		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
+		return Package{}, fmt.Errorf("build error: invalid package in %s: %w", importPath, err)
 	}
 
-	// Generate all the go/ast Package's for the import path.
-	fset := token.NewFileSet()
-	astPackages, err := parser.ParseDir(fset, buildPackage.Dir, nil, parser.ParseComments)
+	// Read in and format all the source files so we can generate documentation with embedded code.
+	sourceFiles, err := readInFiles(buildPackage)
 	if err != nil {
-		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
+		return Package{}, fmt.Errorf("error reading source files in %s: %w", importPath, err)
 	}
 
-	// Get the go/ast Package for the package named by the import path.
-	astPackage, ok := astPackages[buildPackage.Name]
-	if !ok {
-		return Package{}, fmt.Errorf("package not found in %s", importPath)
+	// Generate all the go/ast File's from the formatted source files.
+	fset := token.NewFileSet()
+	astFiles := make([]*ast.File, len(sourceFiles))
+	for i, sourceFile := range sourceFiles {
+		var err error
+		astFiles[i], err = parser.ParseFile(fset, sourceFile.absPath, sourceFile.source, parser.ParseComments)
+		if err != nil {
+			return Package{}, fmt.Errorf("error building ast file in %s: %w", importPath, err)
+		}
 	}
 
-	// Generate the go/doc Package for the package named by the import path. We first have to
-	// flatten out the map of ast files and then use that list to parse the individual files. We
-	// want to gather all files for the package and not filter out any based on build system.
-	astFiles := make([]*ast.File, 0, len(astPackage.Files))
-	for _, v := range astPackage.Files {
-		astFiles = append(astFiles, v)
-	}
+	// Generate the go/doc Package with the AST trees for all formatted source files parsed.
 	docPackage, err := doc.NewFromFiles(fset, astFiles, importPath)
 	if err != nil {
 		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
@@ -93,12 +98,63 @@ func New(importPath string) (Package, error) {
 		return Package{}, ErrInvalidPkg
 	}
 
+	// Stitch together the source files into a bytes.Reader so we can pull out certain source
+	// declarations later.
+	b := make([][]byte, len(sourceFiles))
+	for i, f := range sourceFiles {
+		b[i] = f.source
+	}
+	r := bytes.NewReader(bytes.Join(b, []byte{'\n'}))
+
 	// Put everything together into our Package type.
-	return newPackage(astPackage, buildPackage, docPackage)
+	return newPackage(buildPackage, docPackage, r)
+}
+
+// readInFiles reads in each source file in the package and applies canonical formatting to it.
+func readInFiles(bp *build.Package) ([]pkgFile, error) {
+	if bp == nil {
+		return nil, fmt.Errorf("missing internal build package")
+	}
+
+	// Make a list of all source files that need to be read in, in alphabetical order.
+	filenames := make([]string, 0)
+	for _, ss := range [][]string{
+		// TODO: what other files need to be added here?
+		bp.GoFiles,
+		bp.IgnoredGoFiles,
+		bp.TestGoFiles,
+		bp.XTestGoFiles,
+		bp.CgoFiles,
+	} {
+		filenames = append(filenames, ss...)
+	}
+	sort.Strings(filenames)
+
+	// Read in and format all the source files.
+	files := make([]pkgFile, len(filenames))
+	for i, f := range filenames {
+		f = filepath.Join(bp.Dir, f)
+		data, err := os.ReadFile(f)
+		if err != nil {
+			return nil, fmt.Errorf("error reading %s: %w", f, err)
+		}
+
+		data, err = format.Source(data)
+		if err != nil {
+			return nil, fmt.Errorf("error formatting %s: %w", f, err)
+		}
+
+		files[i] = pkgFile{
+			absPath: f,
+			source:  data,
+		}
+	}
+
+	return files, nil
 }
 
 // newPackage puts together the internal structure for a Package object.
-func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage *doc.Package) (Package, error) {
+func newPackage(buildPackage *build.Package, docPackage *doc.Package, r *bytes.Reader) (Package, error) {
 	// Begin with structuring up our object with what we have so far.
 	p := Package{
 		name:       docPackage.Name,
@@ -137,12 +193,6 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 	}
 	sort.Strings(p.testImports)
 
-	// Put together all the source files so we can generate documentation with embedded code.
-	r, err := buildSource(buildPackage)
-	if err != nil {
-		return Package{}, fmt.Errorf("error reading source files: %w", err)
-	}
-
 	// Extract the blocks of exported constants for this package, both for standard types (go/doc's
 	// Consts) and for custom types (go/doc's Type's Consts).
 	for _, cb := range docPackage.Consts {
@@ -178,42 +228,6 @@ func newPackage(astPackage *ast.Package, buildPackage *build.Package, docPackage
 	}
 
 	return p, nil
-}
-
-// buildSource concatenates the source files for the package into a bytes.Reader.
-func buildSource(bp *build.Package) (*bytes.Reader, error) {
-	if bp == nil {
-		return nil, fmt.Errorf("missing internal build package")
-	}
-
-	// First, we need to read in all the source files. When the internal go/* libraries generate the
-	// AST and documentation for the package, they read in all source and test files in alphabetical
-	// order, joined with newlines. We must use the same approach to make sure that the position
-	// indexes line up later.
-	files := make([]string, 0)
-	for _, ss := range [][]string{
-		// TODO: what other files need to be added here?
-		bp.GoFiles,
-		bp.CgoFiles,
-		bp.IgnoredGoFiles,
-		bp.TestGoFiles,
-		bp.XTestGoFiles,
-	} {
-		files = append(files, ss...)
-	}
-	sort.Strings(files)
-
-	bufs := make([][]byte, len(files))
-	for i, f := range files {
-		f = filepath.Join(bp.Dir, f)
-		data, err := os.ReadFile(f)
-		if err != nil {
-			return nil, fmt.Errorf("error reading file: %w", err)
-		}
-		bufs[i] = data
-	}
-
-	return bytes.NewReader(bytes.Join(bufs, []byte{'\n'})), nil
 }
 
 // Name returns the package's name.
