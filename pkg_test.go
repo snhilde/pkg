@@ -355,8 +355,6 @@ func cmpTypeLists(wantTypes []testType, haveTypes []pkg.Type) error {
 
 		// Check that the type's source is correct.
 		if wantType.source != haveType.Source() {
-			fmt.Println(wantType.source)
-			fmt.Println(haveType.Source())
 			return fmt.Errorf("%s: source mismatch", haveType.Name())
 		}
 
