@@ -3,202 +3,101 @@ package pkg
 
 import (
 	"bytes"
+	"go/ast"
 	"go/doc"
 	"go/token"
 	"io"
-	"regexp"
 	"strings"
 )
 
-// exportedRe is used to find exported constant/variable names.
-var exportedRe = regexp.MustCompilePOSIX(`^((const )?|(var )?)[[:upper:]]`)
-
 // extractSource extracts the source text in r between the start and end positions.
-func extractSource(r io.ReaderAt, start, end token.Pos) *bytes.Reader {
+func extractSource(r io.ReaderAt, start, end token.Pos) string {
 	if start < 0 || start >= end {
-		return nil
+		return ""
 	}
 
 	b := make([]byte, end-start)
 	if n, err := r.ReadAt(b, int64(start)); n != int(end-start) || err != nil {
-		return nil
+		return ""
 	}
 
-	return bytes.NewReader(b)
+	return string(b)
 }
 
-// extractGlobalsSource extracts the source declaration for a block of constants/variables.
-func extractGlobalsSource(v *doc.Value, r *bytes.Reader, isConst bool) []byte {
-	if v == nil || r == nil {
-		return nil
+// extractExports extracts the source for a block of exported constants or variables. It removes all
+// unexported constants/variables and their associated comments from the source and only returns the
+// exported constants/variables and their associated comments.
+func extractExports(v *doc.Value, r io.ReaderAt) string {
+	// In order to extract only the exported constants/variables from this block of source, we're
+	// going to descend through the source's AST and pull data out of certain nodes. This is the
+	// general approach we're going to take:
+	// 1. Split the source into its constituent lines, and cache the line length of each line.
+	// 2. Descend through the AST, according to this pattern:
+	//     a. The top node is always an *ast.GenDecl. If this node reports that the block is *not*
+	//        parenthesized, then we have only constant/variable block, and it must be exported.
+	//        We'll return the full source of the block. Otherwise, we'll continue descending.
+	//     b. An *ast.ValueSpec represents a single line of one or more declarations, including their
+	//        associated comments. When we arrive at one of these nodes, we're first going to check
+	//        for the associated comments. If those are present, then we know that we need to start
+	//        a new set by inserting a blank line, and then extracting the comments appropriately.
+	//        Unfortunately, we don't have a way to read out the entire line of source directly;
+	//        there are only accessors for reconstructing the parts individually. Instead, we're
+	//        going to figure out where the line begins and ends, and then slice that out.
+	// 3. If the block is parenthesized, then we'll add the first and last lines back in.
+	if v == nil || v.Decl == nil {
+		return ""
 	}
+
+	// This is only for constants and variables.
+	if v.Decl.Tok != token.CONST && v.Decl.Tok != token.VAR {
+		return ""
+	}
+
+	// Remove all unexported nodes.
+	ast.FilterDecl(v.Decl, ast.IsExported)
 
 	start, end := v.Decl.Pos()-1, v.Decl.End()-1 // -1 to index properly
-	decl := extractSource(r, start, end)
-	source, err := io.ReadAll(decl)
-	if err != nil {
-		return nil
-	}
+	source := extractSource(r, start, end)
+	offset := start
 
-	// If there are multiple lines and multiple globals in the source declaration, then it's
-	// possible that there is a mix of exported and unexported globals. We need to remove all
-	// unexported globals.
-	s := strings.Trim(string(source), "\n")
-	lines := strings.Split(s, "\n")
-	if len(lines) <= 1 {
-		// If there's only line in the source, then it has to be an exported global.
-		return source
-	}
-
-	prefix := ""
-	if isConst {
-		prefix = "const"
-	} else {
-		prefix = "var"
-	}
-	if first := strings.TrimSpace(lines[0]); first != prefix+"(" && first != prefix+" (" {
-		// If the line doesn't start with "const(" or "const (" for constants or "var(" or "var ("
-		// for variables, then the keyword and global are on the same line, meaning there is only
-		// one global in this block and it's exported.
-		return source
-	}
-
-	// If we're here, the we have multiple lines and multiple globals. To properly restrict the
-	// source to only exported globals and their comments, we need to break the source up into its
-	// constituent groups, which are separated by blank lines, and then read each group
-	// individually.
-
-	// These are the groups that we want to keep in the final source declaration.
-	keepGroups := make([]string, 0)
-
-	// Stash the "const (" or "var (" and ")" lines, and remove them from the overall source for
-	// easier parsing.
-	firstLine := lines[0]
-	lastLine := lines[len(lines)-1]
-	s = strings.Join(lines[1:len(lines)-1], "\n")
-
-	for _, group := range strings.Split(s, "\n\n") {
-		group = extractGroupSource(group)
-		if group != "" {
-			keepGroups = append(keepGroups, group)
-		}
-	}
-
-	// Restructure the source with the groups designated for keeping.
-	s = strings.Join(keepGroups, "\n\n")
-
-	// Add our first and last lines back in.
-	s = strings.Join([]string{firstLine, s, lastLine}, "\n")
-
-	return []byte(s)
-}
-
-// extractGroupSource extracts the source declaration for a single group in a block of
-// constants/variables. A group is defined as a continuous set of non-blank lines in the source that
-// is separated from other sets by blank lines. If the group does not have any exported globals,
-// then this returns "".
-func extractGroupSource(group string) string {
-	// These are the lines that we want to keep for this group.
-	keepLines := make([]string, 0)
-
-	// This is the running count of the number of levels of multi-line comment blocks that we're
-	// currently in. Every time we find the start of a multi-line comment block (i.e. "/*"), the
-	// counter gets incremented, and the opposite for the end of a block ("*/").
-	commentBlocks := 0
-
-	// This is the running count of the number of blocks of literals (lines within brackets)
-	// we're currently in. Every time we find the start of a block (i.e. "{" at the end of the
-	// line), this gets incremented, and the opposite for the end of a block ("}"). If the
-	// main/overall global is exported, then saveBlock is true.
-	literalBlocks := 0
-	saveBlock := false
-
-	// Number of exported globals found in this group.
-	numExported := 0
-
-	// Number of unexported globals found in this group.
-	numUnexported := 0
-
-	for _, l := range strings.Split(group, "\n") {
-		line := strings.TrimSpace(l)
-
-		// Keep all single-line comments.
-		if strings.HasPrefix(line, "//") {
-			keepLines = append(keepLines, l)
-
-			continue
-		}
-
-		if strings.HasPrefix(line, "/*") {
-			// This is the start of a (possibly) multi-line comment block.
-			commentBlocks++
-		}
-
-		// If we're inside a comment block (beginning, middle, or end), then we need to save the
-		// line and also check if this is the end of the block.
-		if commentBlocks > 0 {
-			keepLines = append(keepLines, l)
-			if strings.HasSuffix(line, "*/") {
-				commentBlocks--
+	parenthesized := false
+	sb := new(strings.Builder)
+	ast.Inspect(v.Decl, func(n ast.Node) bool {
+		switch node := n.(type) {
+		case *ast.GenDecl:
+			parenthesized = node.Lparen.IsValid()
+			if !parenthesized {
+				sb.WriteString(source)
+				return false
 			}
-
-			continue
-		}
-
-		if strings.HasSuffix(line, "{") {
-			// This is the start of a literal block. If we're not already in a wider block, then
-			// let's see if this is an exported or unexported literal.
-			if literalBlocks == 0 {
-				if exportedRe.MatchString(line) {
-					saveBlock = true
-					numExported++
-				} else {
-					saveBlock = false
-					numUnexported++
+			return true
+		case *ast.ValueSpec:
+			if doc := node.Doc; doc != nil {
+				if sb.Len() > 0 {
+					sb.WriteString("\n")
+				}
+				for _, comment := range doc.List {
+					sb.WriteString("\n\t" + comment.Text)
 				}
 			}
-			literalBlocks++
+
+			start := node.Names[0].Pos()-1 // -1 to index properly
+			length := strings.Index(source[start-offset:], "\n")
+			end := start + token.Pos(length)
+			line := extractSource(r, start, end)
+			sb.WriteString("\n\t" + line)
 		}
+		return false
 
-		// If we're inside a literal block (or at its boundary markers), then we need to keep or
-		// discard the line based on the overall block's status. We also need to check if this
-		// is the last line in the block.
-		if literalBlocks > 0 {
-			if saveBlock {
-				keepLines = append(keepLines, l)
-			}
+	})
 
-			if strings.HasSuffix(line, "}") {
-				// This is the last line in the block.
-				literalBlocks--
-			}
-
-			continue
-		}
-
-		// Finally, check whether or not this line marks an exported global.
-		if exportedRe.MatchString(line) {
-			numExported++
-			keepLines = append(keepLines, l)
-		} else {
-			numUnexported++
-		}
+	s := sb.String()
+	if parenthesized {
+		lines := strings.Split(source, "\n")
+		s = lines[0] + s + "\n" + lines[len(lines)-1]
 	}
 
-	// We now have all the lines we want to keep for this group. If there are any exported globals
-	// in this group, then we want to keep these lines in the overall source.
-	if numExported > 0 {
-		return strings.Join(keepLines, "\n")
-	}
-
-	// We don't have any exported globals in this group. If we also don't have any unexported globals,
-	// then maybe this is just an informational group or something. We should probably keep it.
-	if numUnexported == 0 {
-		return strings.Join(keepLines, "\n")
-	}
-
-	// We don't want to keep this group.
-	return ""
+	return s
 }
 
 // formatComments returns formatted comment text with pkg's formatting applied.

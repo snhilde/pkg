@@ -1,3 +1,4 @@
+// This file contains the information and logic for the VariableBlock, Variable, and Error types.
 package pkg
 
 import (
@@ -53,7 +54,7 @@ func newVariableBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) VariableBlock 
 	}
 
 	// Read out the source declaration.
-	source := extractGlobalsSource(v, r, false)
+	source := extractExports(v, r)
 
 	// Save the variable/error names.
 	variables := make([]Variable, len(v.Names))
@@ -70,7 +71,7 @@ func newVariableBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) VariableBlock 
 	return VariableBlock{
 		typeName:  typeName,
 		comments:  v.Doc,
-		source:    string(source),
+		source:    source,
 		variables: variables,
 		errors:    errors,
 	}

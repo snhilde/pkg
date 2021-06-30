@@ -1,3 +1,4 @@
+// This file contains the information and logic for the ConstantBlock and Constant types.
 package pkg
 
 import (
@@ -40,7 +41,7 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 	}
 
 	// Read out the source declaration.
-	source := extractGlobalsSource(v, r, true)
+	source := extractExports(v, r)
 
 	// Build the list of individual constants.
 	constants := make([]Constant, len(v.Names))
@@ -51,7 +52,7 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 	return ConstantBlock{
 		typeName:  typeName,
 		comments:  v.Doc,
-		source:    string(source),
+		source:    source,
 		constants: constants,
 	}
 }
