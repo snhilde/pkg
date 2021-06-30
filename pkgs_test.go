@@ -949,7 +949,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Formatter",
 			typeName: "interface",
-			source:   `type Formatter interface {
+			source: `type Formatter interface {
 	Format(f State, verb rune)
 }`,
 			comments: `Formatter is implemented by any value that has a Format method. The implementation controls how State and rune are interpreted, and may call Sprint(f) or Fprint(f) etc. to generate its output.
@@ -960,7 +960,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "GoStringer",
 			typeName: "interface",
-			source:   `type GoStringer interface {
+			source: `type GoStringer interface {
 	GoString() string
 }`,
 			comments: `GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value. The GoString method is used to print values passed as an operand to a %#v format.
@@ -971,7 +971,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "ScanState",
 			typeName: "interface",
-			source:   `type ScanState interface {
+			source: `type ScanState interface {
 	// ReadRune reads the next rune (Unicode code point) from the input.
 	// If invoked during Scanln, Fscanln, or Sscanln, ReadRune() will
 	// return EOF after returning the first '\n' or when reading beyond
@@ -1008,7 +1008,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Scanner",
 			typeName: "interface",
-			source:   `type Scanner interface {
+			source: `type Scanner interface {
 	Scan(state ScanState, verb rune) error
 }`,
 			comments: `Scanner is implemented by any value that has a Scan method, which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful. The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.
@@ -1019,7 +1019,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "State",
 			typeName: "interface",
-			source:   `type State interface {
+			source: `type State interface {
 	// Write is the function to call to emit formatted output to be printed.
 	Write(b []byte) (n int, err error)
 	// Width returns the value of the width option and whether it has been set.
@@ -1038,7 +1038,7 @@ If the format specifier includes a %w verb with an error operand, the returned e
 		{
 			name:     "Stringer",
 			typeName: "interface",
-			source:   `type Stringer interface {
+			source: `type Stringer interface {
 	String() string
 }`,
 			comments: `Stringer is implemented by any value that has a String method, which defines the “native” format for that value. The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.
@@ -1075,7 +1075,7 @@ var pkgHash = testPackage{
 		{
 			name:     "Hash",
 			typeName: "interface",
-			source:   `type Hash interface {
+			source: `type Hash interface {
 	// Write (via the embedded io.Writer interface) adds more data to the running hash.
 	// It never returns an error.
 	io.Writer
@@ -1108,7 +1108,7 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 		{
 			name:     "Hash32",
 			typeName: "interface",
-			source:   `type Hash32 interface {
+			source: `type Hash32 interface {
 	Hash
 	Sum32() uint32
 }`,
@@ -1120,7 +1120,7 @@ Compatibility: Any future changes to hash or crypto packages will endeavor to ma
 		{
 			name:     "Hash64",
 			typeName: "interface",
-			source:   `type Hash64 interface {
+			source: `type Hash64 interface {
 	Hash
 	Sum64() uint64
 }`,
@@ -1436,7 +1436,7 @@ The Writer currently provides no support for sparse files.
 		{
 			name:     "Header",
 			typeName: "struct",
-			source:   `type Header struct {
+			source: `type Header struct {
 	// Typeflag is the type of header entry.
 	// The zero value is automatically promoted to either TypeReg or TypeDir
 	// depending on the presence of a trailing slash in Name.
@@ -1553,7 +1553,7 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 		{
 			name:     "Reader",
 			typeName: "struct",
-			source:   `type Reader struct {
+			source: `type Reader struct {
 }`,
 			comments: `Reader provides sequential access to the contents of a tar archive. Reader.Next advances to the next file in the archive (including the first), and then Reader can be treated as an io.Reader to access the file's data.
 `,
@@ -1629,7 +1629,7 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 		{
 			name:     "Writer",
 			typeName: "struct",
-			source:   `type Writer struct {
+			source: `type Writer struct {
 }`,
 			comments: `Writer provides sequential writing of a tar archive. Write.WriteHeader begins a new file with the provided Header, and then Writer can be treated as an io.Writer to supply that file's data.
 `,
@@ -4069,7 +4069,7 @@ For example:
 		{
 			name:     "CaseRange",
 			typeName: "struct",
-			source:   `type CaseRange struct {
+			source: `type CaseRange struct {
 	Lo    uint32
 	Hi    uint32
 	Delta d
@@ -4086,7 +4086,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "Range16",
 			typeName: "struct",
-			source:   `type Range16 struct {
+			source: `type Range16 struct {
 	Lo     uint16
 	Hi     uint16
 	Stride uint16
@@ -4099,7 +4099,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "Range32",
 			typeName: "struct",
-			source:   `type Range32 struct {
+			source: `type Range32 struct {
 	Lo     uint32
 	Hi     uint32
 	Stride uint32
@@ -4112,7 +4112,7 @@ The constant UpperLower has an otherwise impossible delta value.
 		{
 			name:     "RangeTable",
 			typeName: "struct",
-			source:   `type RangeTable struct {
+			source: `type RangeTable struct {
 	R16         []Range16
 	R32         []Range32
 	LatinOffset int // number of entries in R16 with Hi <= MaxLatin1
@@ -4467,7 +4467,7 @@ The net/rpc package is frozen and is not accepting new features.
 		{
 			name:     "Call",
 			typeName: "struct",
-			source:   `type Call struct {
+			source: `type Call struct {
 	ServiceMethod string      // The name of the service and method to call.
 	Args          interface{} // The argument to the function (*struct).
 	Reply         interface{} // The reply from the function (*struct).
@@ -4482,7 +4482,7 @@ The net/rpc package is frozen and is not accepting new features.
 		{
 			name:     "Client",
 			typeName: "struct",
-			source:   `type Client struct {
+			source: `type Client struct {
 }`,
 			comments: `Client represents an RPC Client. There may be multiple outstanding Calls associated with a single Client, and a Client may be used by multiple goroutines simultaneously.
 `,
@@ -4681,7 +4681,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "ClientCodec",
 			typeName: "interface",
-			source:   `type ClientCodec interface {
+			source: `type ClientCodec interface {
 	WriteRequest(*Request, interface{}) error
 	ReadResponseHeader(*Response) error
 	ReadResponseBody(interface{}) error
@@ -4696,7 +4696,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Request",
 			typeName: "struct",
-			source:   `type Request struct {
+			source: `type Request struct {
 	ServiceMethod string   // format: "Service.Method"
 	Seq           uint64   // sequence number chosen by client
 }`,
@@ -4708,7 +4708,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Response",
 			typeName: "struct",
-			source:   `type Response struct {
+			source: `type Response struct {
 	ServiceMethod string    // echoes that of the Request
 	Seq           uint64    // echoes that of the request
 	Error         string    // error, if any.
@@ -4721,7 +4721,7 @@ The read and write halves of the connection are serialized independently, so no 
 		{
 			name:     "Server",
 			typeName: "struct",
-			source:   `type Server struct {
+			source: `type Server struct {
 }`,
 			comments: `Server represents an RPC Server.
 `,
@@ -4891,7 +4891,7 @@ It returns an error if the receiver is not an exported type or has no suitable m
 		{
 			name:     "ServerCodec",
 			typeName: "interface",
-			source:   `type ServerCodec interface {
+			source: `type ServerCodec interface {
 	ReadRequestHeader(*Request) error
 	ReadRequestBody(interface{}) error
 	WriteResponse(*Response, interface{}) error

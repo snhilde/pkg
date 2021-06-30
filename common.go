@@ -68,8 +68,10 @@ func extractExports(v *doc.Value, r io.ReaderAt) string {
 			parenthesized = node.Lparen.IsValid()
 			if !parenthesized {
 				sb.WriteString(source)
+
 				return false
 			}
+
 			return true
 		case *ast.ValueSpec:
 			if doc := node.Doc; doc != nil {
@@ -81,14 +83,14 @@ func extractExports(v *doc.Value, r io.ReaderAt) string {
 				}
 			}
 
-			start := node.Names[0].Pos()-1 // -1 to index properly
+			start := node.Names[0].Pos() - 1 // -1 to index properly
 			length := strings.Index(source[start-offset:], "\n")
 			end := start + token.Pos(length)
 			line := extractSource(r, start, end)
 			sb.WriteString("\n\t" + line)
 		}
-		return false
 
+		return false
 	})
 
 	s := sb.String()
