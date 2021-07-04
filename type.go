@@ -1,9 +1,10 @@
+// This file contains the information and logic for the Type type.
 package pkg
 
 import (
-	"bytes"
+	"go/ast"
 	"go/doc"
-	"io"
+	"go/token"
 )
 
 // Type holds information about an exported type in a package.
@@ -18,7 +19,7 @@ type Type struct {
 	typeName string
 
 	// Original declaration in source for this type.
-	source *bytes.Reader
+	source string
 
 	// Functions in the package that primarily return this type.
 	functions []Function
@@ -28,33 +29,33 @@ type Type struct {
 }
 
 // newType builds a new Type object based on go/doc's Type.
-func newType(t *doc.Type, r *bytes.Reader) Type {
-	if t == nil || r == nil {
+func newType(t *doc.Type, fset *token.FileSet) Type {
+	if t == nil {
 		return Type{}
 	}
-	// Read out the source declaration.
-	start, end := t.Decl.Pos()-1, t.Decl.End()-1 // -1 to index properly
-	source := extractSource(r, start, end)
+
+	// Read out the source declaration (exported fields only).
+	source := extractSource(t.Decl, fset)
 
 	// Extract the underlying type.
-	typeName := extractType(t, r)
+	typeName := extractType(t, fset)
 
 	// Make a list of functions for this type.
 	functions := make([]Function, len(t.Funcs))
 	for i, f := range t.Funcs {
-		functions[i] = newFunction(f, r)
+		functions[i] = newFunction(f, fset)
 	}
 
 	// Make a list of methods for this type.
 	methods := make([]Method, len(t.Methods))
 	for i, m := range t.Methods {
-		methods[i] = newMethod(m, r)
+		methods[i] = newMethod(m, fset)
 	}
 
 	return Type{
 		name:      t.Name,
 		comments:  t.Doc,
-		typeName:  string(typeName),
+		typeName:  typeName,
 		source:    source,
 		functions: functions,
 		methods:   methods,
@@ -62,30 +63,20 @@ func newType(t *doc.Type, r *bytes.Reader) Type {
 }
 
 // extractType extracts the underlying type name for this type.
-func extractType(t *doc.Type, r *bytes.Reader) []byte {
-	// Read out the source declaration.
-	start, end := t.Decl.Pos()-1, t.Decl.End()-1 // -1 to index properly
-	source := extractSource(r, start, end)
-	b, err := io.ReadAll(source)
-	if err != nil {
-		return nil
+func extractType(t *doc.Type, fset *token.FileSet) string {
+	if t == nil || t.Decl == nil || len(t.Decl.Specs) == 0 {
+		return ""
 	}
 
-	// Remove the type keyword and name of this type from the beginning.
-	b = bytes.TrimPrefix(b, []byte("type "+t.Name+" "))
-
-	// Remove any other lines in this declaration.
-	if i := bytes.IndexByte(b, '\n'); i > 0 {
-		b = b[:i]
+	ts := t.Decl.Specs[0].(*ast.TypeSpec)
+	switch ts.Type.(type) {
+	case *ast.StructType:
+		return "struct"
+	case *ast.InterfaceType:
+		return "interface"
+	default:
+		return extractSource(ts.Type, fset)
 	}
-
-	// If we have an opening curly bracket still, we need to remove that.
-	b = bytes.TrimSpace(b)
-	if bytes.HasSuffix(b, []byte{'{'}) {
-		b = b[:len(b)-2]
-	}
-
-	return bytes.TrimSpace(b)
 }
 
 // Name returns the type's name.
@@ -103,6 +94,11 @@ func (t Type) Type() string {
 	return t.typeName
 }
 
+// Source returns the source declaration for this type.
+func (t Type) Source() string {
+	return t.source
+}
+
 // Functions returns a list of functions that primarily return this type.
 func (t Type) Functions() []Function {
 	return append([]Function{}, t.functions...)
@@ -111,8 +107,4 @@ func (t Type) Functions() []Function {
 // Methods returns a list of methods for this type.
 func (t Type) Methods() []Method {
 	return append([]Method{}, t.methods...)
-}
-
-func (t Type) Exports() []interface{} {
-	return append([]interface{}{}, nil)
 }
