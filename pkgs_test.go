@@ -26,8 +26,7 @@ type testConstantBlock struct {
 }
 
 type testConstant struct {
-	name   string
-	source string // TODO, not currently checking this
+	name string
 }
 
 type testVariableBlock struct {
@@ -39,13 +38,11 @@ type testVariableBlock struct {
 }
 
 type testVariable struct {
-	name   string
-	source string // TODO, not currently checking this
+	name string
 }
 
 type testError struct {
-	name   string
-	source string // TODO, not currently checking this
+	name string
 }
 
 type testFunction struct {
@@ -65,17 +62,18 @@ type testType struct {
 }
 
 type testMethod struct {
-	name        string
-	comments    string
-	receiver    string
-	pointerRcvr bool
-	inputs      []testParameter
-	outputs     []testParameter
+	name     string
+	comments string
+	receiver testParameter
+	inputs   []testParameter
+	outputs  []testParameter
 }
 
 type testParameter struct {
+	s        string
 	name     string
 	typeName string
+	pointer  bool
 }
 
 // Structure for package "errors".
@@ -146,18 +144,24 @@ As panics if target is not a non-nil pointer to either a type that implements er
 `,
 			inputs: []testParameter{
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 				{
+					s:        "target interface{}",
 					name:     "target",
 					typeName: "interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -177,18 +181,24 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 `,
 			inputs: []testParameter{
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 				{
+					s:        "target error",
 					name:     "target",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -198,14 +208,18 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 `,
 			inputs: []testParameter{
 				{
+					s:        "text string",
 					name:     "text",
 					typeName: "string",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "error",
 					name:     "",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -215,14 +229,18 @@ then Is(MyError{}, fs.ErrExist) returns true. See syscall.Errno.Is for an exampl
 `,
 			inputs: []testParameter{
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "error",
 					name:     "",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -503,18 +521,24 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "error",
 					name:     "",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -524,22 +548,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "w io.Writer",
 					name:     "w",
 					typeName: "io.Writer",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -549,26 +581,36 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "w io.Writer",
 					name:     "w",
 					typeName: "io.Writer",
+					pointer:  false,
 				},
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -578,22 +620,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "w io.Writer",
 					name:     "w",
 					typeName: "io.Writer",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -603,22 +653,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "r io.Reader",
 					name:     "r",
 					typeName: "io.Reader",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -628,26 +686,36 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "r io.Reader",
 					name:     "r",
 					typeName: "io.Reader",
+					pointer:  false,
 				},
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -657,22 +725,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "r io.Reader",
 					name:     "r",
 					typeName: "io.Reader",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -682,18 +758,24 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -703,22 +785,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -728,18 +818,24 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -749,18 +845,24 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -770,22 +872,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -795,18 +905,24 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -816,14 +932,18 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "string",
 					name:     "",
 					typeName: "string",
+					pointer:  false,
 				},
 			},
 		},
@@ -833,18 +953,24 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "string",
 					name:     "",
 					typeName: "string",
+					pointer:  false,
 				},
 			},
 		},
@@ -854,14 +980,18 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "string",
 					name:     "",
 					typeName: "string",
+					pointer:  false,
 				},
 			},
 		},
@@ -871,22 +1001,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "str string",
 					name:     "str",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -896,26 +1034,36 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "str string",
 					name:     "str",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "format string",
 					name:     "format",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -925,22 +1073,30 @@ If the format specifier includes a %w verb with an error operand, the returned e
 `,
 			inputs: []testParameter{
 				{
+					s:        "str string",
 					name:     "str",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "a ...interface{}",
 					name:     "a",
 					typeName: "...interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "n int",
 					name:     "n",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "err error",
 					name:     "err",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -1199,60 +1355,46 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 )`,
 			constants: []testConstant{
 				{
-					name:   "TypeReg",
-					source: `TypeReg  = '0'`,
+					name: "TypeReg",
 				},
 				{
-					name:   "TypeRegA",
-					source: `TypeRegA = '\x00' // Deprecated: Use TypeReg instead.`,
+					name: "TypeRegA",
 				},
 				{
-					name:   "TypeLink",
-					source: `TypeLink    = '1' // Hard link`,
+					name: "TypeLink",
 				},
 				{
-					name:   "TypeSymlink",
-					source: `TypeSymlink = '2' // Symbolic link`,
+					name: "TypeSymlink",
 				},
 				{
-					name:   "TypeChar",
-					source: `TypeChar    = '3' // Character device node`,
+					name: "TypeChar",
 				},
 				{
-					name:   "TypeBlock",
-					source: `TypeBlock   = '4' // Block device node`,
+					name: "TypeBlock",
 				},
 				{
-					name:   "TypeDir",
-					source: `TypeDir     = '5' // Directory`,
+					name: "TypeDir",
 				},
 				{
-					name:   "TypeFifo",
-					source: `TypeFifo    = '6' // FIFO node`,
+					name: "TypeFifo",
 				},
 				{
-					name:   "TypeCont",
-					source: `TypeCont = '7'`,
+					name: "TypeCont",
 				},
 				{
-					name:   "TypeXHeader",
-					source: `TypeXHeader = 'x'`,
+					name: "TypeXHeader",
 				},
 				{
-					name:   "TypeXGlobalHeader",
-					source: `TypeXGlobalHeader = 'g'`,
+					name: "TypeXGlobalHeader",
 				},
 				{
-					name:   "TypeGNUSparse",
-					source: `TypeGNUSparse = 'S'`,
+					name: "TypeGNUSparse",
 				},
 				{
-					name:   "TypeGNULongName",
-					source: `TypeGNULongName = 'L'`,
+					name: "TypeGNULongName",
 				},
 				{
-					name:   "TypeGNULongLink",
-					source: `TypeGNULongLink = 'K'`,
+					name: "TypeGNULongLink",
 				},
 			},
 		},
@@ -1262,7 +1404,7 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 `,
 			source: `const (
 	// FormatUnknown indicates that the format is unknown.
-	FormatUnknown
+	FormatUnknown Format
 
 	// FormatUSTAR represents the USTAR header format defined in POSIX.1-1988.
 	//
@@ -1307,20 +1449,16 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 )`,
 			constants: []testConstant{
 				{
-					name:   "FormatUnknown",
-					source: `FormatUnknown`,
+					name: "FormatUnknown",
 				},
 				{
-					name:   "FormatUSTAR",
-					source: `FormatUSTAR`,
+					name: "FormatUSTAR",
 				},
 				{
-					name:   "FormatPAX",
-					source: `FormatPAX`,
+					name: "FormatPAX",
 				},
 				{
-					name:   "FormatGNU",
-					source: `FormatGNU`,
+					name: "FormatGNU",
 				},
 			},
 		},
@@ -1338,45 +1476,29 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 			variables: []testVariable{
 				{
 					name: "ErrHeader",
-					source: `ErrHeader          = errors.New("archive/tar: invalid tar header")
-`,
 				},
 				{
 					name: "ErrWriteTooLong",
-					source: `ErrWriteTooLong    = errors.New("archive/tar: write too long")
-`,
 				},
 				{
 					name: "ErrFieldTooLong",
-					source: `ErrFieldTooLong    = errors.New("archive/tar: header field too long")
-`,
 				},
 				{
 					name: "ErrWriteAfterClose",
-					source: `ErrWriteAfterClose = errors.New("archive/tar: write after close")
-`,
 				},
 			},
 			errors: []testError{
 				{
 					name: "ErrHeader",
-					source: `ErrHeader          = errors.New("archive/tar: invalid tar header")
-`,
 				},
 				{
 					name: "ErrWriteTooLong",
-					source: `ErrWriteTooLong    = errors.New("archive/tar: write too long")
-`,
 				},
 				{
 					name: "ErrFieldTooLong",
-					source: `ErrFieldTooLong    = errors.New("archive/tar: header field too long")
-`,
 				},
 				{
 					name: "ErrWriteAfterClose",
-					source: `ErrWriteAfterClose = errors.New("archive/tar: write after close")
-`,
 				},
 			},
 		},
@@ -1419,15 +1541,21 @@ The Writer currently provides no support for sparse files.
 			functions: []testFunction{}, // no functions for this type
 			methods: []testMethod{
 				{
-					name:        "String",
-					comments:    ``, // no comments for this method
-					receiver:    "f Format",
-					pointerRcvr: false,
-					inputs:      []testParameter{}, // no inputs for this method
+					name:     "String",
+					comments: ``, // no comments for this method
+					receiver: testParameter{
+						s:        "f Format",
+						name:     "f",
+						typeName: "Format",
+						pointer:  false,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "string",
 							name:     "",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 				},
@@ -1513,22 +1641,30 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 `,
 					inputs: []testParameter{
 						{
+							s:        "fi fs.FileInfo",
 							name:     "fi",
 							typeName: "fs.FileInfo",
+							pointer:  false,
 						},
 						{
+							s:        "link string",
 							name:     "link",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Header",
 							name:     "",
 							typeName: "*Header",
+							pointer:  true,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1538,13 +1674,19 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 					name: "FileInfo",
 					comments: `FileInfo returns an fs.FileInfo for the Header.
 `,
-					receiver:    "h *Header",
-					pointerRcvr: true,
-					inputs:      []testParameter{}, // no inputs for this method
+					receiver: testParameter{
+						s:        "h *Header",
+						name:     "h",
+						typeName: "*Header",
+						pointer:  true,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "fs.FileInfo",
 							name:     "",
 							typeName: "fs.FileInfo",
+							pointer:  false,
 						},
 					},
 				},
@@ -1554,6 +1696,7 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 			name:     "Reader",
 			typeName: "struct",
 			source: `type Reader struct {
+	// contains filtered or unexported fields
 }`,
 			comments: `Reader provides sequential access to the contents of a tar archive. Reader.Next advances to the next file in the archive (including the first), and then Reader can be treated as an io.Reader to access the file's data.
 `,
@@ -1564,14 +1707,18 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 `,
 					inputs: []testParameter{
 						{
+							s:        "r io.Reader",
 							name:     "r",
 							typeName: "io.Reader",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Reader",
 							name:     "",
 							typeName: "*Reader",
+							pointer:  true,
 						},
 					},
 				},
@@ -1583,17 +1730,25 @@ Since fs.FileInfo's Name method only returns the base name of the file it descri
 
 io.EOF is returned at the end of the input.
 `,
-					receiver:    "tr *Reader",
-					pointerRcvr: true,
-					inputs:      []testParameter{}, // no inputs for this method
+					receiver: testParameter{
+						s:        "tr *Reader",
+						name:     "tr",
+						typeName: "*Reader",
+						pointer:  true,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "*Header",
 							name:     "",
 							typeName: "*Header",
+							pointer:  true,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1605,22 +1760,32 @@ If the current file is sparse, then the regions marked as a hole are read back a
 
 Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, TypeDir, and TypeFifo returns (0, io.EOF) regardless of what the Header.Size claims.
 `,
-					receiver:    "tr *Reader",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "tr *Reader",
+						name:     "tr",
+						typeName: "*Reader",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "b []byte",
 							name:     "b",
 							typeName: "[]byte",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "int",
 							name:     "",
 							typeName: "int",
+							pointer:  false,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1630,6 +1795,7 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 			name:     "Writer",
 			typeName: "struct",
 			source: `type Writer struct {
+	// contains filtered or unexported fields
 }`,
 			comments: `Writer provides sequential writing of a tar archive. Write.WriteHeader begins a new file with the provided Header, and then Writer can be treated as an io.Writer to supply that file's data.
 `,
@@ -1640,14 +1806,18 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 `,
 					inputs: []testParameter{
 						{
+							s:        "w io.Writer",
 							name:     "w",
 							typeName: "io.Writer",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Writer",
 							name:     "",
 							typeName: "*Writer",
+							pointer:  true,
 						},
 					},
 				},
@@ -1657,13 +1827,19 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 					name: "Close",
 					comments: `Close closes the tar archive by flushing the padding, and writing the footer. If the current file (from a prior call to WriteHeader) is not fully written, then this returns an error.
 `,
-					receiver:    "tw *Writer",
-					pointerRcvr: true,
-					inputs:      []testParameter{}, // no inputs for this method
+					receiver: testParameter{
+						s:        "tw *Writer",
+						name:     "tw",
+						typeName: "*Writer",
+						pointer:  true,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1673,13 +1849,19 @@ Calling Read on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, T
 
 This is unnecessary as the next call to WriteHeader or Close will implicitly flush out the file's padding.
 `,
-					receiver:    "tw *Writer",
-					pointerRcvr: true,
-					inputs:      []testParameter{}, // no inputs for this method
+					receiver: testParameter{
+						s:        "tw *Writer",
+						name:     "tw",
+						typeName: "*Writer",
+						pointer:  true,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1689,22 +1871,32 @@ This is unnecessary as the next call to WriteHeader or Close will implicitly flu
 
 Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, TypeDir, and TypeFifo returns (0, ErrWriteTooLong) regardless of what the Header.Size claims.
 `,
-					receiver:    "tw *Writer",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "tw *Writer",
+						name:     "tw",
+						typeName: "*Writer",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "b []byte",
 							name:     "b",
 							typeName: "[]byte",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "int",
 							name:     "",
 							typeName: "int",
+							pointer:  false,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1712,18 +1904,26 @@ Calling Write on special types like TypeLink, TypeSymlink, TypeChar, TypeBlock, 
 					name: "WriteHeader",
 					comments: `WriteHeader writes hdr and prepares to accept the file's contents. The Header.Size determines how many bytes can be written for the next file. If the current file is not fully written, then this returns an error. This implicitly flushes any padding necessary before writing the header.
 `,
-					receiver:    "tw *Writer",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "tw *Writer",
+						name:     "tw",
+						typeName: "*Writer",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "hdr *Header",
 							name:     "hdr",
 							typeName: "*Header",
+							pointer:  true,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -1760,20 +1960,16 @@ var pkgUnicode = testPackage{
 )`,
 			constants: []testConstant{
 				{
-					name:   "MaxRune",
-					source: `MaxRune         = '\U0010FFFF' // Maximum valid Unicode code point.`,
+					name: "MaxRune",
 				},
 				{
-					name:   "ReplacementChar",
-					source: `ReplacementChar = '\uFFFD'     // Represents invalid code points.`,
+					name: "ReplacementChar",
 				},
 				{
-					name:   "MaxASCII",
-					source: `MaxASCII        = '\u007F'     // maximum ASCII value.`,
+					name: "MaxASCII",
 				},
 				{
-					name:   "MaxLatin1",
-					source: `MaxLatin1       = '\u00FF'     // maximum Latin-1 value.`,
+					name: "MaxLatin1",
 				},
 			},
 		},
@@ -1789,20 +1985,16 @@ var pkgUnicode = testPackage{
 )`,
 			constants: []testConstant{
 				{
-					name:   "UpperCase",
-					source: `UpperCase = iota`,
+					name: "UpperCase",
 				},
 				{
-					name:   "LowerCase",
-					source: `LowerCase`,
+					name: "LowerCase",
 				},
 				{
-					name:   "TitleCase",
-					source: `TitleCase`,
+					name: "TitleCase",
 				},
 				{
-					name:   "MaxCase",
-					source: `MaxCase`,
+					name: "MaxCase",
 				},
 			},
 		},
@@ -1815,8 +2007,7 @@ var pkgUnicode = testPackage{
 )`,
 			constants: []testConstant{
 				{
-					name:   "UpperLower",
-					source: `UpperLower = MaxRune + 1 // (Cannot be a valid delta.)`,
+					name: "UpperLower",
 				},
 			},
 		},
@@ -1827,8 +2018,7 @@ var pkgUnicode = testPackage{
 			source: `const Version = "13.0.0"`,
 			constants: []testConstant{
 				{
-					name:   "Version",
-					source: `Version = "13.0.0"`,
+					name: "Version",
 				},
 			},
 		},
@@ -1889,192 +2079,145 @@ var pkgUnicode = testPackage{
 )`,
 			variables: []testVariable{
 				{
-					name:   "Cc",
-					source: `Cc     = _Cc // Cc is the set of Unicode characters in category Cc (Other, control).`,
+					name: "Cc",
 				},
 				{
-					name:   "Cf",
-					source: `Cf     = _Cf // Cf is the set of Unicode characters in category Cf (Other, format).`,
+					name: "Cf",
 				},
 				{
-					name:   "Co",
-					source: `Co     = _Co // Co is the set of Unicode characters in category Co (Other, private use).`,
+					name: "Co",
 				},
 				{
-					name:   "Cs",
-					source: `Cs     = _Cs // Cs is the set of Unicode characters in category Cs (Other, surrogate).`,
+					name: "Cs",
 				},
 				{
-					name:   "Digit",
-					source: `Digit  = _Nd // Digit is the set of Unicode characters with the "decimal digit" property.`,
+					name: "Digit",
 				},
 				{
-					name:   "Nd",
-					source: `Nd     = _Nd // Nd is the set of Unicode characters in category Nd (Number, decimal digit).`,
+					name: "Nd",
 				},
 				{
-					name:   "Letter",
-					source: `Letter = _L  // Letter/L is the set of Unicode letters, category L.`,
+					name: "Letter",
 				},
 				{
-					name:   "L",
-					source: `L      = _L`,
+					name: "L",
 				},
 				{
-					name:   "Lm",
-					source: `Lm     = _Lm // Lm is the set of Unicode characters in category Lm (Letter, modifier).`,
+					name: "Lm",
 				},
 				{
-					name:   "Lo",
-					source: `Lo     = _Lo // Lo is the set of Unicode characters in category Lo (Letter, other).`,
+					name: "Lo",
 				},
 				{
-					name:   "Lower",
-					source: `Lower  = _Ll // Lower is the set of Unicode lower case letters.`,
+					name: "Lower",
 				},
 				{
-					name:   "Ll",
-					source: `Ll     = _Ll // Ll is the set of Unicode characters in category Ll (Letter, lowercase).`,
+					name: "Ll",
 				},
 				{
-					name:   "Mark",
-					source: `Mark   = _M  // Mark/M is the set of Unicode mark characters, category M.`,
+					name: "Mark",
 				},
 				{
-					name:   "M",
-					source: `M      = _M`,
+					name: "M",
 				},
 				{
-					name:   "Mc",
-					source: `Mc     = _Mc // Mc is the set of Unicode characters in category Mc (Mark, spacing combining).`,
+					name: "Mc",
 				},
 				{
-					name:   "Me",
-					source: `Me     = _Me // Me is the set of Unicode characters in category Me (Mark, enclosing).`,
+					name: "Me",
 				},
 				{
-					name:   "Mn",
-					source: `Mn     = _Mn // Mn is the set of Unicode characters in category Mn (Mark, nonspacing).`,
+					name: "Mn",
 				},
 				{
-					name:   "Nl",
-					source: `Nl     = _Nl // Nl is the set of Unicode characters in category Nl (Number, letter).`,
+					name: "Nl",
 				},
 				{
-					name:   "No",
-					source: `No     = _No // No is the set of Unicode characters in category No (Number, other).`,
+					name: "No",
 				},
 				{
-					name:   "Number",
-					source: `Number = _N  // Number/N is the set of Unicode number characters, category N.`,
+					name: "Number",
 				},
 				{
-					name:   "N",
-					source: `N      = _N`,
+					name: "N",
 				},
 				{
-					name:   "Other",
-					source: `Other  = _C // Other/C is the set of Unicode control and special characters, category C.`,
+					name: "Other",
 				},
 				{
-					name:   "C",
-					source: `C      = _C`,
+					name: "C",
 				},
 				{
-					name:   "Pc",
-					source: `Pc     = _Pc // Pc is the set of Unicode characters in category Pc (Punctuation, connector).`,
+					name: "Pc",
 				},
 				{
-					name:   "Pd",
-					source: `Pd     = _Pd // Pd is the set of Unicode characters in category Pd (Punctuation, dash).`,
+					name: "Pd",
 				},
 				{
-					name:   "Pe",
-					source: `Pe     = _Pe // Pe is the set of Unicode characters in category Pe (Punctuation, close).`,
+					name: "Pe",
 				},
 				{
-					name:   "Pf",
-					source: `Pf     = _Pf // Pf is the set of Unicode characters in category Pf (Punctuation, final quote).`,
+					name: "Pf",
 				},
 				{
-					name:   "Pi",
-					source: `Pi     = _Pi // Pi is the set of Unicode characters in category Pi (Punctuation, initial quote).`,
+					name: "Pi",
 				},
 				{
-					name:   "Po",
-					source: `Po     = _Po // Po is the set of Unicode characters in category Po (Punctuation, other).`,
+					name: "Po",
 				},
 				{
-					name:   "Ps",
-					source: `Ps     = _Ps // Ps is the set of Unicode characters in category Ps (Punctuation, open).`,
+					name: "Ps",
 				},
 				{
-					name:   "Punct",
-					source: `Punct  = _P  // Punct/P is the set of Unicode punctuation characters, category P.`,
+					name: "Punct",
 				},
 				{
-					name:   "P",
-					source: `P      = _P`,
+					name: "P",
 				},
 				{
-					name:   "Sc",
-					source: `Sc     = _Sc // Sc is the set of Unicode characters in category Sc (Symbol, currency).`,
+					name: "Sc",
 				},
 				{
-					name:   "Sk",
-					source: `Sk     = _Sk // Sk is the set of Unicode characters in category Sk (Symbol, modifier).`,
+					name: "Sk",
 				},
 				{
-					name:   "Sm",
-					source: `Sm     = _Sm // Sm is the set of Unicode characters in category Sm (Symbol, math).`,
+					name: "Sm",
 				},
 				{
-					name:   "So",
-					source: `So     = _So // So is the set of Unicode characters in category So (Symbol, other).`,
+					name: "So",
 				},
 				{
-					name:   "Space",
-					source: `Space  = _Z  // Space/Z is the set of Unicode space characters, category Z.`,
+					name: "Space",
 				},
 				{
-					name:   "Z",
-					source: `Z      = _Z`,
+					name: "Z",
 				},
 				{
-					name:   "Symbol",
-					source: `Symbol = _S // Symbol/S is the set of Unicode symbol characters, category S.`,
+					name: "Symbol",
 				},
 				{
-					name:   "S",
-					source: `S      = _S`,
+					name: "S",
 				},
 				{
-					name:   "Title",
-					source: `Title  = _Lt // Title is the set of Unicode title case letters.`,
+					name: "Title",
 				},
 				{
-					name:   "Lt",
-					source: `Lt     = _Lt // Lt is the set of Unicode characters in category Lt (Letter, titlecase).`,
+					name: "Lt",
 				},
 				{
-					name:   "Upper",
-					source: `Upper  = _Lu // Upper is the set of Unicode upper case letters.`,
+					name: "Upper",
 				},
 				{
-					name:   "Lu",
-					source: `Lu     = _Lu // Lu is the set of Unicode characters in category Lu (Letter, uppercase).`,
+					name: "Lu",
 				},
 				{
-					name:   "Zl",
-					source: `Zl     = _Zl // Zl is the set of Unicode characters in category Zl (Separator, line).`,
+					name: "Zl",
 				},
 				{
-					name:   "Zp",
-					source: `Zp     = _Zp // Zp is the set of Unicode characters in category Zp (Separator, paragraph).`,
+					name: "Zp",
 				},
 				{
-					name:   "Zs",
-					source: `Zs     = _Zs // Zs is the set of Unicode characters in category Zs (Separator, space).`,
+					name: "Zs",
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -2243,628 +2386,472 @@ var pkgUnicode = testPackage{
 )`,
 			variables: []testVariable{
 				{
-					name:   "Adlam",
-					source: `Adlam                  = _Adlam                  // Adlam is the set of Unicode characters in script Adlam.`,
+					name: "Adlam",
 				},
 				{
-					name:   "Ahom",
-					source: `Ahom                   = _Ahom                   // Ahom is the set of Unicode characters in script Ahom.`,
+					name: "Ahom",
 				},
 				{
-					name:   "Anatolian_Hieroglyphs",
-					source: `Anatolian_Hieroglyphs  = _Anatolian_Hieroglyphs  // Anatolian_Hieroglyphs is the set of Unicode characters in script Anatolian_Hieroglyphs.`,
+					name: "Anatolian_Hieroglyphs",
 				},
 				{
-					name:   "Arabic",
-					source: `Arabic                 = _Arabic                 // Arabic is the set of Unicode characters in script Arabic.`,
+					name: "Arabic",
 				},
 				{
-					name:   "Armenian",
-					source: `Armenian               = _Armenian               // Armenian is the set of Unicode characters in script Armenian.`,
+					name: "Armenian",
 				},
 				{
-					name:   "Avestan",
-					source: `Avestan                = _Avestan                // Avestan is the set of Unicode characters in script Avestan.`,
+					name: "Avestan",
 				},
 				{
-					name:   "Balinese",
-					source: `Balinese               = _Balinese               // Balinese is the set of Unicode characters in script Balinese.`,
+					name: "Balinese",
 				},
 				{
-					name:   "Bamum",
-					source: `Bamum                  = _Bamum                  // Bamum is the set of Unicode characters in script Bamum.`,
+					name: "Bamum",
 				},
 				{
-					name:   "Bassa_Vah",
-					source: `Bassa_Vah              = _Bassa_Vah              // Bassa_Vah is the set of Unicode characters in script Bassa_Vah.`,
+					name: "Bassa_Vah",
 				},
 				{
-					name:   "Batak",
-					source: `Batak                  = _Batak                  // Batak is the set of Unicode characters in script Batak.`,
+					name: "Batak",
 				},
 				{
-					name:   "Bengali",
-					source: `Bengali                = _Bengali                // Bengali is the set of Unicode characters in script Bengali.`,
+					name: "Bengali",
 				},
 				{
-					name:   "Bhaiksuki",
-					source: `Bhaiksuki              = _Bhaiksuki              // Bhaiksuki is the set of Unicode characters in script Bhaiksuki.`,
+					name: "Bhaiksuki",
 				},
 				{
-					name:   "Bopomofo",
-					source: `Bopomofo               = _Bopomofo               // Bopomofo is the set of Unicode characters in script Bopomofo.`,
+					name: "Bopomofo",
 				},
 				{
-					name:   "Brahmi",
-					source: `Brahmi                 = _Brahmi                 // Brahmi is the set of Unicode characters in script Brahmi.`,
+					name: "Brahmi",
 				},
 				{
-					name:   "Braille",
-					source: `Braille                = _Braille                // Braille is the set of Unicode characters in script Braille.`,
+					name: "Braille",
 				},
 				{
-					name:   "Buginese",
-					source: `Buginese               = _Buginese               // Buginese is the set of Unicode characters in script Buginese.`,
+					name: "Buginese",
 				},
 				{
-					name:   "Buhid",
-					source: `Buhid                  = _Buhid                  // Buhid is the set of Unicode characters in script Buhid.`,
+					name: "Buhid",
 				},
 				{
-					name:   "Canadian_Aboriginal",
-					source: `Canadian_Aboriginal    = _Canadian_Aboriginal    // Canadian_Aboriginal is the set of Unicode characters in script Canadian_Aboriginal.`,
+					name: "Canadian_Aboriginal",
 				},
 				{
-					name:   "Carian",
-					source: `Carian                 = _Carian                 // Carian is the set of Unicode characters in script Carian.`,
+					name: "Carian",
 				},
 				{
-					name:   "Caucasian_Albanian",
-					source: `Caucasian_Albanian     = _Caucasian_Albanian     // Caucasian_Albanian is the set of Unicode characters in script Caucasian_Albanian.`,
+					name: "Caucasian_Albanian",
 				},
 				{
-					name:   "Chakma",
-					source: `Chakma                 = _Chakma                 // Chakma is the set of Unicode characters in script Chakma.`,
+					name: "Chakma",
 				},
 				{
-					name:   "Cham",
-					source: `Cham                   = _Cham                   // Cham is the set of Unicode characters in script Cham.`,
+					name: "Cham",
 				},
 				{
-					name:   "Cherokee",
-					source: `Cherokee               = _Cherokee               // Cherokee is the set of Unicode characters in script Cherokee.`,
+					name: "Cherokee",
 				},
 				{
-					name:   "Chorasmian",
-					source: `Chorasmian             = _Chorasmian             // Chorasmian is the set of Unicode characters in script Chorasmian.`,
+					name: "Chorasmian",
 				},
 				{
-					name:   "Common",
-					source: `Common                 = _Common                 // Common is the set of Unicode characters in script Common.`,
+					name: "Common",
 				},
 				{
-					name:   "Coptic",
-					source: `Coptic                 = _Coptic                 // Coptic is the set of Unicode characters in script Coptic.`,
+					name: "Coptic",
 				},
 				{
-					name:   "Cuneiform",
-					source: `Cuneiform              = _Cuneiform              // Cuneiform is the set of Unicode characters in script Cuneiform.`,
+					name: "Cuneiform",
 				},
 				{
-					name:   "Cypriot",
-					source: `Cypriot                = _Cypriot                // Cypriot is the set of Unicode characters in script Cypriot.`,
+					name: "Cypriot",
 				},
 				{
-					name:   "Cyrillic",
-					source: `Cyrillic               = _Cyrillic               // Cyrillic is the set of Unicode characters in script Cyrillic.`,
+					name: "Cyrillic",
 				},
 				{
-					name:   "Deseret",
-					source: `Deseret                = _Deseret                // Deseret is the set of Unicode characters in script Deseret.`,
+					name: "Deseret",
 				},
 				{
-					name:   "Devanagari",
-					source: `Devanagari             = _Devanagari             // Devanagari is the set of Unicode characters in script Devanagari.`,
+					name: "Devanagari",
 				},
 				{
-					name:   "Dives_Akuru",
-					source: `Dives_Akuru            = _Dives_Akuru            // Dives_Akuru is the set of Unicode characters in script Dives_Akuru.`,
+					name: "Dives_Akuru",
 				},
 				{
-					name:   "Dogra",
-					source: `Dogra                  = _Dogra                  // Dogra is the set of Unicode characters in script Dogra.`,
+					name: "Dogra",
 				},
 				{
-					name:   "Duployan",
-					source: `Duployan               = _Duployan               // Duployan is the set of Unicode characters in script Duployan.`,
+					name: "Duployan",
 				},
 				{
-					name:   "Egyptian_Hieroglyphs",
-					source: `Egyptian_Hieroglyphs   = _Egyptian_Hieroglyphs   // Egyptian_Hieroglyphs is the set of Unicode characters in script Egyptian_Hieroglyphs.`,
+					name: "Egyptian_Hieroglyphs",
 				},
 				{
-					name:   "Elbasan",
-					source: `Elbasan                = _Elbasan                // Elbasan is the set of Unicode characters in script Elbasan.`,
+					name: "Elbasan",
 				},
 				{
-					name:   "Elymaic",
-					source: `Elymaic                = _Elymaic                // Elymaic is the set of Unicode characters in script Elymaic.`,
+					name: "Elymaic",
 				},
 				{
-					name:   "Ethiopic",
-					source: `Ethiopic               = _Ethiopic               // Ethiopic is the set of Unicode characters in script Ethiopic.`,
+					name: "Ethiopic",
 				},
 				{
-					name:   "Georgian",
-					source: `Georgian               = _Georgian               // Georgian is the set of Unicode characters in script Georgian.`,
+					name: "Georgian",
 				},
 				{
-					name:   "Glagolitic",
-					source: `Glagolitic             = _Glagolitic             // Glagolitic is the set of Unicode characters in script Glagolitic.`,
+					name: "Glagolitic",
 				},
 				{
-					name:   "Gothic",
-					source: `Gothic                 = _Gothic                 // Gothic is the set of Unicode characters in script Gothic.`,
+					name: "Gothic",
 				},
 				{
-					name:   "Grantha",
-					source: `Grantha                = _Grantha                // Grantha is the set of Unicode characters in script Grantha.`,
+					name: "Grantha",
 				},
 				{
-					name:   "Greek",
-					source: `Greek                  = _Greek                  // Greek is the set of Unicode characters in script Greek.`,
+					name: "Greek",
 				},
 				{
-					name:   "Gujarati",
-					source: `Gujarati               = _Gujarati               // Gujarati is the set of Unicode characters in script Gujarati.`,
+					name: "Gujarati",
 				},
 				{
-					name:   "Gunjala_Gondi",
-					source: `Gunjala_Gondi          = _Gunjala_Gondi          // Gunjala_Gondi is the set of Unicode characters in script Gunjala_Gondi.`,
+					name: "Gunjala_Gondi",
 				},
 				{
-					name:   "Gurmukhi",
-					source: `Gurmukhi               = _Gurmukhi               // Gurmukhi is the set of Unicode characters in script Gurmukhi.`,
+					name: "Gurmukhi",
 				},
 				{
-					name:   "Han",
-					source: `Han                    = _Han                    // Han is the set of Unicode characters in script Han.`,
+					name: "Han",
 				},
 				{
-					name:   "Hangul",
-					source: `Hangul                 = _Hangul                 // Hangul is the set of Unicode characters in script Hangul.`,
+					name: "Hangul",
 				},
 				{
-					name:   "Hanifi_Rohingya",
-					source: `Hanifi_Rohingya        = _Hanifi_Rohingya        // Hanifi_Rohingya is the set of Unicode characters in script Hanifi_Rohingya.`,
+					name: "Hanifi_Rohingya",
 				},
 				{
-					name:   "Hanunoo",
-					source: `Hanunoo                = _Hanunoo                // Hanunoo is the set of Unicode characters in script Hanunoo.`,
+					name: "Hanunoo",
 				},
 				{
-					name:   "Hatran",
-					source: `Hatran                 = _Hatran                 // Hatran is the set of Unicode characters in script Hatran.`,
+					name: "Hatran",
 				},
 				{
-					name:   "Hebrew",
-					source: `Hebrew                 = _Hebrew                 // Hebrew is the set of Unicode characters in script Hebrew.`,
+					name: "Hebrew",
 				},
 				{
-					name:   "Hiragana",
-					source: `Hiragana               = _Hiragana               // Hiragana is the set of Unicode characters in script Hiragana.`,
+					name: "Hiragana",
 				},
 				{
-					name:   "Imperial_Aramaic",
-					source: `Imperial_Aramaic       = _Imperial_Aramaic       // Imperial_Aramaic is the set of Unicode characters in script Imperial_Aramaic.`,
+					name: "Imperial_Aramaic",
 				},
 				{
-					name:   "Inherited",
-					source: `Inherited              = _Inherited              // Inherited is the set of Unicode characters in script Inherited.`,
+					name: "Inherited",
 				},
 				{
-					name:   "Inscriptional_Pahlavi",
-					source: `Inscriptional_Pahlavi  = _Inscriptional_Pahlavi  // Inscriptional_Pahlavi is the set of Unicode characters in script Inscriptional_Pahlavi.`,
+					name: "Inscriptional_Pahlavi",
 				},
 				{
-					name:   "Inscriptional_Parthian",
-					source: `Inscriptional_Parthian = _Inscriptional_Parthian // Inscriptional_Parthian is the set of Unicode characters in script Inscriptional_Parthian.`,
+					name: "Inscriptional_Parthian",
 				},
 				{
-					name:   "Javanese",
-					source: `Javanese               = _Javanese               // Javanese is the set of Unicode characters in script Javanese.`,
+					name: "Javanese",
 				},
 				{
-					name:   "Kaithi",
-					source: `Kaithi                 = _Kaithi                 // Kaithi is the set of Unicode characters in script Kaithi.`,
+					name: "Kaithi",
 				},
 				{
-					name:   "Kannada",
-					source: `Kannada                = _Kannada                // Kannada is the set of Unicode characters in script Kannada.`,
+					name: "Kannada",
 				},
 				{
-					name:   "Katakana",
-					source: `Katakana               = _Katakana               // Katakana is the set of Unicode characters in script Katakana.`,
+					name: "Katakana",
 				},
 				{
-					name:   "Kayah_Li",
-					source: `Kayah_Li               = _Kayah_Li               // Kayah_Li is the set of Unicode characters in script Kayah_Li.`,
+					name: "Kayah_Li",
 				},
 				{
-					name:   "Kharoshthi",
-					source: `Kharoshthi             = _Kharoshthi             // Kharoshthi is the set of Unicode characters in script Kharoshthi.`,
+					name: "Kharoshthi",
 				},
 				{
-					name:   "Khitan_Small_Script",
-					source: `Khitan_Small_Script    = _Khitan_Small_Script    // Khitan_Small_Script is the set of Unicode characters in script Khitan_Small_Script.`,
+					name: "Khitan_Small_Script",
 				},
 				{
-					name:   "Khmer",
-					source: `Khmer                  = _Khmer                  // Khmer is the set of Unicode characters in script Khmer.`,
+					name: "Khmer",
 				},
 				{
-					name:   "Khojki",
-					source: `Khojki                 = _Khojki                 // Khojki is the set of Unicode characters in script Khojki.`,
+					name: "Khojki",
 				},
 				{
-					name:   "Khudawadi",
-					source: `Khudawadi              = _Khudawadi              // Khudawadi is the set of Unicode characters in script Khudawadi.`,
+					name: "Khudawadi",
 				},
 				{
-					name:   "Lao",
-					source: `Lao                    = _Lao                    // Lao is the set of Unicode characters in script Lao.`,
+					name: "Lao",
 				},
 				{
-					name:   "Latin",
-					source: `Latin                  = _Latin                  // Latin is the set of Unicode characters in script Latin.`,
+					name: "Latin",
 				},
 				{
-					name:   "Lepcha",
-					source: `Lepcha                 = _Lepcha                 // Lepcha is the set of Unicode characters in script Lepcha.`,
+					name: "Lepcha",
 				},
 				{
-					name:   "Limbu",
-					source: `Limbu                  = _Limbu                  // Limbu is the set of Unicode characters in script Limbu.`,
+					name: "Limbu",
 				},
 				{
-					name:   "Linear_A",
-					source: `Linear_A               = _Linear_A               // Linear_A is the set of Unicode characters in script Linear_A.`,
+					name: "Linear_A",
 				},
 				{
-					name:   "Linear_B",
-					source: `Linear_B               = _Linear_B               // Linear_B is the set of Unicode characters in script Linear_B.`,
+					name: "Linear_B",
 				},
 				{
-					name:   "Lisu",
-					source: `Lisu                   = _Lisu                   // Lisu is the set of Unicode characters in script Lisu.`,
+					name: "Lisu",
 				},
 				{
-					name:   "Lycian",
-					source: `Lycian                 = _Lycian                 // Lycian is the set of Unicode characters in script Lycian.`,
+					name: "Lycian",
 				},
 				{
-					name:   "Lydian",
-					source: `Lydian                 = _Lydian                 // Lydian is the set of Unicode characters in script Lydian.`,
+					name: "Lydian",
 				},
 				{
-					name:   "Mahajani",
-					source: `Mahajani               = _Mahajani               // Mahajani is the set of Unicode characters in script Mahajani.`,
+					name: "Mahajani",
 				},
 				{
-					name:   "Makasar",
-					source: `Makasar                = _Makasar                // Makasar is the set of Unicode characters in script Makasar.`,
+					name: "Makasar",
 				},
 				{
-					name:   "Malayalam",
-					source: `Malayalam              = _Malayalam              // Malayalam is the set of Unicode characters in script Malayalam.`,
+					name: "Malayalam",
 				},
 				{
-					name:   "Mandaic",
-					source: `Mandaic                = _Mandaic                // Mandaic is the set of Unicode characters in script Mandaic.`,
+					name: "Mandaic",
 				},
 				{
-					name:   "Manichaean",
-					source: `Manichaean             = _Manichaean             // Manichaean is the set of Unicode characters in script Manichaean.`,
+					name: "Manichaean",
 				},
 				{
-					name:   "Marchen",
-					source: `Marchen                = _Marchen                // Marchen is the set of Unicode characters in script Marchen.`,
+					name: "Marchen",
 				},
 				{
-					name:   "Masaram_Gondi",
-					source: `Masaram_Gondi          = _Masaram_Gondi          // Masaram_Gondi is the set of Unicode characters in script Masaram_Gondi.`,
+					name: "Masaram_Gondi",
 				},
 				{
-					name:   "Medefaidrin",
-					source: `Medefaidrin            = _Medefaidrin            // Medefaidrin is the set of Unicode characters in script Medefaidrin.`,
+					name: "Medefaidrin",
 				},
 				{
-					name:   "Meetei_Mayek",
-					source: `Meetei_Mayek           = _Meetei_Mayek           // Meetei_Mayek is the set of Unicode characters in script Meetei_Mayek.`,
+					name: "Meetei_Mayek",
 				},
 				{
-					name:   "Mende_Kikakui",
-					source: `Mende_Kikakui          = _Mende_Kikakui          // Mende_Kikakui is the set of Unicode characters in script Mende_Kikakui.`,
+					name: "Mende_Kikakui",
 				},
 				{
-					name:   "Meroitic_Cursive",
-					source: `Meroitic_Cursive       = _Meroitic_Cursive       // Meroitic_Cursive is the set of Unicode characters in script Meroitic_Cursive.`,
+					name: "Meroitic_Cursive",
 				},
 				{
-					name:   "Meroitic_Hieroglyphs",
-					source: `Meroitic_Hieroglyphs   = _Meroitic_Hieroglyphs   // Meroitic_Hieroglyphs is the set of Unicode characters in script Meroitic_Hieroglyphs.`,
+					name: "Meroitic_Hieroglyphs",
 				},
 				{
-					name:   "Miao",
-					source: `Miao                   = _Miao                   // Miao is the set of Unicode characters in script Miao.`,
+					name: "Miao",
 				},
 				{
-					name:   "Modi",
-					source: `Modi                   = _Modi                   // Modi is the set of Unicode characters in script Modi.`,
+					name: "Modi",
 				},
 				{
-					name:   "Mongolian",
-					source: `Mongolian              = _Mongolian              // Mongolian is the set of Unicode characters in script Mongolian.`,
+					name: "Mongolian",
 				},
 				{
-					name:   "Mro",
-					source: `Mro                    = _Mro                    // Mro is the set of Unicode characters in script Mro.`,
+					name: "Mro",
 				},
 				{
-					name:   "Multani",
-					source: `Multani                = _Multani                // Multani is the set of Unicode characters in script Multani.`,
+					name: "Multani",
 				},
 				{
-					name:   "Myanmar",
-					source: `Myanmar                = _Myanmar                // Myanmar is the set of Unicode characters in script Myanmar.`,
+					name: "Myanmar",
 				},
 				{
-					name:   "Nabataean",
-					source: `Nabataean              = _Nabataean              // Nabataean is the set of Unicode characters in script Nabataean.`,
+					name: "Nabataean",
 				},
 				{
-					name:   "Nandinagari",
-					source: `Nandinagari            = _Nandinagari            // Nandinagari is the set of Unicode characters in script Nandinagari.`,
+					name: "Nandinagari",
 				},
 				{
-					name:   "New_Tai_Lue",
-					source: `New_Tai_Lue            = _New_Tai_Lue            // New_Tai_Lue is the set of Unicode characters in script New_Tai_Lue.`,
+					name: "New_Tai_Lue",
 				},
 				{
-					name:   "Newa",
-					source: `Newa                   = _Newa                   // Newa is the set of Unicode characters in script Newa.`,
+					name: "Newa",
 				},
 				{
-					name:   "Nko",
-					source: `Nko                    = _Nko                    // Nko is the set of Unicode characters in script Nko.`,
+					name: "Nko",
 				},
 				{
-					name:   "Nushu",
-					source: `Nushu                  = _Nushu                  // Nushu is the set of Unicode characters in script Nushu.`,
+					name: "Nushu",
 				},
 				{
-					name:   "Nyiakeng_Puachue_Hmong",
-					source: `Nyiakeng_Puachue_Hmong = _Nyiakeng_Puachue_Hmong // Nyiakeng_Puachue_Hmong is the set of Unicode characters in script Nyiakeng_Puachue_Hmong.`,
+					name: "Nyiakeng_Puachue_Hmong",
 				},
 				{
-					name:   "Ogham",
-					source: `Ogham                  = _Ogham                  // Ogham is the set of Unicode characters in script Ogham.`,
+					name: "Ogham",
 				},
 				{
-					name:   "Ol_Chiki",
-					source: `Ol_Chiki               = _Ol_Chiki               // Ol_Chiki is the set of Unicode characters in script Ol_Chiki.`,
+					name: "Ol_Chiki",
 				},
 				{
-					name:   "Old_Hungarian",
-					source: `Old_Hungarian          = _Old_Hungarian          // Old_Hungarian is the set of Unicode characters in script Old_Hungarian.`,
+					name: "Old_Hungarian",
 				},
 				{
-					name:   "Old_Italic",
-					source: `Old_Italic             = _Old_Italic             // Old_Italic is the set of Unicode characters in script Old_Italic.`,
+					name: "Old_Italic",
 				},
 				{
-					name:   "Old_North_Arabian",
-					source: `Old_North_Arabian      = _Old_North_Arabian      // Old_North_Arabian is the set of Unicode characters in script Old_North_Arabian.`,
+					name: "Old_North_Arabian",
 				},
 				{
-					name:   "Old_Permic",
-					source: `Old_Permic             = _Old_Permic             // Old_Permic is the set of Unicode characters in script Old_Permic.`,
+					name: "Old_Permic",
 				},
 				{
-					name:   "Old_Persian",
-					source: `Old_Persian            = _Old_Persian            // Old_Persian is the set of Unicode characters in script Old_Persian.`,
+					name: "Old_Persian",
 				},
 				{
-					name:   "Old_Sogdian",
-					source: `Old_Sogdian            = _Old_Sogdian            // Old_Sogdian is the set of Unicode characters in script Old_Sogdian.`,
+					name: "Old_Sogdian",
 				},
 				{
-					name:   "Old_South_Arabian",
-					source: `Old_South_Arabian      = _Old_South_Arabian      // Old_South_Arabian is the set of Unicode characters in script Old_South_Arabian.`,
+					name: "Old_South_Arabian",
 				},
 				{
-					name:   "Old_Turkic",
-					source: `Old_Turkic             = _Old_Turkic             // Old_Turkic is the set of Unicode characters in script Old_Turkic.`,
+					name: "Old_Turkic",
 				},
 				{
-					name:   "Oriya",
-					source: `Oriya                  = _Oriya                  // Oriya is the set of Unicode characters in script Oriya.`,
+					name: "Oriya",
 				},
 				{
-					name:   "Osage",
-					source: `Osage                  = _Osage                  // Osage is the set of Unicode characters in script Osage.`,
+					name: "Osage",
 				},
 				{
-					name:   "Osmanya",
-					source: `Osmanya                = _Osmanya                // Osmanya is the set of Unicode characters in script Osmanya.`,
+					name: "Osmanya",
 				},
 				{
-					name:   "Pahawh_Hmong",
-					source: `Pahawh_Hmong           = _Pahawh_Hmong           // Pahawh_Hmong is the set of Unicode characters in script Pahawh_Hmong.`,
+					name: "Pahawh_Hmong",
 				},
 				{
-					name:   "Palmyrene",
-					source: `Palmyrene              = _Palmyrene              // Palmyrene is the set of Unicode characters in script Palmyrene.`,
+					name: "Palmyrene",
 				},
 				{
-					name:   "Pau_Cin_Hau",
-					source: `Pau_Cin_Hau            = _Pau_Cin_Hau            // Pau_Cin_Hau is the set of Unicode characters in script Pau_Cin_Hau.`,
+					name: "Pau_Cin_Hau",
 				},
 				{
-					name:   "Phags_Pa",
-					source: `Phags_Pa               = _Phags_Pa               // Phags_Pa is the set of Unicode characters in script Phags_Pa.`,
+					name: "Phags_Pa",
 				},
 				{
-					name:   "Phoenician",
-					source: `Phoenician             = _Phoenician             // Phoenician is the set of Unicode characters in script Phoenician.`,
+					name: "Phoenician",
 				},
 				{
-					name:   "Psalter_Pahlavi",
-					source: `Psalter_Pahlavi        = _Psalter_Pahlavi        // Psalter_Pahlavi is the set of Unicode characters in script Psalter_Pahlavi.`,
+					name: "Psalter_Pahlavi",
 				},
 				{
-					name:   "Rejang",
-					source: `Rejang                 = _Rejang                 // Rejang is the set of Unicode characters in script Rejang.`,
+					name: "Rejang",
 				},
 				{
-					name:   "Runic",
-					source: `Runic                  = _Runic                  // Runic is the set of Unicode characters in script Runic.`,
+					name: "Runic",
 				},
 				{
-					name:   "Samaritan",
-					source: `Samaritan              = _Samaritan              // Samaritan is the set of Unicode characters in script Samaritan.`,
+					name: "Samaritan",
 				},
 				{
-					name:   "Saurashtra",
-					source: `Saurashtra             = _Saurashtra             // Saurashtra is the set of Unicode characters in script Saurashtra.`,
+					name: "Saurashtra",
 				},
 				{
-					name:   "Sharada",
-					source: `Sharada                = _Sharada                // Sharada is the set of Unicode characters in script Sharada.`,
+					name: "Sharada",
 				},
 				{
-					name:   "Shavian",
-					source: `Shavian                = _Shavian                // Shavian is the set of Unicode characters in script Shavian.`,
+					name: "Shavian",
 				},
 				{
-					name:   "Siddham",
-					source: `Siddham                = _Siddham                // Siddham is the set of Unicode characters in script Siddham.`,
+					name: "Siddham",
 				},
 				{
-					name:   "SignWriting",
-					source: `SignWriting            = _SignWriting            // SignWriting is the set of Unicode characters in script SignWriting.`,
+					name: "SignWriting",
 				},
 				{
-					name:   "Sinhala",
-					source: `Sinhala                = _Sinhala                // Sinhala is the set of Unicode characters in script Sinhala.`,
+					name: "Sinhala",
 				},
 				{
-					name:   "Sogdian",
-					source: `Sogdian                = _Sogdian                // Sogdian is the set of Unicode characters in script Sogdian.`,
+					name: "Sogdian",
 				},
 				{
-					name:   "Sora_Sompeng",
-					source: `Sora_Sompeng           = _Sora_Sompeng           // Sora_Sompeng is the set of Unicode characters in script Sora_Sompeng.`,
+					name: "Sora_Sompeng",
 				},
 				{
-					name:   "Soyombo",
-					source: `Soyombo                = _Soyombo                // Soyombo is the set of Unicode characters in script Soyombo.`,
+					name: "Soyombo",
 				},
 				{
-					name:   "Sundanese",
-					source: `Sundanese              = _Sundanese              // Sundanese is the set of Unicode characters in script Sundanese.`,
+					name: "Sundanese",
 				},
 				{
-					name:   "Syloti_Nagri",
-					source: `Syloti_Nagri           = _Syloti_Nagri           // Syloti_Nagri is the set of Unicode characters in script Syloti_Nagri.`,
+					name: "Syloti_Nagri",
 				},
 				{
-					name:   "Syriac",
-					source: `Syriac                 = _Syriac                 // Syriac is the set of Unicode characters in script Syriac.`,
+					name: "Syriac",
 				},
 				{
-					name:   "Tagalog",
-					source: `Tagalog                = _Tagalog                // Tagalog is the set of Unicode characters in script Tagalog.`,
+					name: "Tagalog",
 				},
 				{
-					name:   "Tagbanwa",
-					source: `Tagbanwa               = _Tagbanwa               // Tagbanwa is the set of Unicode characters in script Tagbanwa.`,
+					name: "Tagbanwa",
 				},
 				{
-					name:   "Tai_Le",
-					source: `Tai_Le                 = _Tai_Le                 // Tai_Le is the set of Unicode characters in script Tai_Le.`,
+					name: "Tai_Le",
 				},
 				{
-					name:   "Tai_Tham",
-					source: `Tai_Tham               = _Tai_Tham               // Tai_Tham is the set of Unicode characters in script Tai_Tham.`,
+					name: "Tai_Tham",
 				},
 				{
-					name:   "Tai_Viet",
-					source: `Tai_Viet               = _Tai_Viet               // Tai_Viet is the set of Unicode characters in script Tai_Viet.`,
+					name: "Tai_Viet",
 				},
 				{
-					name:   "Takri",
-					source: `Takri                  = _Takri                  // Takri is the set of Unicode characters in script Takri.`,
+					name: "Takri",
 				},
 				{
-					name:   "Tamil",
-					source: `Tamil                  = _Tamil                  // Tamil is the set of Unicode characters in script Tamil.`,
+					name: "Tamil",
 				},
 				{
-					name:   "Tangut",
-					source: `Tangut                 = _Tangut                 // Tangut is the set of Unicode characters in script Tangut.`,
+					name: "Tangut",
 				},
 				{
-					name:   "Telugu",
-					source: `Telugu                 = _Telugu                 // Telugu is the set of Unicode characters in script Telugu.`,
+					name: "Telugu",
 				},
 				{
-					name:   "Thaana",
-					source: `Thaana                 = _Thaana                 // Thaana is the set of Unicode characters in script Thaana.`,
+					name: "Thaana",
 				},
 				{
-					name:   "Thai",
-					source: `Thai                   = _Thai                   // Thai is the set of Unicode characters in script Thai.`,
+					name: "Thai",
 				},
 				{
-					name:   "Tibetan",
-					source: `Tibetan                = _Tibetan                // Tibetan is the set of Unicode characters in script Tibetan.`,
+					name: "Tibetan",
 				},
 				{
-					name:   "Tifinagh",
-					source: `Tifinagh               = _Tifinagh               // Tifinagh is the set of Unicode characters in script Tifinagh.`,
+					name: "Tifinagh",
 				},
 				{
-					name:   "Tirhuta",
-					source: `Tirhuta                = _Tirhuta                // Tirhuta is the set of Unicode characters in script Tirhuta.`,
+					name: "Tirhuta",
 				},
 				{
-					name:   "Ugaritic",
-					source: `Ugaritic               = _Ugaritic               // Ugaritic is the set of Unicode characters in script Ugaritic.`,
+					name: "Ugaritic",
 				},
 				{
-					name:   "Vai",
-					source: `Vai                    = _Vai                    // Vai is the set of Unicode characters in script Vai.`,
+					name: "Vai",
 				},
 				{
-					name:   "Wancho",
-					source: `Wancho                 = _Wancho                 // Wancho is the set of Unicode characters in script Wancho.`,
+					name: "Wancho",
 				},
 				{
-					name:   "Warang_Citi",
-					source: `Warang_Citi            = _Warang_Citi            // Warang_Citi is the set of Unicode characters in script Warang_Citi.`,
+					name: "Warang_Citi",
 				},
 				{
-					name:   "Yezidi",
-					source: `Yezidi                 = _Yezidi                 // Yezidi is the set of Unicode characters in script Yezidi.`,
+					name: "Yezidi",
 				},
 				{
-					name:   "Yi",
-					source: `Yi                     = _Yi                     // Yi is the set of Unicode characters in script Yi.`,
+					name: "Yi",
 				},
 				{
-					name:   "Zanabazar_Square",
-					source: `Zanabazar_Square       = _Zanabazar_Square       // Zanabazar_Square is the set of Unicode characters in script Zanabazar_Square.`,
+					name: "Zanabazar_Square",
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -2912,144 +2899,109 @@ var pkgUnicode = testPackage{
 )`,
 			variables: []testVariable{
 				{
-					name:   "ASCII_Hex_Digit",
-					source: `ASCII_Hex_Digit                    = _ASCII_Hex_Digit                    // ASCII_Hex_Digit is the set of Unicode characters with property ASCII_Hex_Digit.`,
+					name: "ASCII_Hex_Digit",
 				},
 				{
-					name:   "Bidi_Control",
-					source: `Bidi_Control                       = _Bidi_Control                       // Bidi_Control is the set of Unicode characters with property Bidi_Control.`,
+					name: "Bidi_Control",
 				},
 				{
-					name:   "Dash",
-					source: `Dash                               = _Dash                               // Dash is the set of Unicode characters with property Dash.`,
+					name: "Dash",
 				},
 				{
-					name:   "Deprecated",
-					source: `Deprecated                         = _Deprecated                         // Deprecated is the set of Unicode characters with property Deprecated.`,
+					name: "Deprecated",
 				},
 				{
-					name:   "Diacritic",
-					source: `Diacritic                          = _Diacritic                          // Diacritic is the set of Unicode characters with property Diacritic.`,
+					name: "Diacritic",
 				},
 				{
-					name:   "Extender",
-					source: `Extender                           = _Extender                           // Extender is the set of Unicode characters with property Extender.`,
+					name: "Extender",
 				},
 				{
-					name:   "Hex_Digit",
-					source: `Hex_Digit                          = _Hex_Digit                          // Hex_Digit is the set of Unicode characters with property Hex_Digit.`,
+					name: "Hex_Digit",
 				},
 				{
-					name:   "Hyphen",
-					source: `Hyphen                             = _Hyphen                             // Hyphen is the set of Unicode characters with property Hyphen.`,
+					name: "Hyphen",
 				},
 				{
-					name:   "IDS_Binary_Operator",
-					source: `IDS_Binary_Operator                = _IDS_Binary_Operator                // IDS_Binary_Operator is the set of Unicode characters with property IDS_Binary_Operator.`,
+					name: "IDS_Binary_Operator",
 				},
 				{
-					name:   "IDS_Trinary_Operator",
-					source: `IDS_Trinary_Operator               = _IDS_Trinary_Operator               // IDS_Trinary_Operator is the set of Unicode characters with property IDS_Trinary_Operator.`,
+					name: "IDS_Trinary_Operator",
 				},
 				{
-					name:   "Ideographic",
-					source: `Ideographic                        = _Ideographic                        // Ideographic is the set of Unicode characters with property Ideographic.`,
+					name: "Ideographic",
 				},
 				{
-					name:   "Join_Control",
-					source: `Join_Control                       = _Join_Control                       // Join_Control is the set of Unicode characters with property Join_Control.`,
+					name: "Join_Control",
 				},
 				{
-					name:   "Logical_Order_Exception",
-					source: `Logical_Order_Exception            = _Logical_Order_Exception            // Logical_Order_Exception is the set of Unicode characters with property Logical_Order_Exception.`,
+					name: "Logical_Order_Exception",
 				},
 				{
-					name:   "Noncharacter_Code_Point",
-					source: `Noncharacter_Code_Point            = _Noncharacter_Code_Point            // Noncharacter_Code_Point is the set of Unicode characters with property Noncharacter_Code_Point.`,
+					name: "Noncharacter_Code_Point",
 				},
 				{
-					name:   "Other_Alphabetic",
-					source: `Other_Alphabetic                   = _Other_Alphabetic                   // Other_Alphabetic is the set of Unicode characters with property Other_Alphabetic.`,
+					name: "Other_Alphabetic",
 				},
 				{
-					name:   "Other_Default_Ignorable_Code_Point",
-					source: `Other_Default_Ignorable_Code_Point = _Other_Default_Ignorable_Code_Point // Other_Default_Ignorable_Code_Point is the set of Unicode characters with property Other_Default_Ignorable_Code_Point.`,
+					name: "Other_Default_Ignorable_Code_Point",
 				},
 				{
-					name:   "Other_Grapheme_Extend",
-					source: `Other_Grapheme_Extend              = _Other_Grapheme_Extend              // Other_Grapheme_Extend is the set of Unicode characters with property Other_Grapheme_Extend.`,
+					name: "Other_Grapheme_Extend",
 				},
 				{
-					name:   "Other_ID_Continue",
-					source: `Other_ID_Continue                  = _Other_ID_Continue                  // Other_ID_Continue is the set of Unicode characters with property Other_ID_Continue.`,
+					name: "Other_ID_Continue",
 				},
 				{
-					name:   "Other_ID_Start",
-					source: `Other_ID_Start                     = _Other_ID_Start                     // Other_ID_Start is the set of Unicode characters with property Other_ID_Start.`,
+					name: "Other_ID_Start",
 				},
 				{
-					name:   "Other_Lowercase",
-					source: `Other_Lowercase                    = _Other_Lowercase                    // Other_Lowercase is the set of Unicode characters with property Other_Lowercase.`,
+					name: "Other_Lowercase",
 				},
 				{
-					name:   "Other_Math",
-					source: `Other_Math                         = _Other_Math                         // Other_Math is the set of Unicode characters with property Other_Math.`,
+					name: "Other_Math",
 				},
 				{
-					name:   "Other_Uppercase",
-					source: `Other_Uppercase                    = _Other_Uppercase                    // Other_Uppercase is the set of Unicode characters with property Other_Uppercase.`,
+					name: "Other_Uppercase",
 				},
 				{
-					name:   "Pattern_Syntax",
-					source: `Pattern_Syntax                     = _Pattern_Syntax                     // Pattern_Syntax is the set of Unicode characters with property Pattern_Syntax.`,
+					name: "Pattern_Syntax",
 				},
 				{
-					name:   "Pattern_White_Space",
-					source: `Pattern_White_Space                = _Pattern_White_Space                // Pattern_White_Space is the set of Unicode characters with property Pattern_White_Space.`,
+					name: "Pattern_White_Space",
 				},
 				{
-					name:   "Prepended_Concatenation_Mark",
-					source: `Prepended_Concatenation_Mark       = _Prepended_Concatenation_Mark       // Prepended_Concatenation_Mark is the set of Unicode characters with property Prepended_Concatenation_Mark.`,
+					name: "Prepended_Concatenation_Mark",
 				},
 				{
-					name:   "Quotation_Mark",
-					source: `Quotation_Mark                     = _Quotation_Mark                     // Quotation_Mark is the set of Unicode characters with property Quotation_Mark.`,
+					name: "Quotation_Mark",
 				},
 				{
-					name:   "Radical",
-					source: `Radical                            = _Radical                            // Radical is the set of Unicode characters with property Radical.`,
+					name: "Radical",
 				},
 				{
-					name:   "Regional_Indicator",
-					source: `Regional_Indicator                 = _Regional_Indicator                 // Regional_Indicator is the set of Unicode characters with property Regional_Indicator.`,
+					name: "Regional_Indicator",
 				},
 				{
-					name:   "STerm",
-					source: `STerm                              = _Sentence_Terminal                  // STerm is an alias for Sentence_Terminal.`,
+					name: "STerm",
 				},
 				{
-					name:   "Sentence_Terminal",
-					source: `Sentence_Terminal                  = _Sentence_Terminal                  // Sentence_Terminal is the set of Unicode characters with property Sentence_Terminal.`,
+					name: "Sentence_Terminal",
 				},
 				{
-					name:   "Soft_Dotted",
-					source: `Soft_Dotted                        = _Soft_Dotted                        // Soft_Dotted is the set of Unicode characters with property Soft_Dotted.`,
+					name: "Soft_Dotted",
 				},
 				{
-					name:   "Terminal_Punctuation",
-					source: `Terminal_Punctuation               = _Terminal_Punctuation               // Terminal_Punctuation is the set of Unicode characters with property Terminal_Punctuation.`,
+					name: "Terminal_Punctuation",
 				},
 				{
-					name:   "Unified_Ideograph",
-					source: `Unified_Ideograph                  = _Unified_Ideograph                  // Unified_Ideograph is the set of Unicode characters with property Unified_Ideograph.`,
+					name: "Unified_Ideograph",
 				},
 				{
-					name:   "Variation_Selector",
-					source: `Variation_Selector                 = _Variation_Selector                 // Variation_Selector is the set of Unicode characters with property Variation_Selector.`,
+					name: "Variation_Selector",
 				},
 				{
-					name:   "White_Space",
-					source: `White_Space                        = _White_Space                        // White_Space is the set of Unicode characters with property White_Space.`,
+					name: "White_Space",
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3061,8 +3013,7 @@ var pkgUnicode = testPackage{
 			source: `var CaseRanges = _CaseRanges`,
 			variables: []testVariable{
 				{
-					name:   "CaseRanges",
-					source: `var CaseRanges = _CaseRanges`,
+					name: "CaseRanges",
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3112,44 +3063,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "Categories",
-					source: `var Categories = map[string]*RangeTable{
-	"C":  C,
-	"Cc": Cc,
-	"Cf": Cf,
-	"Co": Co,
-	"Cs": Cs,
-	"L":  L,
-	"Ll": Ll,
-	"Lm": Lm,
-	"Lo": Lo,
-	"Lt": Lt,
-	"Lu": Lu,
-	"M":  M,
-	"Mc": Mc,
-	"Me": Me,
-	"Mn": Mn,
-	"N":  N,
-	"Nd": Nd,
-	"Nl": Nl,
-	"No": No,
-	"P":  P,
-	"Pc": Pc,
-	"Pd": Pd,
-	"Pe": Pe,
-	"Pf": Pf,
-	"Pi": Pi,
-	"Po": Po,
-	"Ps": Ps,
-	"S":  S,
-	"Sc": Sc,
-	"Sk": Sk,
-	"Sm": Sm,
-	"So": So,
-	"Z":  Z,
-	"Zl": Zl,
-	"Zp": Zp,
-	"Zs": Zs,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3169,14 +3082,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "FoldCategory",
-					source: `var FoldCategory = map[string]*RangeTable{
-	"L":  foldL,
-	"Ll": foldLl,
-	"Lt": foldLt,
-	"Lu": foldLu,
-	"M":  foldM,
-	"Mn": foldMn,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3193,11 +3098,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "FoldScript",
-					source: `var FoldScript = map[string]*RangeTable{
-	"Common":    foldCommon,
-	"Greek":     foldGreek,
-	"Inherited": foldInherited,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3212,9 +3112,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "GraphicRanges",
-					source: `var GraphicRanges = []*RangeTable{
-	L, M, N, P, S, Zs,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3229,9 +3126,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "PrintRanges",
-					source: `var PrintRanges = []*RangeTable{
-	L, M, N, P, S,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3280,43 +3174,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "Properties",
-					source: `var Properties = map[string]*RangeTable{
-	"ASCII_Hex_Digit":                    ASCII_Hex_Digit,
-	"Bidi_Control":                       Bidi_Control,
-	"Dash":                               Dash,
-	"Deprecated":                         Deprecated,
-	"Diacritic":                          Diacritic,
-	"Extender":                           Extender,
-	"Hex_Digit":                          Hex_Digit,
-	"Hyphen":                             Hyphen,
-	"IDS_Binary_Operator":                IDS_Binary_Operator,
-	"IDS_Trinary_Operator":               IDS_Trinary_Operator,
-	"Ideographic":                        Ideographic,
-	"Join_Control":                       Join_Control,
-	"Logical_Order_Exception":            Logical_Order_Exception,
-	"Noncharacter_Code_Point":            Noncharacter_Code_Point,
-	"Other_Alphabetic":                   Other_Alphabetic,
-	"Other_Default_Ignorable_Code_Point": Other_Default_Ignorable_Code_Point,
-	"Other_Grapheme_Extend":              Other_Grapheme_Extend,
-	"Other_ID_Continue":                  Other_ID_Continue,
-	"Other_ID_Start":                     Other_ID_Start,
-	"Other_Lowercase":                    Other_Lowercase,
-	"Other_Math":                         Other_Math,
-	"Other_Uppercase":                    Other_Uppercase,
-	"Pattern_Syntax":                     Pattern_Syntax,
-	"Pattern_White_Space":                Pattern_White_Space,
-	"Prepended_Concatenation_Mark":       Prepended_Concatenation_Mark,
-	"Quotation_Mark":                     Quotation_Mark,
-	"Radical":                            Radical,
-	"Regional_Indicator":                 Regional_Indicator,
-	"Sentence_Terminal":                  Sentence_Terminal,
-	"STerm":                              Sentence_Terminal,
-	"Soft_Dotted":                        Soft_Dotted,
-	"Terminal_Punctuation":               Terminal_Punctuation,
-	"Unified_Ideograph":                  Unified_Ideograph,
-	"Variation_Selector":                 Variation_Selector,
-	"White_Space":                        White_Space,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3486,164 +3343,6 @@ var pkgUnicode = testPackage{
 			variables: []testVariable{
 				{
 					name: "Scripts",
-					source: `var Scripts = map[string]*RangeTable{
-	"Adlam":                  Adlam,
-	"Ahom":                   Ahom,
-	"Anatolian_Hieroglyphs":  Anatolian_Hieroglyphs,
-	"Arabic":                 Arabic,
-	"Armenian":               Armenian,
-	"Avestan":                Avestan,
-	"Balinese":               Balinese,
-	"Bamum":                  Bamum,
-	"Bassa_Vah":              Bassa_Vah,
-	"Batak":                  Batak,
-	"Bengali":                Bengali,
-	"Bhaiksuki":              Bhaiksuki,
-	"Bopomofo":               Bopomofo,
-	"Brahmi":                 Brahmi,
-	"Braille":                Braille,
-	"Buginese":               Buginese,
-	"Buhid":                  Buhid,
-	"Canadian_Aboriginal":    Canadian_Aboriginal,
-	"Carian":                 Carian,
-	"Caucasian_Albanian":     Caucasian_Albanian,
-	"Chakma":                 Chakma,
-	"Cham":                   Cham,
-	"Cherokee":               Cherokee,
-	"Chorasmian":             Chorasmian,
-	"Common":                 Common,
-	"Coptic":                 Coptic,
-	"Cuneiform":              Cuneiform,
-	"Cypriot":                Cypriot,
-	"Cyrillic":               Cyrillic,
-	"Deseret":                Deseret,
-	"Devanagari":             Devanagari,
-	"Dives_Akuru":            Dives_Akuru,
-	"Dogra":                  Dogra,
-	"Duployan":               Duployan,
-	"Egyptian_Hieroglyphs":   Egyptian_Hieroglyphs,
-	"Elbasan":                Elbasan,
-	"Elymaic":                Elymaic,
-	"Ethiopic":               Ethiopic,
-	"Georgian":               Georgian,
-	"Glagolitic":             Glagolitic,
-	"Gothic":                 Gothic,
-	"Grantha":                Grantha,
-	"Greek":                  Greek,
-	"Gujarati":               Gujarati,
-	"Gunjala_Gondi":          Gunjala_Gondi,
-	"Gurmukhi":               Gurmukhi,
-	"Han":                    Han,
-	"Hangul":                 Hangul,
-	"Hanifi_Rohingya":        Hanifi_Rohingya,
-	"Hanunoo":                Hanunoo,
-	"Hatran":                 Hatran,
-	"Hebrew":                 Hebrew,
-	"Hiragana":               Hiragana,
-	"Imperial_Aramaic":       Imperial_Aramaic,
-	"Inherited":              Inherited,
-	"Inscriptional_Pahlavi":  Inscriptional_Pahlavi,
-	"Inscriptional_Parthian": Inscriptional_Parthian,
-	"Javanese":               Javanese,
-	"Kaithi":                 Kaithi,
-	"Kannada":                Kannada,
-	"Katakana":               Katakana,
-	"Kayah_Li":               Kayah_Li,
-	"Kharoshthi":             Kharoshthi,
-	"Khitan_Small_Script":    Khitan_Small_Script,
-	"Khmer":                  Khmer,
-	"Khojki":                 Khojki,
-	"Khudawadi":              Khudawadi,
-	"Lao":                    Lao,
-	"Latin":                  Latin,
-	"Lepcha":                 Lepcha,
-	"Limbu":                  Limbu,
-	"Linear_A":               Linear_A,
-	"Linear_B":               Linear_B,
-	"Lisu":                   Lisu,
-	"Lycian":                 Lycian,
-	"Lydian":                 Lydian,
-	"Mahajani":               Mahajani,
-	"Makasar":                Makasar,
-	"Malayalam":              Malayalam,
-	"Mandaic":                Mandaic,
-	"Manichaean":             Manichaean,
-	"Marchen":                Marchen,
-	"Masaram_Gondi":          Masaram_Gondi,
-	"Medefaidrin":            Medefaidrin,
-	"Meetei_Mayek":           Meetei_Mayek,
-	"Mende_Kikakui":          Mende_Kikakui,
-	"Meroitic_Cursive":       Meroitic_Cursive,
-	"Meroitic_Hieroglyphs":   Meroitic_Hieroglyphs,
-	"Miao":                   Miao,
-	"Modi":                   Modi,
-	"Mongolian":              Mongolian,
-	"Mro":                    Mro,
-	"Multani":                Multani,
-	"Myanmar":                Myanmar,
-	"Nabataean":              Nabataean,
-	"Nandinagari":            Nandinagari,
-	"New_Tai_Lue":            New_Tai_Lue,
-	"Newa":                   Newa,
-	"Nko":                    Nko,
-	"Nushu":                  Nushu,
-	"Nyiakeng_Puachue_Hmong": Nyiakeng_Puachue_Hmong,
-	"Ogham":                  Ogham,
-	"Ol_Chiki":               Ol_Chiki,
-	"Old_Hungarian":          Old_Hungarian,
-	"Old_Italic":             Old_Italic,
-	"Old_North_Arabian":      Old_North_Arabian,
-	"Old_Permic":             Old_Permic,
-	"Old_Persian":            Old_Persian,
-	"Old_Sogdian":            Old_Sogdian,
-	"Old_South_Arabian":      Old_South_Arabian,
-	"Old_Turkic":             Old_Turkic,
-	"Oriya":                  Oriya,
-	"Osage":                  Osage,
-	"Osmanya":                Osmanya,
-	"Pahawh_Hmong":           Pahawh_Hmong,
-	"Palmyrene":              Palmyrene,
-	"Pau_Cin_Hau":            Pau_Cin_Hau,
-	"Phags_Pa":               Phags_Pa,
-	"Phoenician":             Phoenician,
-	"Psalter_Pahlavi":        Psalter_Pahlavi,
-	"Rejang":                 Rejang,
-	"Runic":                  Runic,
-	"Samaritan":              Samaritan,
-	"Saurashtra":             Saurashtra,
-	"Sharada":                Sharada,
-	"Shavian":                Shavian,
-	"Siddham":                Siddham,
-	"SignWriting":            SignWriting,
-	"Sinhala":                Sinhala,
-	"Sogdian":                Sogdian,
-	"Sora_Sompeng":           Sora_Sompeng,
-	"Soyombo":                Soyombo,
-	"Sundanese":              Sundanese,
-	"Syloti_Nagri":           Syloti_Nagri,
-	"Syriac":                 Syriac,
-	"Tagalog":                Tagalog,
-	"Tagbanwa":               Tagbanwa,
-	"Tai_Le":                 Tai_Le,
-	"Tai_Tham":               Tai_Tham,
-	"Tai_Viet":               Tai_Viet,
-	"Takri":                  Takri,
-	"Tamil":                  Tamil,
-	"Tangut":                 Tangut,
-	"Telugu":                 Telugu,
-	"Thaana":                 Thaana,
-	"Thai":                   Thai,
-	"Tibetan":                Tibetan,
-	"Tifinagh":               Tifinagh,
-	"Tirhuta":                Tirhuta,
-	"Ugaritic":               Ugaritic,
-	"Vai":                    Vai,
-	"Wancho":                 Wancho,
-	"Warang_Citi":            Warang_Citi,
-	"Yezidi":                 Yezidi,
-	"Yi":                     Yi,
-	"Zanabazar_Square":       Zanabazar_Square,
-}`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3654,8 +3353,7 @@ var pkgUnicode = testPackage{
 			source:   `var AzeriCase SpecialCase = _TurkishCase`,
 			variables: []testVariable{
 				{
-					name:   "AzeriCase",
-					source: `AzeriCase SpecialCase = _TurkishCase`,
+					name: "AzeriCase",
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3666,8 +3364,7 @@ var pkgUnicode = testPackage{
 			source:   `var TurkishCase SpecialCase = _TurkishCase`,
 			variables: []testVariable{
 				{
-					name:   "TurkishCase",
-					source: `TurkishCase SpecialCase = _TurkishCase`,
+					name: "TurkishCase",
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -3680,18 +3377,24 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 				{
+					s:        "ranges ...*RangeTable",
 					name:     "ranges",
 					typeName: "...*RangeTable",
+					pointer:  true,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3701,18 +3404,24 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "rangeTab *RangeTable",
 					name:     "rangeTab",
 					typeName: "*RangeTable",
+					pointer:  true,
 				},
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3722,14 +3431,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3739,14 +3452,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3756,14 +3473,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3773,14 +3494,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3790,14 +3515,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3807,14 +3536,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3824,14 +3557,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3841,18 +3578,24 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "ranges []*RangeTable",
 					name:     "ranges",
 					typeName: "[]*RangeTable",
+					pointer:  false,
 				},
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3862,14 +3605,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3879,14 +3626,18 @@ var pkgUnicode = testPackage{
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3900,14 +3651,18 @@ Other definitions of spacing characters are set by category Z and property Patte
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3917,14 +3672,18 @@ Other definitions of spacing characters are set by category Z and property Patte
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3934,14 +3693,18 @@ Other definitions of spacing characters are set by category Z and property Patte
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3951,14 +3714,18 @@ Other definitions of spacing characters are set by category Z and property Patte
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "bool",
 					name:     "",
 					typeName: "bool",
+					pointer:  false,
 				},
 			},
 		},
@@ -3981,14 +3748,18 @@ For example:
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "rune",
 					name:     "",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 		},
@@ -3998,18 +3769,24 @@ For example:
 `,
 			inputs: []testParameter{
 				{
+					s:        "_case int",
 					name:     "_case",
 					typeName: "int",
+					pointer:  false,
 				},
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "rune",
 					name:     "",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 		},
@@ -4019,14 +3796,18 @@ For example:
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "rune",
 					name:     "",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 		},
@@ -4036,14 +3817,18 @@ For example:
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "rune",
 					name:     "",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 		},
@@ -4053,14 +3838,18 @@ For example:
 `,
 			inputs: []testParameter{
 				{
+					s:        "r rune",
 					name:     "r",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "rune",
 					name:     "",
 					typeName: "rune",
+					pointer:  false,
 				},
 			},
 		},
@@ -4134,18 +3923,26 @@ The constant UpperLower has an otherwise impossible delta value.
 					name: "ToLower",
 					comments: `ToLower maps the rune to lower case giving priority to the special mapping.
 `,
-					receiver:    "special SpecialCase",
-					pointerRcvr: false,
+					receiver: testParameter{
+						s:        "special SpecialCase",
+						name:     "special",
+						typeName: "SpecialCase",
+						pointer:  false,
+					},
 					inputs: []testParameter{
 						{
+							s:        "r rune",
 							name:     "r",
 							typeName: "rune",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "rune",
 							name:     "",
 							typeName: "rune",
+							pointer:  false,
 						},
 					},
 				},
@@ -4153,18 +3950,26 @@ The constant UpperLower has an otherwise impossible delta value.
 					name: "ToTitle",
 					comments: `ToTitle maps the rune to title case giving priority to the special mapping.
 `,
-					receiver:    "special SpecialCase",
-					pointerRcvr: false,
+					receiver: testParameter{
+						s:        "special SpecialCase",
+						name:     "special",
+						typeName: "SpecialCase",
+						pointer:  false,
+					},
 					inputs: []testParameter{
 						{
+							s:        "r rune",
 							name:     "r",
 							typeName: "rune",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "rune",
 							name:     "",
 							typeName: "rune",
+							pointer:  false,
 						},
 					},
 				},
@@ -4172,18 +3977,26 @@ The constant UpperLower has an otherwise impossible delta value.
 					name: "ToUpper",
 					comments: `ToUpper maps the rune to upper case giving priority to the special mapping.
 `,
-					receiver:    "special SpecialCase",
-					pointerRcvr: false,
+					receiver: testParameter{
+						s:        "special SpecialCase",
+						name:     "special",
+						typeName: "SpecialCase",
+						pointer:  false,
+					},
 					inputs: []testParameter{
 						{
+							s:        "r rune",
 							name:     "r",
 							typeName: "rune",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "rune",
 							name:     "",
 							typeName: "rune",
+							pointer:  false,
 						},
 					},
 				},
@@ -4318,12 +4131,10 @@ The net/rpc package is frozen and is not accepting new features.
 )`,
 			constants: []testConstant{
 				{
-					name:   "DefaultRPCPath",
-					source: `DefaultRPCPath   = "/_goRPC_"`,
+					name: "DefaultRPCPath",
 				},
 				{
-					name:   "DefaultDebugPath",
-					source: `DefaultDebugPath = "/debug/rpc"`,
+					name: "DefaultDebugPath",
 				},
 			},
 		},
@@ -4337,8 +4148,6 @@ The net/rpc package is frozen and is not accepting new features.
 			variables: []testVariable{
 				{
 					name: "DefaultServer",
-					source: `DefaultServer = NewServer()
-`,
 				},
 			},
 			errors: []testError{}, // no errors in this block of variables
@@ -4350,15 +4159,11 @@ The net/rpc package is frozen and is not accepting new features.
 			variables: []testVariable{
 				{
 					name: "ErrShutdown",
-					source: `ErrShutdown = errors.New("connection is shut down")
-`,
 				},
 			},
 			errors: []testError{
 				{
 					name: "ErrShutdown",
-					source: `ErrShutdown = errors.New("connection is shut down")
-`,
 				},
 			},
 		},
@@ -4370,8 +4175,10 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 			inputs: []testParameter{
 				{
+					s:        "lis net.Listener",
 					name:     "lis",
 					typeName: "net.Listener",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{}, // no outputs for this function
@@ -4389,14 +4196,18 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 			inputs: []testParameter{
 				{
+					s:        "rcvr interface{}",
 					name:     "rcvr",
 					typeName: "interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "error",
 					name:     "",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -4406,18 +4217,24 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 			inputs: []testParameter{
 				{
+					s:        "name string",
 					name:     "name",
 					typeName: "string",
+					pointer:  false,
 				},
 				{
+					s:        "rcvr interface{}",
 					name:     "rcvr",
 					typeName: "interface{}",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "error",
 					name:     "",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -4427,8 +4244,10 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 			inputs: []testParameter{
 				{
+					s:        "codec ServerCodec",
 					name:     "codec",
 					typeName: "ServerCodec",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{}, // no outputs for this function
@@ -4439,8 +4258,10 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 			inputs: []testParameter{
 				{
+					s:        "conn io.ReadWriteCloser",
 					name:     "conn",
 					typeName: "io.ReadWriteCloser",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{}, // no outputs for this function
@@ -4451,14 +4272,18 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 			inputs: []testParameter{
 				{
+					s:        "codec ServerCodec",
 					name:     "codec",
 					typeName: "ServerCodec",
+					pointer:  false,
 				},
 			},
 			outputs: []testParameter{
 				{
+					s:        "error",
 					name:     "",
 					typeName: "error",
+					pointer:  false,
 				},
 			},
 		},
@@ -4483,6 +4308,7 @@ The net/rpc package is frozen and is not accepting new features.
 			name:     "Client",
 			typeName: "struct",
 			source: `type Client struct {
+	// contains filtered or unexported fields
 }`,
 			comments: `Client represents an RPC Client. There may be multiple outstanding Calls associated with a single Client, and a Client may be used by multiple goroutines simultaneously.
 `,
@@ -4493,22 +4319,30 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 					inputs: []testParameter{
 						{
+							s:        "network string",
 							name:     "network",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "address string",
 							name:     "address",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Client",
 							name:     "",
 							typeName: "*Client",
+							pointer:  true,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4518,22 +4352,30 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 					inputs: []testParameter{
 						{
+							s:        "network string",
 							name:     "network",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "address string",
 							name:     "address",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Client",
 							name:     "",
 							typeName: "*Client",
+							pointer:  true,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4543,26 +4385,36 @@ The net/rpc package is frozen and is not accepting new features.
 `,
 					inputs: []testParameter{
 						{
+							s:        "network string",
 							name:     "network",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "address string",
 							name:     "address",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "path string",
 							name:     "path",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Client",
 							name:     "",
 							typeName: "*Client",
+							pointer:  true,
 						},
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4574,14 +4426,18 @@ The read and write halves of the connection are serialized independently, so no 
 `,
 					inputs: []testParameter{
 						{
+							s:        "conn io.ReadWriteCloser",
 							name:     "conn",
 							typeName: "io.ReadWriteCloser",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Client",
 							name:     "",
 							typeName: "*Client",
+							pointer:  true,
 						},
 					},
 				},
@@ -4591,14 +4447,18 @@ The read and write halves of the connection are serialized independently, so no 
 `,
 					inputs: []testParameter{
 						{
+							s:        "codec ClientCodec",
 							name:     "codec",
 							typeName: "ClientCodec",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Client",
 							name:     "",
 							typeName: "*Client",
+							pointer:  true,
 						},
 					},
 				},
@@ -4608,26 +4468,38 @@ The read and write halves of the connection are serialized independently, so no 
 					name: "Call",
 					comments: `Call invokes the named function, waits for it to complete, and returns its error status.
 `,
-					receiver:    "client *Client",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "client *Client",
+						name:     "client",
+						typeName: "*Client",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "serviceMethod string",
 							name:     "serviceMethod",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "args interface{}",
 							name:     "args",
 							typeName: "interface{}",
+							pointer:  false,
 						},
 						{
+							s:        "reply interface{}",
 							name:     "reply",
 							typeName: "interface{}",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4635,13 +4507,19 @@ The read and write halves of the connection are serialized independently, so no 
 					name: "Close",
 					comments: `Close calls the underlying codec's Close method. If the connection is already shutting down, ErrShutdown is returned.
 `,
-					receiver:    "client *Client",
-					pointerRcvr: true,
-					inputs:      []testParameter{}, // no inputs for this method
+					receiver: testParameter{
+						s:        "client *Client",
+						name:     "client",
+						typeName: "*Client",
+						pointer:  true,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4649,30 +4527,44 @@ The read and write halves of the connection are serialized independently, so no 
 					name: "Go",
 					comments: `Go invokes the function asynchronously. It returns the Call structure representing the invocation. The done channel will signal when the call is complete by returning the same Call object. If done is nil, Go will allocate a new channel. If non-nil, done must be buffered or Go will deliberately crash.
 `,
-					receiver:    "client *Client",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "client *Client",
+						name:     "client",
+						typeName: "*Client",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "serviceMethod string",
 							name:     "serviceMethod",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "args interface{}",
 							name:     "args",
 							typeName: "interface{}",
+							pointer:  false,
 						},
 						{
+							s:        "reply interface{}",
 							name:     "reply",
 							typeName: "interface{}",
+							pointer:  false,
 						},
 						{
+							s:        "done chan *Call",
 							name:     "done",
 							typeName: "chan *Call",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "*Call",
 							name:     "",
 							typeName: "*Call",
+							pointer:  true,
 						},
 					},
 				},
@@ -4697,8 +4589,9 @@ The read and write halves of the connection are serialized independently, so no 
 			name:     "Request",
 			typeName: "struct",
 			source: `type Request struct {
-	ServiceMethod string   // format: "Service.Method"
-	Seq           uint64   // sequence number chosen by client
+	ServiceMethod string // format: "Service.Method"
+	Seq           uint64 // sequence number chosen by client
+	// contains filtered or unexported fields
 }`,
 			comments: `Request is a header written before every RPC call. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
@@ -4709,9 +4602,10 @@ The read and write halves of the connection are serialized independently, so no 
 			name:     "Response",
 			typeName: "struct",
 			source: `type Response struct {
-	ServiceMethod string    // echoes that of the Request
-	Seq           uint64    // echoes that of the request
-	Error         string    // error, if any.
+	ServiceMethod string // echoes that of the Request
+	Seq           uint64 // echoes that of the request
+	Error         string // error, if any.
+	// contains filtered or unexported fields
 }`,
 			comments: `Response is a header written before every RPC return. It is used internally but documented here as an aid to debugging, such as when analyzing network traffic.
 `,
@@ -4722,6 +4616,7 @@ The read and write halves of the connection are serialized independently, so no 
 			name:     "Server",
 			typeName: "struct",
 			source: `type Server struct {
+	// contains filtered or unexported fields
 }`,
 			comments: `Server represents an RPC Server.
 `,
@@ -4733,8 +4628,10 @@ The read and write halves of the connection are serialized independently, so no 
 					inputs: []testParameter{}, // no inputs for this function
 					outputs: []testParameter{
 						{
+							s:        "*Server",
 							name:     "",
 							typeName: "*Server",
+							pointer:  true,
 						},
 					},
 				},
@@ -4744,12 +4641,18 @@ The read and write halves of the connection are serialized independently, so no 
 					name: "Accept",
 					comments: `Accept accepts connections on the listener and serves requests for each incoming connection. Accept blocks until the listener returns a non-nil error. The caller typically invokes Accept in a go statement.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "lis net.Listener",
 							name:     "lis",
 							typeName: "net.Listener",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{}, // no outputs for this method
@@ -4758,16 +4661,24 @@ The read and write halves of the connection are serialized independently, so no 
 					name: "HandleHTTP",
 					comments: `HandleHTTP registers an HTTP handler for RPC messages on rpcPath, and a debugging handler on debugPath. It is still necessary to invoke http.Serve(), typically in a go statement.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "rpcPath string",
 							name:     "rpcPath",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "debugPath string",
 							name:     "debugPath",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{}, // no outputs for this method
@@ -4783,18 +4694,26 @@ The read and write halves of the connection are serialized independently, so no 
 
 It returns an error if the receiver is not an exported type or has no suitable methods. It also logs the error using package log. The client accesses each method using a string of the form "Type.Method", where Type is the receiver's concrete type.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "rcvr interface{}",
 							name:     "rcvr",
 							typeName: "interface{}",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4802,22 +4721,32 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					name: "RegisterName",
 					comments: `RegisterName is like Register but uses the provided name for the type instead of the receiver's concrete type.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "name string",
 							name:     "name",
 							typeName: "string",
+							pointer:  false,
 						},
 						{
+							s:        "rcvr interface{}",
 							name:     "rcvr",
 							typeName: "interface{}",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4825,12 +4754,18 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					name: "ServeCodec",
 					comments: `ServeCodec is like ServeConn but uses the specified codec to decode requests and encode responses.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "codec ServerCodec",
 							name:     "codec",
 							typeName: "ServerCodec",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{}, // no outputs for this method
@@ -4839,12 +4774,18 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					name: "ServeConn",
 					comments: `ServeConn runs the server on a single connection. ServeConn blocks, serving the connection until the client hangs up. The caller typically invokes ServeConn in a go statement. ServeConn uses the gob wire format (see package gob) on the connection. To use an alternate codec, use ServeCodec. See NewClient's comment for information about concurrent access.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "conn io.ReadWriteCloser",
 							name:     "conn",
 							typeName: "io.ReadWriteCloser",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{}, // no outputs for this method
@@ -4853,16 +4794,24 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					name: "ServeHTTP",
 					comments: `ServeHTTP implements an http.Handler that answers RPC requests.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "w http.ResponseWriter",
 							name:     "w",
 							typeName: "http.ResponseWriter",
+							pointer:  false,
 						},
 						{
+							s:        "req *http.Request",
 							name:     "req",
 							typeName: "*http.Request",
+							pointer:  true,
 						},
 					},
 					outputs: []testParameter{}, // no outputs for this method
@@ -4871,18 +4820,26 @@ It returns an error if the receiver is not an exported type or has no suitable m
 					name: "ServeRequest",
 					comments: `ServeRequest is like ServeCodec but synchronously serves a single request. It does not close the codec upon completion.
 `,
-					receiver:    "server *Server",
-					pointerRcvr: true,
+					receiver: testParameter{
+						s:        "server *Server",
+						name:     "server",
+						typeName: "*Server",
+						pointer:  true,
+					},
 					inputs: []testParameter{
 						{
+							s:        "codec ServerCodec",
 							name:     "codec",
 							typeName: "ServerCodec",
+							pointer:  false,
 						},
 					},
 					outputs: []testParameter{
 						{
+							s:        "error",
 							name:     "",
 							typeName: "error",
+							pointer:  false,
 						},
 					},
 				},
@@ -4913,15 +4870,21 @@ It returns an error if the receiver is not an exported type or has no suitable m
 			functions: []testFunction{}, // no functions for this type
 			methods: []testMethod{
 				{
-					name:        "Error",
-					comments:    ``, // no comments for this method
-					receiver:    "e ServerError",
-					pointerRcvr: false,
-					inputs:      []testParameter{}, // no inputs for this method
+					name:     "Error",
+					comments: ``, // no comments for this method
+					receiver: testParameter{
+						s:        "e ServerError",
+						name:     "e",
+						typeName: "ServerError",
+						pointer:  false,
+					},
+					inputs: []testParameter{}, // no inputs for this method
 					outputs: []testParameter{
 						{
+							s:        "string",
 							name:     "",
 							typeName: "string",
+							pointer:  false,
 						},
 					},
 				},
