@@ -2,13 +2,16 @@
 package pkg
 
 import (
-	"bytes"
 	"go/doc"
+	"go/token"
 	"regexp"
 )
 
-// errRe is used to find variable names that are exported errors.
-var errRe = regexp.MustCompilePOSIX(`^Err[[:upper:]][[:word:]]*$`)
+var (
+	// These are used to find variable names that are exported errors.
+	errReName = regexp.MustCompilePOSIX(`^Err[[:upper:]][[:word:]]*$`)
+	errReFunc = regexp.MustCompilePOSIX(`^[[:upper:]][[:word:]]*[[:blank:]]*=[[:blank:]]*(errors.New|fmt.Errorf)`)
+)
 
 // VariableBlock holds information about a block of one or more (grouped) exported variables in a
 // package.
@@ -42,8 +45,8 @@ type Error struct {
 }
 
 // newVariableBlock builds a new VariableBlock object based on go/doc's Value.
-func newVariableBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) VariableBlock {
-	if v == nil || r == nil {
+func newVariableBlock(v *doc.Value, t *doc.Type, fset *token.FileSet) VariableBlock {
+	if v == nil {
 		return VariableBlock{}
 	}
 
@@ -53,8 +56,8 @@ func newVariableBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) VariableBlock 
 		typeName = t.Name
 	}
 
-	// Read out the source declaration.
-	source := extractExports(v, r)
+	// Read out the source declaration (exported variables only).
+	source := extractSource(v.Decl, fset)
 
 	// Save the variable/error names.
 	variables := make([]Variable, len(v.Names))
@@ -63,7 +66,7 @@ func newVariableBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) VariableBlock 
 		variables[i] = Variable{name: n}
 
 		// If this is an error, add it to the list of errors in this block.
-		if errRe.MatchString(n) {
+		if errReName.MatchString(n) || errReFunc.MatchString(n) {
 			errors = append(errors, Error{name: n})
 		}
 	}

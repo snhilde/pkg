@@ -2,8 +2,8 @@
 package pkg
 
 import (
-	"bytes"
 	"go/doc"
+	"go/token"
 )
 
 // ConstantBlock holds information about a block of one or more (grouped) exported constants in a
@@ -29,8 +29,8 @@ type Constant struct {
 }
 
 // newConstantBlock builds a new ConstantBlock object based on go/doc's Value.
-func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock {
-	if v == nil || r == nil {
+func newConstantBlock(v *doc.Value, t *doc.Type, fset *token.FileSet) ConstantBlock {
+	if v == nil {
 		return ConstantBlock{}
 	}
 
@@ -40,8 +40,8 @@ func newConstantBlock(v *doc.Value, t *doc.Type, r *bytes.Reader) ConstantBlock 
 		typeName = t.Name
 	}
 
-	// Read out the source declaration.
-	source := extractExports(v, r)
+	// Read out the source declaration (exported constants only).
+	source := extractSource(v.Decl, fset)
 
 	// Build the list of individual constants.
 	constants := make([]Constant, len(v.Names))
