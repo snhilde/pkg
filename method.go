@@ -2,9 +2,8 @@
 package pkg
 
 import (
-	"bytes"
 	"go/doc"
-	"strings"
+	"go/token"
 )
 
 // Method holds information about a type's method.
@@ -16,10 +15,7 @@ type Method struct {
 	comments string
 
 	// Receiver of this method.
-	receiver string
-
-	// Whether or not the receiver of this method is a pointer.
-	pointerRcvr bool
+	receiver Parameter
 
 	// Input parameters.
 	inputs []Parameter
@@ -29,47 +25,29 @@ type Method struct {
 }
 
 // newMethod builds a new Method object based on go/doc's Func.
-func newMethod(f *doc.Func, r *bytes.Reader) Method {
-	if f == nil || r == nil {
+func newMethod(m *doc.Func, fset *token.FileSet) Method {
+	if m == nil {
 		return Method{}
 	}
 
 	// Extract the receiver.
-	receiver, pointerRcvr := extractReceiver(f, r)
+	var receiver Parameter
+	receivers := newParameters(m.Decl.Recv, fset)
+	if len(receivers) > 0 {
+		receiver = receivers[0]
+	}
 
 	// Extract the parameters.
-	in, out := extractParameters(f.Decl.Type, r)
+	in := newParameters(m.Decl.Type.Params, fset)
+	out := newParameters(m.Decl.Type.Results, fset)
 
 	return Method{
-		name:        f.Name,
-		comments:    f.Doc,
-		receiver:    receiver,
-		pointerRcvr: pointerRcvr,
-		inputs:      in,
-		outputs:     out,
+		name:     m.Name,
+		comments: m.Doc,
+		receiver: receiver,
+		inputs:   in,
+		outputs:  out,
 	}
-}
-
-// extractReceiver parses the source of this method and extracts its receiver, also returning
-// whether or not the receiver is a pointer.
-func extractReceiver(f *doc.Func, r *bytes.Reader) (string, bool) {
-	// Read out the source declaration.
-	start, end := f.Decl.Type.Pos()-1, f.Decl.Type.End()-1 // -1 to index properly
-	source := extractSource(r, start, end)
-
-	// Remove the func keyword and opening parenthesis from the beginning.
-	source = strings.TrimPrefix(source, "func (")
-
-	// Remove everything after (and including) the closing parenthesis.
-	b := []byte(source)
-	i := bytes.IndexByte(b, ')')
-	b = bytes.TrimSpace(b[:i])
-
-	// Figure out if the receiver is a pointer or not.
-	i = bytes.IndexByte(b, ' ')
-	isPointer := b[i+1] == '*'
-
-	return string(b), isPointer
 }
 
 // Name returns the method's name.
@@ -83,13 +61,13 @@ func (m Method) Comments(width int) string {
 }
 
 // Receiver returns method's receiver.
-func (m Method) Receiver() string {
+func (m Method) Receiver() Parameter {
 	return m.receiver
 }
 
 // PointerReceiver returns whether or not the method's receiver is a pointer to the method's type.
 func (m Method) PointerReceiver() bool {
-	return m.pointerRcvr
+	return m.receiver.Pointer()
 }
 
 // Inputs returns a list of input parameters sent to this method, or nil on invalid object. If
