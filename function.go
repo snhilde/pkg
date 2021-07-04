@@ -2,8 +2,8 @@
 package pkg
 
 import (
-	"bytes"
 	"go/doc"
+	"go/token"
 )
 
 // Function holds information about an exported function in a package.
@@ -22,13 +22,14 @@ type Function struct {
 }
 
 // newFunction builds a new Function object based on go/doc's Func.
-func newFunction(f *doc.Func, r *bytes.Reader) Function {
-	if f == nil || r == nil {
+func newFunction(f *doc.Func, fset *token.FileSet) Function {
+	if f == nil {
 		return Function{}
 	}
 
 	// Extract the parameters.
-	in, out := extractParameters(f.Decl.Type, r)
+	in := newParameters(f.Decl.Type.Params, fset)
+	out := newParameters(f.Decl.Type.Results, fset)
 
 	return Function{
 		name:     f.Name,
