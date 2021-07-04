@@ -2,8 +2,9 @@
 package pkg
 
 import (
-	"bytes"
 	"go/ast"
+	"go/token"
+	"strings"
 )
 
 // Parameter represents a parameter to a function, either as input (argument) or output (result).
@@ -15,57 +16,36 @@ type Parameter struct {
 	typeName string
 }
 
-// extractParameters looks inside ft and extracts all input and output parameters.
-func extractParameters(ft *ast.FuncType, r *bytes.Reader) ([]Parameter, []Parameter) {
-	if ft == nil || r.Len() == 0 {
-		return nil, nil
+// newParameters extracts all parameters for the given list of fields.
+func newParameters(list *ast.FieldList, fset *token.FileSet) []Parameter {
+	if list == nil {
+		return nil
 	}
 
-	// Build the list of inputs.
-	in := make([]Parameter, 0)
-	if ft.Params != nil {
-		for _, p := range ft.Params.List {
-			// Read out the type for this group.
-			start, end := p.Type.Pos()-1, p.Type.End()-1
-			ts := extractSource(r, start, end)
+	params := make([]Parameter, 0)
+	for _, p := range list.List {
+		// Read out the type for this parameter(s).
+		typeName := extractSource(p.Type, fset)
+		typeName = strings.TrimSpace(typeName)
 
-			// Get the names of all grouped parameters of this type, and add the members to the list.
+		if p.Names == nil {
+			// Unnamed parameter (probably a return).
+			params = append(params, Parameter{
+				name:     "",
+				typeName: typeName,
+			})
+		} else {
+			// Get the names of all grouped parameters of this type and add the members to the list.
 			for _, name := range p.Names {
-				in = append(in, Parameter{
-					name:     name.Name,
-					typeName: ts,
+				params = append(params, Parameter{
+					name:     strings.TrimSpace(name.Name),
+					typeName: typeName,
 				})
 			}
 		}
 	}
 
-	// Build the list of outputs.
-	out := make([]Parameter, 0)
-	if ft.Results != nil {
-		for _, p := range ft.Results.List {
-			// Read out the type for this group.
-			start, end := p.Type.Pos()-1, p.Type.End()-1
-			ts := extractSource(r, start, end)
-
-			if p.Names == nil {
-				// Unnamed return parameter.
-				out = append(out, Parameter{
-					name:     "",
-					typeName: ts,
-				})
-			} else {
-				// Get the names of all grouped parameters of this type and add the members to the list.
-				for _, name := range p.Names {
-					out = append(out, Parameter{
-						name:     name.Name,
-						typeName: ts,
-					})
-				}
-			}
-		}
-	}
-
-	return in, out
+	return params
 }
 
 // Name returns the parameter's name. Might be empty for output parameters.
@@ -76,4 +56,20 @@ func (p Parameter) Name() string {
 // Type returns the parameter's type, like "[]byte" or "*os.File".
 func (p Parameter) Type() string {
 	return p.typeName
+}
+
+// Pointer reports whether or not this parameter is a pointer. If the parameter is a slice of
+// pointers, this returns false.
+func (p Parameter) Pointer() bool {
+	// Remove the ... prefix for variadic parameters.
+	s := strings.TrimPrefix(p.typeName, "...")
+
+	return strings.HasPrefix(s, "*")
+}
+
+// String returns the string representation of this type.
+func (p Parameter) String() string {
+	s := p.name + " " + p.typeName
+
+	return strings.TrimSpace(s)
 }
