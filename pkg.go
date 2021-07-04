@@ -2,16 +2,12 @@
 package pkg
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
 	"go/build"
 	"go/doc"
-	"go/format"
 	"go/parser"
 	"go/token"
-	"os"
-	"path/filepath"
 	"sort"
 )
 
@@ -58,176 +54,124 @@ type Package struct {
 	types []Type
 }
 
-// pkgFile represents a source file within a package.
-type pkgFile struct {
-	absPath string
-	source  []byte
-}
-
 // New parses the package at importPath and creates a new Package object with its information.
 func New(importPath string) (Package, error) {
-	// Generate the go/build Package for the import path.
-	buildPackage, err := build.Import(importPath, "", 0)
+	// Generate the go/build Package for the import path so we can have more visibility into this
+	// package's structure.
+	buildPkg, err := build.Import(importPath, "", 0)
 	if err != nil {
 		return Package{}, fmt.Errorf("build error: invalid package in %s: %w", importPath, err)
 	}
 
-	// Read in and format all the source files so we can generate documentation with embedded code.
-	sourceFiles, err := readInFiles(buildPackage)
-	if err != nil {
-		return Package{}, fmt.Errorf("error reading source files in %s: %w", importPath, err)
-	}
-
-	// Generate all the go/ast File's from the formatted source files.
 	fset := token.NewFileSet()
-	astFiles := make([]*ast.File, len(sourceFiles))
-	for i, sourceFile := range sourceFiles {
-		var err error
-		astFiles[i], err = parser.ParseFile(fset, sourceFile.absPath, sourceFile.source, parser.ParseComments)
-		if err != nil {
-			return Package{}, fmt.Errorf("error building ast file in %s: %w", importPath, err)
-		}
-	}
-
-	// Generate the go/doc Package with the AST trees for all formatted source files parsed.
-	docPackage, err := doc.NewFromFiles(fset, astFiles, importPath)
+	astPkgs, err := parser.ParseDir(fset, buildPkg.Dir, nil, parser.ParseComments)
 	if err != nil {
 		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
 	}
-	if docPackage == nil {
+
+	// Get the go/ast Package for the package named by the import path.
+	astPkg, ok := astPkgs[buildPkg.Name]
+	if !ok {
+		return Package{}, fmt.Errorf("package not found in %s", importPath)
+	}
+	if astPkg == nil {
+		return Package{}, fmt.Errorf("missing package %s in %s", importPath, buildPkg.Dir)
+	}
+
+	// Generate the go/doc Package for the package named by the import path. We first have to
+	// flatten out the map of ast files and then use that list to parse the individual files. We
+	// want to gather all files for the package and not filter out any based on build systems.
+	astFiles := make([]*ast.File, 0, len(astPkg.Files))
+	for _, v := range astPkg.Files {
+		astFiles = append(astFiles, v)
+	}
+	docPkg, err := doc.NewFromFiles(fset, astFiles, importPath)
+	if err != nil {
+		return Package{}, fmt.Errorf("invalid package in %s: %w", importPath, err)
+	}
+	if docPkg == nil {
 		return Package{}, ErrInvalidPkg
 	}
 
-	// Stitch together the source files into a bytes.Reader so we can pull out certain source
-	// declarations later.
-	b := make([][]byte, len(sourceFiles))
-	for i, f := range sourceFiles {
-		b[i] = f.source
-	}
-	r := bytes.NewReader(bytes.Join(b, []byte{'\n'}))
-
 	// Put everything together into our Package type.
-	return newPackage(buildPackage, docPackage, r)
-}
-
-// readInFiles reads in each source file in the package and applies canonical formatting to it.
-func readInFiles(bp *build.Package) ([]pkgFile, error) {
-	if bp == nil {
-		return nil, fmt.Errorf("missing internal build package")
-	}
-
-	// Make a list of all source files that need to be read in, in alphabetical order.
-	filenames := make([]string, 0)
-	for _, ss := range [][]string{
-		// TODO: what other files need to be added here?
-		bp.GoFiles,
-		bp.IgnoredGoFiles,
-		bp.TestGoFiles,
-		bp.XTestGoFiles,
-		bp.CgoFiles,
-	} {
-		filenames = append(filenames, ss...)
-	}
-	sort.Strings(filenames)
-
-	// Read in and format all the source files.
-	files := make([]pkgFile, len(filenames))
-	for i, f := range filenames {
-		f = filepath.Join(bp.Dir, f)
-		data, err := os.ReadFile(f)
-		if err != nil {
-			return nil, fmt.Errorf("error reading %s: %w", f, err)
-		}
-
-		data, err = format.Source(data)
-		if err != nil {
-			return nil, fmt.Errorf("error formatting %s: %w", f, err)
-		}
-
-		files[i] = pkgFile{
-			absPath: f,
-			source:  data,
-		}
-	}
-
-	return files, nil
+	return newPackage(buildPkg, docPkg, fset)
 }
 
 // newPackage puts together the internal structure for a Package object.
-func newPackage(buildPackage *build.Package, docPackage *doc.Package, r *bytes.Reader) (Package, error) {
+func newPackage(buildPkg *build.Package, docPkg *doc.Package, fset *token.FileSet) (Package, error) {
 	// Begin with structuring up our object with what we have so far.
-	p := Package{
-		name:       docPackage.Name,
-		importPath: docPackage.ImportPath,
-		comments:   docPackage.Doc,
+	pkg := Package{
+		name:       docPkg.Name,
+		importPath: docPkg.ImportPath,
+		comments:   docPkg.Doc,
 	}
 
 	// Put together the list of source files, both for this system's build and those ignored for
 	// this system's build.
-	for _, ss := range [][]string{buildPackage.GoFiles, buildPackage.IgnoredGoFiles} {
-		p.files = append(p.files, ss...)
+	for _, ss := range [][]string{buildPkg.GoFiles, buildPkg.IgnoredGoFiles} {
+		pkg.files = append(pkg.files, ss...)
 	}
-	sort.Strings(p.files)
+	sort.Strings(pkg.files)
 
 	// Put together the list of test files, both for this package and any other external test
 	// package in this package's directory.
-	for _, ss := range [][]string{buildPackage.TestGoFiles, buildPackage.XTestGoFiles} {
-		p.testFiles = append(p.testFiles, ss...)
+	for _, ss := range [][]string{buildPkg.TestGoFiles, buildPkg.XTestGoFiles} {
+		pkg.testFiles = append(pkg.testFiles, ss...)
 	}
-	sort.Strings(p.testFiles)
+	sort.Strings(pkg.testFiles)
 
 	// Copy the list of imports from the source files.
-	p.imports = append([]string{}, buildPackage.Imports...)
+	pkg.imports = append([]string{}, buildPkg.Imports...)
 
 	// Put together the list of imports from both the internally and externally packaged test files.
 	// Make sure the list is sorted and free of duplicates.
 	m := make(map[string]bool)
-	for _, ss := range [][]string{buildPackage.TestImports, buildPackage.XTestImports} {
+	for _, ss := range [][]string{buildPkg.TestImports, buildPkg.XTestImports} {
 		for _, s := range ss {
 			m[s] = true
 		}
 	}
-	p.testImports = make([]string, 0, len(m))
+	pkg.testImports = make([]string, 0, len(m))
 	for v := range m {
-		p.testImports = append(p.testImports, v)
+		pkg.testImports = append(pkg.testImports, v)
 	}
-	sort.Strings(p.testImports)
+	sort.Strings(pkg.testImports)
 
 	// Extract the blocks of exported constants for this package, both for standard types (go/doc's
 	// Consts) and for custom types (go/doc's Type's Consts).
-	for _, cb := range docPackage.Consts {
-		p.constantBlocks = append(p.constantBlocks, newConstantBlock(cb, nil, r))
+	for _, cb := range docPkg.Consts {
+		pkg.constantBlocks = append(pkg.constantBlocks, newConstantBlock(cb, nil, fset))
 	}
-	for _, t := range docPackage.Types {
+	for _, t := range docPkg.Types {
 		for _, cb := range t.Consts {
-			p.constantBlocks = append(p.constantBlocks, newConstantBlock(cb, t, r))
+			pkg.constantBlocks = append(pkg.constantBlocks, newConstantBlock(cb, t, fset))
 		}
 	}
 
 	// Extract the blocks of exported variables for this package, both for standard types (go/doc's
 	// Vars) and for custom types (go/doc's Type's Vars).
-	for _, vb := range docPackage.Vars {
-		p.variableBlocks = append(p.variableBlocks, newVariableBlock(vb, nil, r))
+	for _, vb := range docPkg.Vars {
+		pkg.variableBlocks = append(pkg.variableBlocks, newVariableBlock(vb, nil, fset))
 	}
-	for _, t := range docPackage.Types {
+	for _, t := range docPkg.Types {
 		for _, vb := range t.Vars {
-			p.variableBlocks = append(p.variableBlocks, newVariableBlock(vb, t, r))
+			pkg.variableBlocks = append(pkg.variableBlocks, newVariableBlock(vb, t, fset))
 		}
 	}
 
 	// Extract the exported functions for this package.
-	p.functions = make([]Function, len(docPackage.Funcs))
-	for i, f := range docPackage.Funcs {
-		p.functions[i] = newFunction(f, r)
+	pkg.functions = make([]Function, len(docPkg.Funcs))
+	for i, f := range docPkg.Funcs {
+		pkg.functions[i] = newFunction(f, fset)
 	}
 
 	// Extract the exported types for this package.
-	p.types = make([]Type, len(docPackage.Types))
-	for i, t := range docPackage.Types {
-		p.types[i] = newType(t, r)
+	pkg.types = make([]Type, len(docPkg.Types))
+	for i, t := range docPkg.Types {
+		pkg.types[i] = newType(t, fset)
 	}
 
-	return p, nil
+	return pkg, nil
 }
 
 // Name returns the package's name.
