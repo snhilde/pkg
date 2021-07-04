@@ -57,6 +57,8 @@ func TestPackages(t *testing.T) {
 			t.Errorf("%s: incorrect package name", testPkg.name)
 			t.Log("\twant:", want)
 			t.Log("\thave:", have)
+
+			continue
 		}
 
 		// Check that the package's import path is correct.
@@ -66,6 +68,8 @@ func TestPackages(t *testing.T) {
 			t.Errorf("%s: incorrect package import path", testPkg.name)
 			t.Log("\twant:", want)
 			t.Log("\thave:", have)
+
+			continue
 		}
 
 		// Check that the general package overview comments are correct.
@@ -280,49 +284,13 @@ func cmpFunctionLists(wantFuncs []testFunction, haveFuncs []pkg.Function) error 
 		}
 
 		// Check that the input parameters are correct.
-		wantInputs := wantFunc.inputs
-		haveInputs := haveFunc.Inputs()
-		if len(wantInputs) != len(haveInputs) {
-			return fmt.Errorf("%s: incorrect number of inputs (want %v, have %v)",
-				haveFunc.Name(), len(wantInputs), len(haveInputs))
-		}
-		for i, wantInput := range wantInputs {
-			haveInput := haveInputs[i]
-
-			// Check that the input's name is correct.
-			if wantInput.name != haveInput.Name() {
-				return fmt.Errorf("%s: input name mismatch (want %s, have %s)",
-					haveFunc.Name(), wantInput.name, haveInput.Name())
-			}
-
-			// Check that the input type's name is correct.
-			if wantInput.typeName != haveInput.Type() {
-				return fmt.Errorf("%s: %s: input type mismatch (want %s, have %s)",
-					haveFunc.Name(), haveInput.Name(), wantInput.typeName, haveInput.Type())
-			}
+		if err := cmpParameterLists(wantFunc.inputs, haveFunc.Inputs()); err != nil {
+			return fmt.Errorf("%s: inputs: %w", haveFunc.Name(), err)
 		}
 
 		// Check that the output parameters are correct.
-		wantOutputs := wantFunc.outputs
-		haveOutputs := haveFunc.Outputs()
-		if len(wantOutputs) != len(haveOutputs) {
-			return fmt.Errorf("%s: incorrect number of outputs (want %v, have %v)",
-				haveFunc.Name(), len(wantOutputs), len(haveOutputs))
-		}
-		for i, wantOutput := range wantOutputs {
-			haveOutput := haveOutputs[i]
-
-			// Check that the output's name is correct.
-			if wantOutput.name != haveOutput.Name() {
-				return fmt.Errorf("%s: s: output name mismatch (want %s, have %s)",
-					haveFunc.Name(), wantOutput.name, haveOutput.Name())
-			}
-
-			// Check that the output type's name is correct.
-			if wantOutput.typeName != haveOutput.Type() {
-				return fmt.Errorf("%s: %s: output type mismatch (want %s, have %s)",
-					haveFunc.Name(), haveOutput.Name(), wantOutput.typeName, haveOutput.Type())
-			}
+		if err := cmpParameterLists(wantFunc.outputs, haveFunc.Outputs()); err != nil {
+			return fmt.Errorf("%s: outputs: %w", haveFunc.Name(), err)
 		}
 	}
 
@@ -392,61 +360,54 @@ func cmpMethodLists(wantMethods []testMethod, haveMethods []pkg.Method) error {
 		}
 
 		// Check that the method's receiver is correct.
-		if wantMethod.receiver != haveMethod.Receiver() {
-			return fmt.Errorf("%s: receiver mismatch (want %s, have %s)",
-				haveMethod.Name(), wantMethod.receiver, haveMethod.Receiver())
-		}
-
-		// Check that the method's receiver's pointer status is correct.
-		if wantMethod.pointerRcvr != haveMethod.PointerReceiver() {
-			return fmt.Errorf("%s: pointer receiver mismatch (want %v, have %v)",
-				haveMethod.Name(), wantMethod.pointerRcvr, haveMethod.PointerReceiver())
+		if err := cmpParameterLists([]testParameter{wantMethod.receiver}, []pkg.Parameter{haveMethod.Receiver()}); err != nil {
+			return fmt.Errorf("%s: receiver: %w", haveMethod.Name(), err)
 		}
 
 		// Check that the input parameters are correct.
-		wantInputs := wantMethod.inputs
-		haveInputs := haveMethod.Inputs()
-		if len(wantInputs) != len(haveInputs) {
-			return fmt.Errorf("%s: incorrect number of inputs (want %v, have %v)",
-				haveMethod.Name(), len(wantInputs), len(haveInputs))
-		}
-		for i, wantInput := range wantInputs {
-			haveInput := haveInputs[i]
-
-			// Check that the input's name is correct.
-			if wantInput.name != haveInput.Name() {
-				return fmt.Errorf("%s: input name mismatch (want %s, have %s)",
-					haveMethod.Name(), wantInput.name, haveInput.Name())
-			}
-
-			// Check that the input type's name is correct.
-			if wantInput.typeName != haveInput.Type() {
-				return fmt.Errorf("%s: input type mismatch (want %s, have %s)",
-					haveMethod.Name(), wantInput.typeName, haveInput.Type())
-			}
+		if err := cmpParameterLists(wantMethod.inputs, haveMethod.Inputs()); err != nil {
+			return fmt.Errorf("%s: inputs: %w", haveMethod.Name(), err)
 		}
 
 		// Check that the output parameters are correct.
-		wantOutputs := wantMethod.outputs
-		haveOutputs := haveMethod.Outputs()
-		if len(wantOutputs) != len(haveOutputs) {
-			return fmt.Errorf("%s: incorrect number of outputs (want %v, have %v)",
-				haveMethod.Name(), len(wantOutputs), len(haveOutputs))
+		if err := cmpParameterLists(wantMethod.outputs, haveMethod.Outputs()); err != nil {
+			return fmt.Errorf("%s: output: %w", haveMethod.Name(), err)
 		}
-		for i, wantOutput := range wantOutputs {
-			haveOutput := haveOutputs[i]
+	}
 
-			// Check that the output's name is correct.
-			if wantOutput.name != haveOutput.Name() {
-				return fmt.Errorf("%s: output name mismatch (want %s, have %s)",
-					haveMethod.Name(), wantOutput.name, haveOutput.Name())
-			}
+	return nil
+}
 
-			// Check that the output type's name is correct.
-			if wantOutput.typeName != haveOutput.Type() {
-				return fmt.Errorf("%s: output type mismatch (want %s, have %s)",
-					haveMethod.Name(), wantOutput.typeName, haveOutput.Type())
-			}
+// cmpParameterLists checks that two lists of parameters have the exact same elements.
+func cmpParameterLists(wantParamters []testParameter, haveParameters []pkg.Parameter) error {
+	if len(wantParamters) != len(haveParameters) {
+		return fmt.Errorf("incorrect number of parameters (want %v, have %v)", len(wantParamters), len(haveParameters))
+	}
+
+	for i, wantParameter := range wantParamters {
+		haveParameter := haveParameters[i]
+
+		// Check that the parameter's name is correct.
+		if wantParameter.name != haveParameter.Name() {
+			return fmt.Errorf("parameter name mismatch (want %s, have %s)", wantParameter.name, haveParameter.Name())
+		}
+
+		// Check that the parameter's type is correct.
+		if wantParameter.typeName != haveParameter.Type() {
+			return fmt.Errorf("%s: parameter type mismatch (want %s, have %s)",
+				haveParameter.Name(), wantParameter.typeName, haveParameter.Type())
+		}
+
+		// Check that the parameter's pointer status is correct.
+		if wantParameter.pointer != haveParameter.Pointer() {
+			return fmt.Errorf("%s: parameter pointer status mismatch (want %v, have %v)",
+				haveParameter.Name(), wantParameter.pointer, haveParameter.Pointer())
+		}
+
+		// Check that the string representation of this parameter is correct.
+		if wantParameter.s != haveParameter.String() {
+			return fmt.Errorf("%s: parameter string mismatch (want %v, have %v)",
+				haveParameter.Name(), wantParameter.s, haveParameter.String())
 		}
 	}
 
