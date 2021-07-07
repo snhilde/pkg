@@ -1,4 +1,5 @@
-// Package pkg provides a generic convenience wrapper around various golang package libraries.
+// Package pkg provides a generic convenience wrapper around various libraries in the standard
+// library.
 package pkg
 
 import (
@@ -8,6 +9,7 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
+	"os"
 	"sort"
 )
 
@@ -31,6 +33,9 @@ type Package struct {
 	// List of test files for this package. This includes both the test files within this package
 	// and the test files for any other external test package in this package's directory.
 	testFiles []string
+
+	// List of directories within this package's directory.
+	subdirectories []string
 
 	// List of imports in the source files (no test files) for this package.
 	imports []string
@@ -120,6 +125,15 @@ func newPackage(buildPkg *build.Package, docPkg *doc.Package, fset *token.FileSe
 	}
 	sort.Strings(pkg.testFiles)
 
+	// Find all the subdirectories within this package's directory.
+	subs, _ := os.ReadDir(buildPkg.Dir)
+	for _, sub := range subs {
+		if sub.IsDir() {
+			pkg.subdirectories = append(pkg.subdirectories, sub.Name())
+		}
+	}
+	sort.Strings(pkg.subdirectories)
+
 	// Copy the list of imports from the source files.
 	pkg.imports = append([]string{}, buildPkg.Imports...)
 
@@ -205,6 +219,12 @@ func (p Package) Files() []string {
 // list. To get a list of source files in the package, see Package's Files.
 func (p Package) TestFiles() []string {
 	return append([]string{}, p.testFiles...)
+}
+
+// Subdirectories returns a list of all subdirectories within this package's directory. The file
+// paths are relative to the package's directory, not absolute on the filesystem.
+func (p Package) Subdirectories() []string {
+	return append([]string{}, p.subdirectories...)
 }
 
 // Imports returns a list of imports in the package. The list includes only imports from the source
