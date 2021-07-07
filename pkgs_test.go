@@ -10,6 +10,7 @@ type testPackage struct {
 	comments       string
 	files          []string
 	testFiles      []string
+	subdirectories []string
 	imports        []string
 	testImports    []string
 	constantBlocks []testConstantBlock
@@ -125,6 +126,7 @@ because the former will succeed if err wraps an *fs.PathError.
 `,
 	files:          []string{"errors.go", "wrap.go"},
 	testFiles:      []string{"errors_test.go", "example_test.go", "wrap_test.go"},
+	subdirectories: []string{}, // no subdirectories in this package
 	imports:        []string{"internal/reflectlite"},
 	testImports:    []string{"errors", "fmt", "io/fs", "os", "reflect", "testing", "time"},
 	constantBlocks: []testConstantBlock{}, // no exported constants in this package
@@ -503,6 +505,7 @@ Note: Fscan etc. can read one character (rune) past the input they return, which
 		"errors_test.go", "example_test.go", "export_test.go", "fmt_test.go", "gostringer_example_test.go",
 		"scan_test.go", "stringer_example_test.go", "stringer_test.go",
 	},
+	subdirectories: []string{}, // no subdirectories in this package
 	imports: []string{
 		"errors", "internal/fmtsort", "io", "math", "os", "reflect", "strconv", "sync", "unicode/utf8",
 	},
@@ -1217,6 +1220,7 @@ var pkgHash = testPackage{
 	testFiles: []string{
 		"example_test.go", "marshal_test.go",
 	},
+	subdirectories: []string{"adler32", "crc32", "crc64", "fnv", "maphash"}, // no subdirectories in this package
 	imports: []string{
 		"io",
 	},
@@ -1303,6 +1307,7 @@ Tape archives (tar) are a file format for storing a sequence of files that can b
 	testFiles: []string{
 		"example_test.go", "reader_test.go", "strconv_test.go", "tar_test.go", "writer_test.go",
 	},
+	subdirectories: []string{"testdata"}, // no subdirectories in this package
 	imports: []string{
 		"bytes", "errors", "fmt", "io", "io/fs", "math", "os/user", "path", "reflect", "runtime",
 		"sort", "strconv", "strings", "sync", "syscall", "time",
@@ -1944,7 +1949,8 @@ var pkgUnicode = testPackage{
 	testFiles: []string{
 		"digit_test.go", "example_test.go", "graphic_test.go", "letter_test.go", "script_test.go",
 	},
-	imports: []string{}, // no imports for this package
+	subdirectories: []string{"utf16", "utf8"}, // no subdirectories in this package
+	imports:        []string{},                // no imports for this package
 	testImports: []string{
 		"flag", "fmt", "runtime", "sort", "strings", "testing", "unicode",
 	},
@@ -4112,6 +4118,7 @@ The net/rpc package is frozen and is not accepting new features.
 	testFiles: []string{
 		"client_test.go", "server_test.go",
 	},
+	subdirectories: []string{"jsonrpc"}, // no subdirectories in this package
 	imports: []string{
 		"bufio", "encoding/gob", "errors", "fmt", "go/token", "html/template", "io", "log", "net",
 		"net/http", "reflect", "sort", "strings", "sync",

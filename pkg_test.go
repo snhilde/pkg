@@ -102,6 +102,14 @@ func TestPackages(t *testing.T) {
 			continue
 		}
 
+		// Check that pkg found the correct subdirectories in the package's directory and that
+		// everything is returned in order with no duplicates.
+		if err := cmpStringLists(testPkg.subdirectories, p.Subdirectories()); err != nil {
+			t.Errorf("%s: subdirectories: %s", testPkg.importPath, err.Error())
+
+			continue
+		}
+
 		// Check that pkg found the correct imports in the source files and that everything is
 		// returned in order with no duplicates.
 		if err := cmpStringLists(testPkg.imports, p.Imports()); err != nil {
