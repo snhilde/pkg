@@ -22,6 +22,7 @@ package pkg_test
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -37,6 +38,8 @@ var testPackages = []testPackage{
 	pkgNetRPC,
 }
 
+// TestPackages creates Package objects with the chosen packages above and checks that all data
+// within the object matches what's expected.
 func TestPackages(t *testing.T) {
 	t.Parallel()
 
@@ -412,4 +415,289 @@ func cmpParameterLists(wantParamters []testParameter, haveParameters []pkg.Param
 	}
 
 	return nil
+}
+
+// TestReadOnlyPackage checks that a Package object is read-only/stateless.
+func TestReadOnlyPackage(t *testing.T) {
+	t.Parallel()
+
+	for _, testPkg := range testPackages {
+		// Check that we can create a new Package with this import path.
+		p, err := pkg.New(testPkg.importPath)
+		if err != nil {
+			t.Error(err)
+
+			continue
+		}
+
+		dummyFile := "dummyfile.go"
+
+		if files := p.Files(); len(files) > 0 {
+			files[0] = dummyFile
+			if files := p.Files(); files[0] == dummyFile {
+				t.Error("Package's Files method is not read-only")
+
+				continue
+			}
+		}
+
+		if testFiles := p.TestFiles(); len(testFiles) > 0 {
+			testFiles[0] = dummyFile
+			if testFiles := p.TestFiles(); testFiles[0] == dummyFile {
+				t.Error("Package's TestFiles method is not read-only")
+
+				continue
+			}
+		}
+
+		dummyImport := "dummy/import"
+
+		if imports := p.Imports(); len(imports) > 0 {
+			imports[0] = dummyImport
+			if imports := p.Imports(); imports[0] == dummyImport {
+				t.Error("Package's Imports method is not read-only")
+
+				continue
+			}
+		}
+
+		if testImports := p.TestImports(); len(testImports) > 0 {
+			testImports[0] = dummyImport
+			if testImports := p.TestImports(); testImports[0] == dummyImport {
+				t.Error("Package's TestImports method is not read-only")
+
+				continue
+			}
+		}
+
+		if constantBlocks := p.ConstantBlocks(); len(constantBlocks) > 0 {
+			constantBlocks[0] = pkg.ConstantBlock{}
+			if constantBlocks := p.ConstantBlocks(); reflect.DeepEqual(constantBlocks[0], pkg.ConstantBlock{}) {
+				t.Error("Package's ConstantBlocks method is not read-only")
+
+				continue
+			}
+		}
+
+		if variableBlocks := p.VariableBlocks(); len(variableBlocks) > 0 {
+			variableBlocks[0] = pkg.VariableBlock{}
+			if variableBlocks := p.VariableBlocks(); reflect.DeepEqual(variableBlocks[0], pkg.VariableBlock{}) {
+				t.Error("Package's VariableBlocks method is not read-only")
+
+				continue
+			}
+		}
+
+		if functions := p.Functions(); len(functions) > 0 {
+			functions[0] = pkg.Function{}
+			if functions := p.Functions(); reflect.DeepEqual(functions[0], pkg.Function{}) {
+				t.Error("Package's Functions method is not read-only")
+
+				continue
+			}
+		}
+
+		if types := p.Types(); len(types) > 0 {
+			types[0] = pkg.Type{}
+			if types := p.Types(); reflect.DeepEqual(types[0], pkg.Type{}) {
+				t.Error("Package's Types method is not read-only")
+
+				continue
+			}
+		}
+	}
+}
+
+// TestReadOnlyConstantBlock checks that a ConstantBlock object is read-only/stateless.
+func TestReadOnlyConstantBlock(t *testing.T) {
+	t.Parallel()
+
+	for _, testPkg := range testPackages {
+		p, err := pkg.New(testPkg.importPath)
+		if err != nil {
+			t.Error(err)
+
+			continue
+		}
+
+		for _, constantBlock := range p.ConstantBlocks() {
+			if constants := constantBlock.Constants(); len(constants) > 0 {
+				constants[0] = pkg.Constant{}
+				if constants := constantBlock.Constants(); constants[0] == (pkg.Constant{}) {
+					t.Error("ConstantBlock's Constants method is not read-only")
+
+					continue
+				}
+			}
+		}
+	}
+}
+
+// TestReadOnlyConstant checks that a Constant object is read-only/stateless.
+func TestReadOnlyConstant(t *testing.T) {
+	t.Parallel()
+
+	// No-op: Constant currently does not return any types that could be modified.
+}
+
+// TestReadOnlyVariableBlock checks that a VariableBlock object is read-only/stateless.
+func TestReadOnlyVariableBlock(t *testing.T) {
+	t.Parallel()
+
+	for _, testPkg := range testPackages {
+		p, err := pkg.New(testPkg.importPath)
+		if err != nil {
+			t.Error(err)
+
+			continue
+		}
+
+		for _, variableBlock := range p.VariableBlocks() {
+			if variables := variableBlock.Variables(); len(variables) > 0 {
+				variables[0] = pkg.Variable{}
+				if variables := variableBlock.Variables(); variables[0] == (pkg.Variable{}) {
+					t.Error("VariableBlock's Variables method is not read-only")
+
+					continue
+				}
+			}
+
+			if errors := variableBlock.Errors(); len(errors) > 0 {
+				errors[0] = pkg.Error{}
+				if errors := variableBlock.Errors(); errors[0] == (pkg.Error{}) {
+					t.Error("VariableBlock's Errors method is not read-only")
+
+					continue
+				}
+			}
+		}
+	}
+}
+
+// TestReadOnlyVariable checks that a Variable object is read-only/stateless.
+func TestReadOnlyVariable(t *testing.T) {
+	t.Parallel()
+
+	// No-op: Variable currently does not return any types that could be modified.
+}
+
+// TestReadOnlyError checks that an Error object is read-only/stateless.
+func TestReadOnlyError(t *testing.T) {
+	t.Parallel()
+
+	// No-op: Error currently does not return any types that could be modified.
+}
+
+// TestReadOnlyFunction checks that a Function object is read-only/stateless.
+func TestReadOnlyFunction(t *testing.T) {
+	t.Parallel()
+
+	for _, testPkg := range testPackages {
+		// Check that we can create a new Package with this import path.
+		p, err := pkg.New(testPkg.importPath)
+		if err != nil {
+			t.Error(err)
+
+			continue
+		}
+
+		for _, function := range p.Functions() {
+			if inputs := function.Inputs(); len(inputs) > 0 {
+				inputs[0] = pkg.Parameter{}
+				if inputs := function.Inputs(); inputs[0] == (pkg.Parameter{}) {
+					t.Error("Function's Inputs method is not read-only")
+
+					continue
+				}
+			}
+
+			if outputs := function.Outputs(); len(outputs) > 0 {
+				outputs[0] = pkg.Parameter{}
+				if outputs := function.Outputs(); outputs[0] == (pkg.Parameter{}) {
+					t.Error("Function's Outputs method is not read-only")
+
+					continue
+				}
+			}
+		}
+	}
+}
+
+// TestReadOnlyType checks that a Type object is read-only/stateless.
+func TestReadOnlyType(t *testing.T) {
+	t.Parallel()
+
+	for _, testPkg := range testPackages {
+		// Check that we can create a new Package with this import path.
+		p, err := pkg.New(testPkg.importPath)
+		if err != nil {
+			t.Error(err)
+
+			continue
+		}
+
+		for _, typeT := range p.Types() {
+			if functions := typeT.Functions(); len(functions) > 0 {
+				functions[0] = pkg.Function{}
+				if functions := typeT.Functions(); reflect.DeepEqual(functions[0], pkg.Function{}) {
+					t.Error("Type's Functions method is not read-only")
+
+					continue
+				}
+			}
+
+			if methods := typeT.Methods(); len(methods) > 0 {
+				methods[0] = pkg.Method{}
+				if methods := typeT.Methods(); reflect.DeepEqual(methods[0], pkg.Method{}) {
+					t.Error("Type's Methods method is not read-only")
+
+					continue
+				}
+			}
+		}
+	}
+}
+
+// TestReadOnlyMethod checks that a Method object is read-only/stateless.
+func TestReadOnlyMethod(t *testing.T) {
+	t.Parallel()
+
+	for _, testPkg := range testPackages {
+		// Check that we can create a new Package with this import path.
+		p, err := pkg.New(testPkg.importPath)
+		if err != nil {
+			t.Error(err)
+
+			continue
+		}
+
+		for _, typeT := range p.Types() {
+			for _, method := range typeT.Methods() {
+				if inputs := method.Inputs(); len(inputs) > 0 {
+					inputs[0] = pkg.Parameter{}
+					if inputs := method.Inputs(); inputs[0] == (pkg.Parameter{}) {
+						t.Error("Method's Inputs method is not read-only")
+
+						continue
+					}
+				}
+
+				if outputs := method.Outputs(); len(outputs) > 0 {
+					outputs[0] = pkg.Parameter{}
+					if outputs := method.Outputs(); outputs[0] == (pkg.Parameter{}) {
+						t.Error("Method's Outputs method is not read-only")
+
+						continue
+					}
+				}
+			}
+		}
+	}
+}
+
+// TestReadOnlyParameter checks that a Parameter object is read-only/stateless.
+func TestReadOnlyParameter(t *testing.T) {
+	t.Parallel()
+
+	// No-op: Parameter currently does not return any types that could be modified.
 }
