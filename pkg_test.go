@@ -88,40 +88,60 @@ func TestPackages(t *testing.T) {
 
 		// Check that pkg found the correct source files in the package's directory and that
 		// everything is returned in order with no duplicates.
-		if err := cmpStringLists(testPkg.files, p.Files()); err != nil {
+		wantList := testPkg.files
+		haveList := p.Files()
+		if err := cmpStringLists(wantList, haveList); err != nil {
 			t.Errorf("%s: source files: %s", testPkg.importPath, err.Error())
+			t.Log("\twant:\n", wantList)
+			t.Log("\thave:\n", haveList)
 
 			continue
 		}
 
 		// Check that pkg found the correct test files in the package's directory and that
 		// everything is returned in order with no duplicates.
-		if err := cmpStringLists(testPkg.testFiles, p.TestFiles()); err != nil {
+		wantList = testPkg.testFiles
+		haveList = p.TestFiles()
+		if err := cmpStringLists(wantList, haveList); err != nil {
 			t.Errorf("%s: test files: %s", testPkg.importPath, err.Error())
+			t.Log("\twant:\n", wantList)
+			t.Log("\thave:\n", haveList)
 
 			continue
 		}
 
 		// Check that pkg found the correct subdirectories in the package's directory and that
 		// everything is returned in order with no duplicates.
-		if err := cmpStringLists(testPkg.subdirectories, p.Subdirectories()); err != nil {
+		wantList = testPkg.subdirectories
+		haveList = p.Subdirectories()
+		if err := cmpStringLists(wantList, haveList); err != nil {
 			t.Errorf("%s: subdirectories: %s", testPkg.importPath, err.Error())
+			t.Log("\twant:\n", wantList)
+			t.Log("\thave:\n", haveList)
 
 			continue
 		}
 
 		// Check that pkg found the correct imports in the source files and that everything is
 		// returned in order with no duplicates.
-		if err := cmpStringLists(testPkg.imports, p.Imports()); err != nil {
+		wantList = testPkg.imports
+		haveList = p.Imports()
+		if err := cmpStringLists(wantList, haveList); err != nil {
 			t.Errorf("%s: source imports: %s", testPkg.importPath, err.Error())
+			t.Log("\twant:\n", wantList)
+			t.Log("\thave:\n", haveList)
 
 			continue
 		}
 
 		// Check that pkg found the correct imports in the test files and that everything is
 		// returned in order with no duplicates.
-		if err := cmpStringLists(testPkg.testImports, p.TestImports()); err != nil {
+		wantList = testPkg.testImports
+		haveList = p.TestImports()
+		if err := cmpStringLists(wantList, haveList); err != nil {
 			t.Errorf("%s: test imports: %s", testPkg.importPath, err.Error())
+			t.Log("\twant:\n", wantList)
+			t.Log("\thave:\n", haveList)
 
 			continue
 		}
