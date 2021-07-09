@@ -11,6 +11,7 @@ import (
 	"go/token"
 	"os"
 	"sort"
+	"strings"
 )
 
 var ErrInvalidPkg = fmt.Errorf("invalid package")
@@ -111,17 +112,28 @@ func newPackage(buildPkg *build.Package, docPkg *doc.Package, fset *token.FileSe
 		comments:   docPkg.Doc,
 	}
 
-	// Put together the list of source files, both for this system's build and those ignored for
-	// this system's build.
+	// Put together the list of source files, both for this system's build and those ignored for this
+	// system's build. We have to manually exclude test files because they might be in the same package.
 	for _, ss := range [][]string{buildPkg.GoFiles, buildPkg.IgnoredGoFiles} {
-		pkg.files = append(pkg.files, ss...)
+		for _, s := range ss {
+			if !strings.HasSuffix(s, "_test.go") {
+				pkg.files = append(pkg.files, s)
+			}
+		}
 	}
 	sort.Strings(pkg.files)
 
-	// Put together the list of test files, both for this package and any other external test
-	// package in this package's directory.
+	// Put together the list of test files, both for this package and any other external test package
+	// in this package's directory. We have to manually add test files that are in the main package.
 	for _, ss := range [][]string{buildPkg.TestGoFiles, buildPkg.XTestGoFiles} {
 		pkg.testFiles = append(pkg.testFiles, ss...)
+	}
+	for _, ss := range [][]string{buildPkg.GoFiles, buildPkg.IgnoredGoFiles} {
+		for _, s := range ss {
+			if strings.HasSuffix(s, "_test.go") {
+				pkg.testFiles = append(pkg.testFiles, s)
+			}
+		}
 	}
 	sort.Strings(pkg.testFiles)
 
