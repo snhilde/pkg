@@ -36,6 +36,7 @@ var testPackages = []testPackage{
 	pkgArchiveTar,
 	pkgUnicode,
 	pkgNetRPC,
+	pkgTime,
 }
 
 // TestPackages creates Package objects with the chosen packages above and checks that all data
